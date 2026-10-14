@@ -54,6 +54,7 @@ extern "C" char **environ;
 #include <QApplication>
 #include <QFontDatabase>
 #include <QDate>
+#include <QTimer>
 #include <QMutex>
 #include <QtQuickControls2/QQuickStyle>
 #include <QLoggingCategory>
@@ -1018,14 +1019,28 @@ static void *Thread( void *obj )
             if (e->type() != QEvent::FileOpen)
                 return false;
             const QUrl url = static_cast<QFileOpenEvent *>(e)->url();
-            if (!m_intf->p_mainPlaylistController || url.isEmpty())
-                return true;
-            const QString mrl = url.isLocalFile() ? QUrl::fromLocalFile(url.toLocalFile()).toString(QUrl::FullyEncoded)
-                                                  : url.toString(QUrl::FullyEncoded);
-            QVector<vlc::playlist::Media> medias;
-            medias.push_back(vlc::playlist::Media{mrl, QString {}});
-            m_intf->p_mainPlaylistController->append(medias, true);
+            if (!url.isEmpty())
+            {
+                const QString mrl = url.isLocalFile() ? QUrl::fromLocalFile(url.toLocalFile()).toString(QUrl::FullyEncoded)
+                                                      : url.toString(QUrl::FullyEncoded);
+                msg_Dbg(m_intf, "file open event: %s", qtu(mrl));
+                enqueue(mrl, 100);
+            }
             return true;
+        }
+    private:
+        /* A file passed at launch can arrive before the playlist controller
+         * exists: retry for a few seconds. */
+        void enqueue(const QString &mrl, int retries)
+        {
+            if (m_intf->p_mainPlaylistController)
+            {
+                QVector<vlc::playlist::Media> medias;
+                medias.push_back(vlc::playlist::Media{mrl, QString {}});
+                m_intf->p_mainPlaylistController->append(medias, true);
+            }
+            else if (retries > 0)
+                QTimer::singleShot(100, this, [this, mrl, retries] { enqueue(mrl, retries - 1); });
         }
     };
     FileOpenSpy fileOpenSpy(&app, p_intf);
