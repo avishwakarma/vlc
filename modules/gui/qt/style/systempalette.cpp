@@ -811,6 +811,8 @@ void SystemPalette::fillPalette(bool dark)
 
         setColor(CS, C::Fg, C::Primary, C::Normal, accentBright); // played fill
         setColor(CS, C::Decoration, C::Accent, C::Normal, accentMain); // thumb
+        setColor(CS, C::Fg, C::Secondary, C::Normal, accentDim); // waveform played bars
+        setColor(CS, C::Decoration, C::Indicator, C::Normal, fgA4); // waveform remaining bars
         setColor(CS, C::Fg, C::Positive, C::Normal, "#0F7B0F");  //FIXME
         setColor(CS, C::Fg, C::Neutral, C::Normal, "#9D5D00");  //FIXME
         setColor(CS, C::Fg, C::Negative, C::Normal, "#C42B1C");  //FIXME

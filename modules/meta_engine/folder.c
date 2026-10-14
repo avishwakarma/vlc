@@ -98,6 +98,27 @@ static bool ProbeArtFile(input_item_t *item,
     return found;
 }
 
+/* Art stored next to the media with the same base name,
+ * e.g. "Song.jpg" for "Song.mp3" */
+static bool ProbeStemArt(input_item_t *item,
+                         const char *dirpath, const char *stem)
+{
+    static const char exts[][6] = { "jpg", "jpeg", "png", "JPG", "JPEG", "PNG" };
+
+    for (size_t i = 0; i < ARRAY_SIZE(exts); i++)
+    {
+        char *filename;
+        if (asprintf(&filename, "%s.%s", stem, exts[i]) == -1)
+            return false;
+
+        bool found = ProbeArtFile(item, dirpath, filename);
+        free(filename);
+        if (found)
+            return true;
+    }
+    return false;
+}
+
 static int FindMeta( vlc_object_t *p_this )
 {
     meta_fetcher_t *p_finder = (meta_fetcher_t *)p_this;
@@ -117,18 +138,31 @@ static int FindMeta( vlc_object_t *p_this )
 
     /* If the item is an accessible directory, look for art inside it.
      * Otherwise, look for art in the same directory. */
+    char *psz_stem = NULL;
     struct stat st;
     if (vlc_stat(psz_basedir, &st) == 0 && !S_ISDIR(st.st_mode))
     {
         char *psz_buf = strrchr( psz_basedir, DIR_SEP_CHAR );
         if (psz_buf != NULL)
+        {
             *psz_buf = '\0';
+            /* file name without its extension, to match "<name>.jpg" */
+            psz_stem = strdup(psz_buf + 1);
+            if (psz_stem != NULL)
+            {
+                char *psz_ext = strrchr(psz_stem, '.');
+                if (psz_ext != NULL && psz_ext != psz_stem)
+                    *psz_ext = '\0';
+            }
+        }
     }
 
     int ret = VLC_EGENERIC;
 
     char *filename = var_InheritString(p_this, "album-art-filename");
     if (filename != NULL && ProbeArtFile(p_item, psz_basedir, filename))
+        ret = VLC_SUCCESS;
+    else if (psz_stem != NULL && ProbeStemArt(p_item, psz_basedir, psz_stem))
         ret = VLC_SUCCESS;
     else
     {
@@ -141,6 +175,7 @@ static int FindMeta( vlc_object_t *p_this )
     }
 
     free(filename);
+    free(psz_stem);
     free(psz_basedir);
     return ret;
 }
