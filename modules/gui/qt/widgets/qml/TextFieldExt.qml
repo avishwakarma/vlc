@@ -37,22 +37,41 @@ TextField {
     selectedTextColor : theme.fg.highlight
     selectionColor : theme.bg.highlight
     color : theme.fg.primary
-    placeholderTextColor: theme.fg.secondary
+    placeholderTextColor: placeholderTheme.fg.primary
 
-    font.pixelSize: VLCStyle.fontSize_normal
+    font.pixelSize: VLCStyle.text_body
 
     verticalAlignment: Text.AlignVCenter
 
-    property real radius
+    // placeholder is FG/A4: View.Fg.Primary in its disabled state
+    readonly property ColorContext placeholderContext: ColorContext {
+        id: placeholderTheme
+        colorSet: ColorContext.View
+        enabled: false
+    }
+
+    property real radius: VLCStyle.radius_m
+
+    // well color (BG/B2); the settings search field uses `theme.bg.primary` (BG/A5)
+    property color backgroundColor: theme.bg.secondary
+
+    leftPadding: VLCStyle.spacing_12
+    rightPadding: VLCStyle.spacing_12
+
+    opacity: enabled ? 1.0 : 0.5
 
     background: Rectangle {
         implicitWidth: 200
-        implicitHeight: 40
-        border.width: control.enabled ? VLCStyle.dp(2, VLCStyle.scale) : 0
-        color: theme.bg.primary
-        border.color: theme.border
+        implicitHeight: VLCStyle.input_h
+        border.width: VLCStyle.dp(2, VLCStyle.scale)
+        color: control.backgroundColor
+        border.color: control.enabled ? theme.border : color
         border.pixelAligned: (radius < Number.EPSILON)
         radius: control.radius
+
+        Behavior on border.color {
+            ColorAnimation { duration: VLCStyle.duration_short }
+        }
     }
 
 }

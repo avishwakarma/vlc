@@ -29,6 +29,12 @@ T.Button {
     property color color: "white"
     property string description
 
+    // Opt-in SVG icon, see IconToolButton. When set, `color` recolours the
+    // stroke (#FF00FF placeholder) and the accent shades follow the theme.
+    property string iconName: ""
+    property real iconSize: VLCStyle.icon_normal
+    readonly property bool _svg: (iconName !== "")
+
     property int textStyle: Text.Normal
     property color textStyleColor: "black"
 
@@ -51,12 +57,28 @@ T.Button {
     T.ToolTip.delay: VLCStyle.delayToolTipAppear
     T.ToolTip.text: description
 
-    contentItem: Widgets.IconLabel {
+    contentItem: control._svg ? svgIcon : glyphLabel
+
+    Widgets.IconLabel {
+        id: glyphLabel
+
+        visible: !control._svg
+
         font: control.font
         color: control.color
         text: control.text
         style: control.textStyle
         styleColor: control.textStyleColor
+    }
+
+    Widgets.SvgIcon {
+        id: svgIcon
+
+        visible: control._svg
+
+        name: control.iconName
+        size: control.iconSize
+        color: control.color
     }
 
     background: Item {

@@ -38,11 +38,11 @@ T.ToolTip {
     margins: VLCStyle.margin_xsmall
     padding: VLCStyle.margin_xsmall
 
-    font.pixelSize: VLCStyle.fontSize_normal
+    font.pixelSize: VLCStyle.text_body
 
     closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent | T.Popup.CloseOnReleaseOutsideParent
 
-    property real radius: VLCStyle.dp(4, VLCStyle.scale)
+    property real radius: VLCStyle.radius_s
 
     Component.onCompleted: {
         if (control.popupType !== undefined) {
@@ -118,6 +118,7 @@ T.ToolTip {
     }
 
     background: Rectangle {
+        border.width: VLCStyle.dp(1, VLCStyle.scale)
         border.color: theme.border
         border.pixelAligned: (radius < Number.EPSILON)
         color: theme.bg.primary

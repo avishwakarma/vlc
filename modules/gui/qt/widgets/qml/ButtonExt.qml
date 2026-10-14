@@ -40,12 +40,25 @@ T.Button {
 
     property string iconTxt: ""
 
+    // Opt-in SVG icon (see IconToolButton). When set it replaces `iconTxt`.
+    property string iconName: ""
+
+    // Visual style: Standard keeps the legacy look; the others follow the
+    // Figma buttons through the matching color set.
+    enum Style {
+        Standard,
+        Accent,    // solid accent, text FG/B1
+        Tonal,     // accent @24%, accent text
+        Secondary  // bg A3, text A2
+    }
+    property int buttonStyle: ButtonExt.Standard
+
     property int iconSize: VLCStyle.icon_normal
 
     property color color: theme.fg.primary
     property color colorFocus: theme.visualFocus
 
-    property int radius: VLCStyle.button_radius
+    property int radius: (buttonStyle === ButtonExt.Standard) ? VLCStyle.button_radius : VLCStyle.radius_m
 
     //set to true when user animates the background manually
     property bool extBackgroundAnimation: false
@@ -89,7 +102,10 @@ T.Button {
 
     readonly property ColorContext colorContext: ColorContext {
         id: theme
-        colorSet: ColorContext.ButtonStandard
+        colorSet: control.buttonStyle === ButtonExt.Accent ? ColorContext.ButtonAccent
+                : control.buttonStyle === ButtonExt.Tonal ? ColorContext.ButtonTonal
+                : control.buttonStyle === ButtonExt.Secondary ? ColorContext.Window
+                : ColorContext.ButtonStandard
 
         focused: control.visualFocus
         hovered: control.hovered
@@ -131,10 +147,20 @@ T.Button {
             Layout.fillWidth: true
         }
 
+        Widgets.SvgIcon {
+            visible: control.iconName !== "" && control.display !== AbstractButton.TextOnly
+
+            name: control.iconName
+            size: control.iconSize
+            color: control.busy ? "transparent" : control.color
+
+            rotation: control.iconRotation
+        }
+
         Widgets.IconLabel {
             id: iconLabel
 
-            visible: text.length > 0 && control.display !== AbstractButton.TextOnly
+            visible: control.iconName === "" && text.length > 0 && control.display !== AbstractButton.TextOnly
 
             rotation: control.iconRotation
 

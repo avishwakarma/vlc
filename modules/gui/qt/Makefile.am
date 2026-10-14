@@ -358,6 +358,8 @@ libqt_plugin_la_SOURCES = \
 	util/vlcqtmessagehandler.hpp \
 	util/colorizedsvgicon.cpp \
 	util/colorizedsvgicon.hpp \
+	util/vlc_menu_style.cpp \
+	util/vlc_menu_style.hpp \
 	util/textureproviderobserver.cpp \
 	util/textureproviderobserver.hpp \
 	util/kirigamiwheelhandler.cpp \
@@ -1333,6 +1335,10 @@ libqml_module_widgets_a_QML = \
 	widgets/qml/HorizontalResizeHandle.qml \
 	widgets/qml/IconLabel.qml \
 	widgets/qml/SvgIcon.qml \
+	widgets/qml/SegmentedControl.qml \
+	widgets/qml/Dropdown.qml \
+	widgets/qml/DialogButton.qml \
+	widgets/qml/SettingButton.qml \
 	widgets/qml/IconButton.qml \
 	widgets/qml/IconToolButton.qml \
 	widgets/qml/IconTrackButton.qml \

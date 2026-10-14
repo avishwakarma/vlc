@@ -1,7 +1,5 @@
 /*****************************************************************************
- * Copyright (C) 2019 VLC authors and VideoLAN
- *
- * Authors: Benjamin Arnaud <bunjee@omega.gg>
+ * Copyright (C) 2025 VLC authors and VideoLAN
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,130 +16,56 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
+
 import QtQuick
 import QtQuick.Templates as T
-
 
 import VLC.MainInterface
 import VLC.Style
 
+// Figma "Toggle" (68x32): a well (Switch bg.primary) holding a label area and
+// a thumb. The label area always sits opposite to the thumb.
 T.Switch {
     id: root
 
     // Style
 
-    property int animationDuration: VLCStyle.duration_long
+    property int animationDuration: VLCStyle.duration_short
 
-    property color color: (checked) ? theme.bg.secondary
-                                    : theme.bg.primary
+    // show the "ON"/"OFF" label
+    property bool showLabel: true
 
+    property color color: theme.bg.primary                 // well
+    property color colorOn: theme.bg.secondary             // label area, ON
+    property color colorOff: offTheme.bg.primary           // label area, OFF
     property color colorHandle: (checked) ? theme.fg.secondary
                                           : theme.fg.primary
-
-
-    property color colorBorder:  (checked) ? "transparent"
-                                           : theme.border
-
-    // Private
-
-    property bool _update: true
+    property color colorLabelOn: theme.accent
+    property color colorLabelOff: viewTheme.fg.secondary
 
     // Settings
 
-    width : VLCStyle.checkButton_width
-    height: VLCStyle.checkButton_height
+    implicitWidth: VLCStyle.toggle_w
+    implicitHeight: VLCStyle.toggle_h
+
+    width: implicitWidth
+    height: implicitHeight
+
+    opacity: enabled ? 1.0 : 0.3
 
     T.ToolTip.visible: (T.ToolTip.text && (hovered || visualFocus))
-
     T.ToolTip.text: text
-
     T.ToolTip.delay: VLCStyle.delayToolTipAppear
 
     // Keys
 
     Keys.priority: Keys.AfterItem
-
     Keys.onPressed: (event) => Navigation.defaultKeyAction(event)
 
     // Accessible
 
-    Accessible.onPressAction: control.clicked()
-    Accessible.onToggleAction: control.toggle()
-
-    // Events
-
-    onWidthChanged: {
-        animation.stop()
-
-        if (checked)
-            handle.x = handle.drag.maximumX
-        else
-            handle.x = 0
-    }
-
-    onCheckedChanged: {
-        if (_update === false)
-            return
-
-        const from = handle.x
-        let to
-
-        if (checked)
-            to = handle.drag.maximumX
-        else
-            to = 0
-
-        _animate(from, to)
-    }
-
-    // Functions
-
-    // Private
-
-    function _applyX(x) {
-        const from = handle.x
-        let to
-
-        _update = false
-
-        if (x < width / 2) {
-            to = 0
-
-            checked = false
-        } else {
-            to = handle.drag.maximumX
-
-            checked = true
-        }
-
-        _update = true
-
-        _animate(from, to)
-    }
-
-    function _animate(from, to) {
-        if (from === to)
-            return
-
-        animation.from = from
-        animation.to   = to
-
-        animation.restart()
-    }
-
-    // Animations
-
-    NumberAnimation {
-        id: animation
-
-        target: handle
-
-        property: "x"
-
-        duration: VLCStyle.duration_short
-
-        easing.type: Easing.OutQuad
-    }
+    Accessible.onPressAction: root.toggle()
+    Accessible.onToggleAction: root.toggle()
 
     // Children
 
@@ -155,49 +79,87 @@ T.Switch {
         pressed: root.down
     }
 
-    background: AnimatedBackground {
-        enabled: theme.initialized
-        border.color: root.visualFocus ? theme.visualFocus : Qt.alpha(theme.visualFocus, 0.0)
+    readonly property ColorContext _offTheme: ColorContext {
+        id: offTheme
+        colorSet: ColorContext.ComboBox
     }
 
-    indicator: Rectangle {
-        anchors.fill: parent
+    readonly property ColorContext _viewTheme: ColorContext {
+        id: viewTheme
+        colorSet: ColorContext.View
+    }
 
-        anchors.margins: VLCStyle.checkButton_margins
+    readonly property real _inset: VLCStyle.spacing_2 + VLCStyle.spacing_2 / 2 // 3
+    readonly property real _thumb: height - 2 * _inset                         // 26
+    readonly property real _area: width - 3 * _inset - _thumb  // 33
 
-        radius: height / 2
-
+    background: Rectangle {
+        radius: VLCStyle.radius_m
         color: root.color
 
-        border.color: root.colorBorder
-        border.width: VLCStyle.border
-        border.pixelAligned: (radius < Number.EPSILON)
+        border.width: VLCStyle.dp(1, VLCStyle.scale)
+        border.color: root.visualFocus ? theme.visualFocus
+                                       : (root.hovered ? theme.fg.primary : Qt.darker(root.color, 2.0))
 
-        MouseArea {
-            id: handle
+        Behavior on border.color {
+            ColorAnimation { duration: root.animationDuration }
+        }
+    }
 
-            width: Math.round(root.height - VLCStyle.checkButton_margins * 2)
-            height: width
+    indicator: Item {
+        anchors.fill: parent
 
-            drag.target: handle
-            drag.axis  : Drag.XAxis
+        Rectangle {
+            id: area
 
-            drag.minimumX: 0
-            drag.maximumX: parent.width - width
+            y: root._inset
+            width: root._area
+            height: root._thumb
+            radius: VLCStyle.radius_xs
 
-            onClicked: root.toggle()
+            x: root.checked ? root._inset : (root.width - root._inset - width)
 
-            // NOTE: We update the position when the drag has ended.
-            drag.onActiveChanged: if (drag.active === false) root._applyX(x + width / 2)
+            color: root.checked ? root.colorOn : root.colorOff
 
-            Rectangle {
-                anchors.fill: parent
+            Behavior on x {
+                NumberAnimation { duration: root.animationDuration; easing.type: Easing.OutQuad }
+            }
 
-                anchors.margins: VLCStyle.checkButton_handle_margins
+            Behavior on color {
+                ColorAnimation { duration: root.animationDuration }
+            }
 
-                radius: height / 2
+            Text {
+                anchors.centerIn: parent
+                visible: root.showLabel
 
-                color: root.colorHandle
+                text: root.checked ? qsTr("ON") : qsTr("OFF")
+                color: root.checked ? root.colorLabelOn : root.colorLabelOff
+                font.pixelSize: VLCStyle.text_caption
+
+                Accessible.ignored: true
+            }
+        }
+
+        Rectangle {
+            id: thumb
+
+            y: root._inset
+            width: root._thumb
+            height: root._thumb
+            radius: VLCStyle.radius_xs
+
+            x: root.checked ? (root.width - root._inset - width) : root._inset
+
+            color: root.down ? Qt.darker(root.colorHandle, 1.2)
+                             : (root.hovered ? Qt.lighter(root.colorHandle, 1.15) : root.colorHandle)
+
+            Behavior on x {
+                NumberAnimation { duration: root.animationDuration; easing.type: Easing.OutQuad }
+            }
+
+            Behavior on color {
+                ColorAnimation { duration: root.animationDuration }
             }
         }
     }

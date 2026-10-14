@@ -299,8 +299,9 @@ static void ShowDialog   ( intf_thread_t *, int, int, intf_dialog_args_t * );
 #define ACCENT_COLOR_LONGTEXT N_( "Adjusts the accent color, special values are 'default' and 'system' (requires Qt 6.6) ." )
 
 #define UI_FONT_TEXT N_( "Interface font" )
-#define UI_FONT_LONGTEXT N_( "Font family used by the interface. Leave empty to use the system font. " \
-    "The bundled font is called 'Inter'." )
+#define UI_FONT_LONGTEXT N_( "Font family used by the interface. Leave empty for the default " \
+    "(the bundled 'Inter' font when available, otherwise the system font). " \
+    "Use 'system' to force the system font." )
 
 static const int initial_prefs_view_list[] = { 0, 1, 2 };
 static const char *const initial_prefs_view_list_texts[] =
@@ -924,13 +925,27 @@ static void *Thread( void *obj )
     QFontDatabase::addApplicationFont( QStringLiteral(":/fonts/InterVariable.ttf") );
 #endif
     {
-        // empty means system UI font
+        // empty means the default: bundled Inter when available, else the
+        // system UI font. "system" always selects the system UI font.
         char* uiFont = var_InheritString( p_intf, "qt-ui-font" );
-        const QString family = qfu( uiFont );
+        QString family = qfu( uiFont );
         free( uiFont );
+#ifdef QT_BUNDLE_UI_FONT
+        if ( family.isEmpty() )
+            family = QStringLiteral( "Inter" );
+#endif
+        if ( family.compare( QStringLiteral( "system" ), Qt::CaseInsensitive ) == 0 )
+            family.clear();
         if ( !family.isEmpty() )
         {
-            if ( QFontDatabase::families().contains( family, Qt::CaseInsensitive ) )
+            const QStringList families = QFontDatabase::families();
+            // the bundled variable font registers as "Inter Variable"
+            if ( !families.contains( family, Qt::CaseInsensitive )
+              && family.compare( QStringLiteral( "Inter" ), Qt::CaseInsensitive ) == 0
+              && families.contains( QStringLiteral( "Inter Variable" ), Qt::CaseInsensitive ) )
+                family = QStringLiteral( "Inter Variable" );
+
+            if ( families.contains( family, Qt::CaseInsensitive ) )
             {
                 QFont font = QGuiApplication::font();
                 font.setFamily( family );

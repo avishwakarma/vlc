@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 #include "systempalette.hpp"
+#include "util/vlc_menu_style.hpp"
 #include <QGuiApplication>
 #include <QStyleHints>
 #include <QPalette>
@@ -403,6 +404,21 @@ void SystemPalette::updatePalette()
     }
     emit paletteChanged();
 
+    if (objectName() == QLatin1String("themePalette"))
+    {
+        typedef ColorContext C;
+        VLCMenuStyle::Colors colors;
+        colors.surface = getColor(C::Menu, C::Bg, C::Primary, C::Normal);
+        colors.hover = getColor(C::Menu, C::Bg, C::Primary, C::Hovered);
+        colors.text = getColor(C::Menu, C::Fg, C::Primary, C::Normal);
+        colors.textHover = getColor(C::Menu, C::Fg, C::Primary, C::Hovered);
+        colors.textSecondary = getColor(C::Menu, C::Fg, C::Secondary, C::Normal);
+        colors.textDisabled = getColor(C::Menu, C::Fg, C::Primary, C::Disabled);
+        colors.separator = getColor(C::Menu, C::Decoration, C::Separator, C::Normal);
+        colors.accent = getColor(C::Menu, C::Decoration, C::Accent, C::Normal);
+        VLCMenuStyle::setColors(colors);
+    }
+
     bool hasCSDImage = m_palettePriv && m_palettePriv->hasCSDImages();
     if (m_hasCSDImage != hasCSDImage)
     {
@@ -669,6 +685,9 @@ void SystemPalette::fillPalette(bool dark)
         setColor(CS, C::Bg, C::Primary, C::Focused, bgA2);
         setColor(CS, C::Bg, C::Primary, C::Hovered, bgA2);
         setColor(CS, C::Bg, C::Primary, C::Pressed, bgA1);
+
+        // cover/thumbnail placeholder tiles (Figma #303030, untokened)
+        setColor(CS, C::Bg, C::Secondary, C::Normal, dark ? darkGrey800 : bgB2);
 
         setColor(CS, C::Bg, C::Highlight, C::Normal, bgA1);
         setColor(CS, C::Bg, C::Highlight, C::Focused, accentDark);
