@@ -608,4 +608,37 @@ Item {
             }
         }
     }
+
+    Loader {
+        id: onboardingLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/OnboardingWindow.qml"
+
+        function show() {
+            if (!DialogsProvider.takeOnboardingRequest())
+                return
+            active = true
+            item.open()
+        }
+
+        // the request may have been made before this item was created
+        Component.onCompleted: show()
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowOnboarding() {
+                onboardingLoader.show()
+            }
+        }
+
+        Connections {
+            target: onboardingLoader.item
+            ignoreUnknownSignals: true
+
+            function onUnload() {
+                onboardingLoader.active = false
+            }
+        }
+    }
 }

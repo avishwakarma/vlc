@@ -174,6 +174,7 @@ private:
 
     std::unique_ptr<OpenDialog> m_openDialog;
     std::unique_ptr<FirstRunWizard> m_firstRunDialog;
+    bool m_onboardingRequested = false;
     std::unique_ptr<ExtendedDialog> m_extendedDialog;
     std::unique_ptr<MessagesDialog> m_messagesDialog;
     std::unique_ptr<GotoTimeDialog> m_gotoTimeDialog;
@@ -217,6 +218,8 @@ public slots:
                                               const QMessageBox::Icon icon = QMessageBox::NoIcon);
     void prefsDialog();
     void firstRunDialog();
+    /* true once if the QML onboarding was requested (the QML side may not be loaded yet) */
+    Q_INVOKABLE bool takeOnboardingRequest();
     void extendedDialog();
     void synchroDialog();
     void messagesDialog( int page = 0 );
@@ -288,6 +291,7 @@ public:
 signals:
     void releaseMouseEvents();
     void showToolbarEditorDialog();
+    void showOnboarding();
 
     //visiblity signal
     void openDialogVisibleChanged();
