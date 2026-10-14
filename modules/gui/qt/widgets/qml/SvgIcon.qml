@@ -39,8 +39,8 @@ Image {
         colorSet: ColorContext.ToolButton
     }
 
-    implicitWidth: size
-    implicitHeight: size
+    width: size
+    height: size
 
     sourceSize: Qt.size(size * Screen.devicePixelRatio, size * Screen.devicePixelRatio)
 
