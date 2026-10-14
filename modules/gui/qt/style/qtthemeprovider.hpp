@@ -57,6 +57,10 @@ enum vlc_qt_theme_color_set {
     VQTC_SET_COMBOBOX,
     VQTC_SET_SPINBOX,
     VQTC_SET_TEXTFIELD,
+    // appended by the redesign, never renumber the above
+    VQTC_SET_MENU,          // floating surfaces: menus, popups, dialogs
+    VQTC_SET_PANE,          // sidebar panel, settings window, onboarding window
+    VQTC_SET_BUTTON_TONAL,  // tinted accent button: dialog save, selected segment
     VQTC_SET_COUNT
 };
 
@@ -74,6 +78,7 @@ enum vlc_qt_theme_color_name {
     VQTC_NAME_SHADOW,
     VQTC_NAME_SEPARATOR,
     VQTC_NAME_INDICATOR,
+    VQTC_NAME_HEADING, // headings and field labels, falls back to PRIMARY
     VQTC_NAME_COUNT
 };
 

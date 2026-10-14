@@ -52,6 +52,7 @@ extern "C" char **environ;
 #endif
 
 #include <QApplication>
+#include <QFontDatabase>
 #include <QDate>
 #include <QMutex>
 #include <QtQuickControls2/QQuickStyle>
@@ -297,6 +298,10 @@ static void ShowDialog   ( intf_thread_t *, int, int, intf_dialog_args_t * );
 #define ACCENT_COLOR_TEXT N_( "Accent color" )
 #define ACCENT_COLOR_LONGTEXT N_( "Adjusts the accent color, special values are 'default' and 'system' (requires Qt 6.6) ." )
 
+#define UI_FONT_TEXT N_( "Interface font" )
+#define UI_FONT_LONGTEXT N_( "Font family used by the interface. Leave empty to use the system font. " \
+    "The bundled font is called 'Inter'." )
+
 static const int initial_prefs_view_list[] = { 0, 1, 2 };
 static const char *const initial_prefs_view_list_texts[] =
     { N_("Simple"), N_("Advanced"), N_("Expert") };
@@ -478,6 +483,8 @@ vlc_module_begin ()
     add_float_with_range( "qt-safe-area", 0, 0, 100.0, SAFE_AREA_TEXT, SAFE_AREA_LONGTEXT )
 
     add_string( "qt-accent-color", "default", ACCENT_COLOR_TEXT, ACCENT_COLOR_LONGTEXT )
+
+    add_string( "qt-ui-font", "", UI_FONT_TEXT, UI_FONT_LONGTEXT )
 
     cannot_unload_broken_library()
 
@@ -911,6 +918,29 @@ static void *Thread( void *obj )
     /* Start the QApplication here */
     QApplication app( argc, argv );
     app.setProperty("initialStyle", app.style()->name());
+
+#ifdef QT_BUNDLE_UI_FONT
+    Q_INIT_RESOURCE( fonts );
+    QFontDatabase::addApplicationFont( QStringLiteral(":/fonts/InterVariable.ttf") );
+#endif
+    {
+        // empty means system UI font
+        char* uiFont = var_InheritString( p_intf, "qt-ui-font" );
+        const QString family = qfu( uiFont );
+        free( uiFont );
+        if ( !family.isEmpty() )
+        {
+            if ( QFontDatabase::families().contains( family, Qt::CaseInsensitive ) )
+            {
+                QFont font = QGuiApplication::font();
+                font.setFamily( family );
+                QGuiApplication::setFont( font );
+            }
+            else
+                msg_Warn( p_intf, "font family '%s' not found, using system font",
+                          qtu( family ) );
+        }
+    }
 
     {
         // Install custom translator:

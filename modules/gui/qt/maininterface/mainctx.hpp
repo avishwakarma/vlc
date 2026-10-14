@@ -113,6 +113,10 @@ class MainCtx : public QObject
     Q_PROPERTY(bool hasGridListMode MEMBER m_hasGridListMode NOTIFY hasGridListModeChanged FINAL)
     Q_PROPERTY(Grouping grouping READ grouping WRITE setGrouping NOTIFY groupingChanged FINAL)
     Q_PROPERTY(ColorSchemeModel* colorScheme READ getColorScheme CONSTANT FINAL)
+    // accent color (persisted in "qt-accent-color"), changes are applied live
+    Q_PROPERTY(QColor accentColor READ accentColor WRITE setAccentColor NOTIFY accentColorChanged FINAL)
+    // hex strings of the 9 preset accent colors, in display order
+    Q_PROPERTY(QStringList accentPresets READ accentPresets CONSTANT FINAL)
     Q_PROPERTY(bool hasVLM READ hasVLM CONSTANT FINAL)
     Q_PROPERTY(bool clientSideDecoration READ useClientSideDecoration NOTIFY useClientSideDecorationChanged FINAL)
     Q_PROPERTY(bool hasFirstrun READ hasFirstrun CONSTANT FINAL)
@@ -240,6 +244,9 @@ public:
     inline bool albumSections() const { return m_albumSections; }
     inline bool lyricsMode() const { return m_lyricsMode; }
     inline ColorSchemeModel* getColorScheme() const { return m_colorScheme; }
+    inline QColor accentColor() const { return m_accentColor; }
+    void setAccentColor(const QColor& color);
+    QStringList accentPresets() const;
     bool hasVLM() const;
     bool useClientSideDecoration() const;
     bool hasFirstrun() const;
@@ -451,6 +458,7 @@ protected:
     bool                 m_hasGridListMode = false;
     Grouping             m_grouping = GROUPING_NONE;
     ColorSchemeModel*    m_colorScheme = nullptr;
+    QColor               m_accentColor;
     bool                 m_windowTitlebar = true;
     // NOTE: Ideally this should be a QVLCBool.
     bool                 m_hasToolbarMenu = false;
@@ -574,6 +582,7 @@ signals:
     void albumSectionsChanged( bool );
     void lyricsModeChanged( bool );
     void colorSchemeChanged( QString );
+    void accentColorChanged();
     void useClientSideDecorationChanged();
     void hasToolbarMenuChanged();
 

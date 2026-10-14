@@ -110,12 +110,32 @@ public:
     Q_PROPERTY(bool hasCSDImage READ hasCSDImage NOTIFY hasCSDImageChanged FINAL)
     Q_PROPERTY(CSDMetrics* csdMetrics READ getCSDMetrics NOTIFY CSDMetricsChanged FINAL)
 
-    //standard color definitions used by light/dark themes
-    COLOR_DEFINITION(orange500, "#FF8800");
-    COLOR_DEFINITION(orange800, "#FF610A");
+    //Figma tokens (see .redesign/specs/tokens.md), values are set by make{Dark,Light}Palette()
+    COLOR_DEFINITION(bgB2, "#090909");
+    COLOR_DEFINITION(bgB1, "#0E0E0E");
+    COLOR_DEFINITION(bgA5, "#151515");
+    COLOR_DEFINITION(bgA4, "#191919");
+    COLOR_DEFINITION(bgA3, "#1B1B1B");
+    COLOR_DEFINITION(bgA2, "#1F1F1F");
+    COLOR_DEFINITION(bgA1, "#222222");
+    COLOR_DEFINITION(fg1, "#EAEAEA");
+    COLOR_DEFINITION(fg2, "#C6C6C6");
+    COLOR_DEFINITION(fgA2, "#8F8F8F");
+    COLOR_DEFINITION(fgA3, "#6B6B6B");
+    COLOR_DEFINITION(fgA4, "#404040");
+    COLOR_DEFINITION(fgB1, "#161616");
+    COLOR_DEFINITION(dividerDim, "#222222");
+    COLOR_DEFINITION(dividerBright, "#373737");
 
-    COLOR_DEFINITION(orange400, "#f89a06"); //FIXME name have been chosen randomly by me
-    COLOR_DEFINITION(orange200, "#e29a06"); //FIXME name have been chosen randomly by me
+    //accent, recomputed by updateAccent() from MainCtx::accentColor
+    COLOR_DEFINITION(accentMain, "#D37918");
+    COLOR_DEFINITION(accentDim, "#AB6314");
+    COLOR_DEFINITION(accentBright, "#371F06");
+    COLOR_DEFINITION(accentDark, "#1A1611");
+
+    //legacy names, kept for existing code. orange500 is the current accent
+    COLOR_DEFINITION(orange500, "#D37918");
+    COLOR_DEFINITION(orange800, "#FF610A");
 
     COLOR_DEFINITION(darkGrey200, "#1E1E1E");
     COLOR_DEFINITION(darkGrey300, "#212121");
@@ -167,6 +187,11 @@ signals:
 
 private:
     void updatePalette();
+    // recompute accent shades for the current theme
+    void updateAccent(bool dark);
+    // shared by makeDarkPalette()/makeLightPalette(), uses the token members
+    void fillPalette(bool dark);
+    bool resolveAutoDark() const;
 
     void makeLightPalette();
     void makeDarkPalette();
@@ -174,6 +199,7 @@ private:
 
 private:
     MainCtx* m_ctx = nullptr;
+    QMetaObject::Connection m_accentConnection;
 
     ColorSchemeModel::ColorScheme m_source = ColorSchemeModel::ColorScheme::Day;
     bool m_isDark = false;

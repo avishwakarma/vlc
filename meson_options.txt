@@ -160,6 +160,11 @@ option('qt_gtk',
     value : 'auto',
     description : 'Enable/disable Qt GTK support')
 
+option('qt_bundle_ui_font',
+    type: 'boolean',
+    value: true,
+    description: 'Bundle the Inter UI font (OFL) in the Qt interface')
+
 option('qt_qml_debug',
     type: 'boolean',
     value: false,

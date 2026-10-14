@@ -576,6 +576,11 @@ qrc_files = files('assets.qrc')
 if host_system == 'windows'
   qrc_files += files('windows.qrc')
 endif
+if get_option('qt_bundle_ui_font')
+  # bundled Inter UI font (OFL), see pixmaps/fonts/OFL.txt
+  qrc_files += files('fonts.qrc')
+  qt_extra_flags += '-DQT_BUNDLE_UI_FONT'
+endif
 
 ui_sources = files(
     'dialogs/extended/equalizer.ui',
