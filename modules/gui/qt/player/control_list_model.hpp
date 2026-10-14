@@ -69,7 +69,7 @@ public:
         PLAYBACK_SPEED_BUTTON,
         HIGH_RESOLUTION_TIME_WIDGET,
         FRAME_PREV_BUTTON,
-        RESERVED_0X1F,
+        TIMELINE, // seek bar with the time chips (was RESERVED_0X1F)
 
         SPLITTER = 0x20,
         VOLUME,
@@ -82,37 +82,50 @@ public:
         NAVIGATION_BUTTONS,
         PROGRAM_BUTTON,
         NAVIGATION_BOX,
-        RESERVED_0X2B,
-        RESERVED_0X2C,
-        RESERVED_0X2D,
-        RESERVED_0X2E,
-        RESERVED_0X2F,
-        RESERVED_0X30,
-        RESERVED_0X31,
-        RESERVED_0X32,
-        RESERVED_0X33,
-        RESERVED_0X34,
-        RESERVED_0X35,
-        RESERVED_0X36,
-        RESERVED_0X37,
-        RESERVED_0X38,
-        RESERVED_0X39,
-        RESERVED_0X3A,
-        RESERVED_0X3B,
-        RESERVED_0X3C,
-        RESERVED_0X3D,
-        RESERVED_0X3E,
-        RESERVED_0X3F,
+        JUMP_10_FWD_BUTTON,
+        JUMP_10_BACK_BUTTON,
+        JUMP_15_FWD_BUTTON,
+        JUMP_15_BACK_BUTTON,
+        REPLAY_BUTTON,
+        HDR_BUTTON,
+        PIP_BUTTON,
+        ZOOM_BUTTON,
+        CHAPTERS_BUTTON,
+        BOOKMARKS_LIST_BUTTON,
+        FAVORITE_BUTTON,
+        PLAYLISTS_BUTTON,
+        SETTINGS_BUTTON,
+        HOME_BUTTON,
+        THUMBNAIL_WIDGET,
+        FILE_NAME_WIDGET,
+        ARTIST_NAME_WIDGET,
+        FOLDER_NAME_WIDGET,
+        PLAYLIST_NAME_WIDGET,
+        PROPERTIES_BUTTON,
+        DIVIDER_WIDGET,
 
         WIDGET_SPACER = 0x40,
         WIDGET_SPACER_EXTEND,
+        // appended by the player redesign:
+        RIGHT_SIDEBAR_BUTTON,
+        TITLE_MENU_BUTTON,
+        TITLE_SIDEBAR_BUTTON,
+        TITLE_BREADCRUMB_BUTTON,
+        TITLE_TEXT_WIDGET,
+        WINDOW_MINIMIZE_BUTTON,
+        WINDOW_MAXIMIZE_BUTTON,
+        WINDOW_CLOSE_BUTTON,
+        AUDIO_TRACKS_BUTTON,
+        SUBTITLE_TRACKS_BUTTON,
         WIDGET_MAX,
     };
     Q_ENUM(ControlType)
 
-    static_assert(RESERVED_0X1F == 0x1F, "missaligned");
-    static_assert(RESERVED_0X2B == 0x2B, "missaligned");
-    static_assert(RESERVED_0X3F == 0x3F, "missaligned");
+    static_assert(TIMELINE == 0x1F, "missaligned");
+    static_assert(JUMP_10_FWD_BUTTON == 0x2B, "missaligned");
+    static_assert(DIVIDER_WIDGET == 0x3F, "missaligned");
+    static_assert(WIDGET_SPACER_EXTEND == 0x41, "missaligned");
+    static_assert(RIGHT_SIDEBAR_BUTTON == 0x42, "missaligned");
 
     // Basic functionality:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -127,8 +140,8 @@ public:
 
     QHash<int, QByteArray> roleNames() const override;
 
-    QVector<int> getControls() const;
-    void setControls(const QVector<int>& list);
+    Q_INVOKABLE QVector<int> getControls() const;
+    Q_INVOKABLE void setControls(const QVector<int>& list);
 
     bool operator==(const ControlListModel& model) const
     {

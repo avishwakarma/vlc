@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (C) 2019 VLC authors and VideoLAN
+ * Copyright (C) 2026 VLC authors and VideoLAN
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +15,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
+
 import QtQuick
 import QtQuick.Templates as T
 
+import VLC.MainInterface
+import VLC.Widgets as Widgets
 import VLC.Style
+import VLC.Player
+import VLC.Playlist
+import VLC.Util
 
-T.Label {
-    font.pixelSize: VLCStyle.icon_medium
-    font.family: VLCIcons.fontFamily
+// Forward 10 seconds (Figma customize palette)
+Widgets.IconToolButton {
+    id: root
 
-    verticalAlignment: Text.AlignVCenter
-    horizontalAlignment: Text.AlignHCenter
+    enabled: !paintOnly && Player.isStarted
+
+    text: VLCIcons.skip_for
+    iconName: "forward-10-sec"
+
+    description: qsTr("Forward 10 seconds")
+
+    AccessibleCompat.id: "jump10FwdButton"
+
+    onClicked: Player.jumpBy(10000)
 }

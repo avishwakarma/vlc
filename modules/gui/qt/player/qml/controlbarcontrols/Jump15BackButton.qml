@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (C) 2019 VLC authors and VideoLAN
+ * Copyright (C) 2026 VLC authors and VideoLAN
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +15,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
+
 import QtQuick
+import QtQuick.Templates as T
 
-
-import VLC.Style
+import VLC.MainInterface
 import VLC.Widgets as Widgets
+import VLC.Style
+import VLC.Player
+import VLC.Playlist
+import VLC.Util
 
-Widgets.BannerTabButton {
+// Backward 15 seconds (Figma customize palette)
+Widgets.IconToolButton {
     id: root
 
-    implicitWidth: VLCStyle.button_width_large
+    enabled: !paintOnly && Player.isStarted
 
-    signal dropEnterred()
+    text: VLCIcons.skip_back
+    iconName: "backward-15-sec"
 
-    DropArea {
-        anchors.fill: parent
+    description: qsTr("Backward 15 seconds")
 
-        onEntered: (drag) => {
-            root.dropEnterred()
-        }
-    }
+    AccessibleCompat.id: "jump15BackButton"
+
+    onClicked: Player.jumpBy(-15000)
 }

@@ -19,11 +19,15 @@ import QtQuick
 import QtQuick.Layouts
 
 import VLC.MainInterface
+import VLC.Style
 
 Repeater {
     id: repeater
 
     property int alignment: Qt.AlignVCenter
+
+    // the items are drawn for the title bar (see PlayerControlbarControls.gap)
+    property bool titleBar: false
 
     property real availableWidth: Number.MAX_VALUE
     property real availableHeight: Number.MAX_VALUE
@@ -54,9 +58,22 @@ Repeater {
 
         focus: (index === 0)
 
-        Layout.fillWidth: (item && item.Layout.minimumWidth > 0)
-        Layout.minimumWidth: Layout.fillWidth ? item.Layout.minimumWidth : (item ? item.implicitWidth : -1)
-        Layout.maximumWidth: Layout.fillWidth ? (item ? item.implicitWidth : -1) : -1
+        // an item can ask to be hidden by its host (e.g. window buttons without client side decoration)
+        readonly property bool _hostHidden: (item && item.hostHidden === true)
+
+        // an item with `fillWidth` takes the free space, other items keep their size
+        readonly property bool _expanding: (item && (item.fillWidth === true || item.Layout.minimumWidth > 0))
+
+        // space before the item
+        Layout.leftMargin: (index > 0) ? PlayerControlbarControls.gap(repeater.titleBar,
+                                                                      repeater.model.data(repeater.model.index(index - 1, 0), 256 /*ControlListModel.ID_ROLE*/),
+                                                                      model.id)
+                                       : 0
+
+        Layout.fillWidth: _expanding
+        Layout.minimumWidth: _expanding ? (item.Layout.minimumWidth > 0 ? item.Layout.minimumWidth : 0)
+                                        : (item ? item.implicitWidth : -1)
+        Layout.maximumWidth: (_expanding && item.fillWidth !== true) ? item.implicitWidth : -1
 
         Layout.minimumHeight: 0
         Layout.maximumHeight: Math.min((item && item.implicitHeight <= 0) ? Number.MAX_VALUE : item.implicitHeight, repeater.availableHeight)
@@ -64,9 +81,11 @@ Repeater {
 
         Layout.alignment: repeater.alignment
 
+        visible: !_hostHidden
+
         Binding on visible {
             delayed: true // this is important
-            when: condition
+            when: condition && !loader._hostHidden
             value: {
                 if (condition)
                     return (loader.x + loader.Layout.minimumWidth <= repeater.availableWidth)
@@ -83,6 +102,7 @@ Repeater {
                        (repeater.availableWidth < Number.MAX_VALUE)
             }
         }
+
 
         // Events
 
@@ -104,6 +124,18 @@ Repeater {
                 item.activeFocusOnTab = true
 
             item.visible = Qt.binding(function() { return loader.visible })
+
+            // items of the title bar know they are drawn there
+            if (item.inTitleBar !== undefined)
+                item.inTitleBar = repeater.titleBar
+
+            // icon buttons of the control bar share the same cell (Figma: 30x32), unless they
+            // have their own size
+            if (!repeater.titleBar && item.keepSize !== true
+                    && item.iconName !== undefined && item.iconSize !== undefined) {
+                item.implicitWidth = VLCStyle.iconButton_w
+                item.implicitHeight = VLCStyle.iconButton_h
+            }
 
             if (item.requestLockUnlockAutoHide)
                 item.requestLockUnlockAutoHide.connect(repeater.requestLockUnlockAutoHide)

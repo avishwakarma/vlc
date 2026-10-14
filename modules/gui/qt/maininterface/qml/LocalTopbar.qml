@@ -59,12 +59,11 @@ T.ToolBar {
 
     background: null
 
-    contentItem: Widgets.SlimTitleBar {
+    contentItem: LibraryTitleBar {
         id: titleBar
 
         focus: true
 
-        showSidebarToggle: false
         showCSD: root._showCSD
 
         title: (Player.title !== "") ? Player.title : qsTr("VLC Media Player")

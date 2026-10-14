@@ -241,6 +241,10 @@ public slots:
     void jumpFwd();
     void jumpBwd();
     void jumpTime( VLCTime i_time );
+    //relative jump in milliseconds (negative = backward)
+    Q_INVOKABLE void jumpBy( int i_ms );
+    //seek back to the beginning of the current media
+    Q_INVOKABLE void restart();
     void jumpToPos( double );
     void frameNext();
     void framePrev();

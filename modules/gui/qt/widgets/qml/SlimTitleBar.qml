@@ -24,12 +24,15 @@ import VLC.MainInterface
 import VLC.Style
 import VLC.Util
 import VLC.Widgets as Widgets
-import VLC.Menus as Menus
+import VLC.Player
+import VLC.PlayerControls
 
 // Slim 40px title bar of the redesigned player window (Figma 247:447).
 //
 //  [cone][...][sidebar] | [folder  breadcrumb]      title      [_][□][⛶][x]
 //
+// The items after the cone are the ones of the "Topbar" model of the current control bar
+// profile (see PlayerControlbarModel) and can be moved around in the customize mode.
 // With client side decoration it also acts as the window drag area.
 FocusScope {
     id: root
@@ -44,47 +47,25 @@ FocusScope {
     // state of the sidebar toggle
     property bool sidebarVisible: false
 
-    // false in the library window (Figma 970:2703): only the cone and the menu button are drawn on the left
-    property bool showSidebarToggle: true
-
     // draw window buttons and handle window dragging
     property bool showCSD: false
 
     // true when the window is fullscreen: only the fullscreen toggle is kept
     property bool fullscreen: false
 
-    // when true the window buttons are drawn on the left (macOS convention),
-    // default follows the Figma design (right)
-    property bool buttonsOnLeft: false
-
     // draw the background (the player turns it off while overlaying video)
     property bool showBackground: true
 
     property alias backgroundOpacity: background.opacity
 
-    readonly property real leftClusterWidth: leftCluster.width
-    readonly property real rightClusterWidth: rightCluster.width
+    readonly property var model: {
+        const profile = MainCtx.controlbarProfileModel.currentModel
+        return profile ? profile.ensureModel(PlayerControlbarModel.Topbar) : null
+    }
 
     readonly property ColorContext colorContext: ColorContext {
         id: theme
         colorSet: ColorContext.Window
-    }
-
-    readonly property ColorContext toolColorContext: ColorContext {
-        id: toolTheme
-        colorSet: ColorContext.ToolButton
-    }
-
-    readonly property ColorContext viewColorContext: ColorContext {
-        id: viewTheme
-        colorSet: ColorContext.View
-    }
-
-    readonly property ColorContext itemColorContext: ColorContext {
-        id: itemTheme
-        colorSet: ColorContext.Item
-        hovered: breadcrumbButton.hovered
-        pressed: breadcrumbButton.down
     }
 
     // Signals
@@ -99,7 +80,7 @@ FocusScope {
     // Settings
 
     implicitHeight: VLCStyle.titleBar_height
-    implicitWidth: leftCluster.implicitWidth + rightCluster.implicitWidth + VLCStyle.spacing_12 * 2
+    implicitWidth: row.implicitWidth + VLCStyle.spacing_12
 
     Accessible.role: Accessible.ToolBar
     Accessible.name: qsTr("Title bar")
@@ -107,7 +88,23 @@ FocusScope {
     Keys.priority: Keys.AfterItem
     Keys.onPressed: (event) => root.Navigation.defaultKeyAction(event)
 
-    onForceUnlock: contextMenu.close()
+    onForceUnlock: row.forceUnlock()
+
+    // The items of the bar get their state from here
+
+    Binding { target: PlayerHost; property: "title"; value: root.title }
+    Binding { target: PlayerHost; property: "breadcrumb"; value: root.breadcrumb }
+    Binding { target: PlayerHost; property: "sidebarVisible"; value: root.sidebarVisible }
+    Binding { target: PlayerHost; property: "showCSD"; value: root.showCSD }
+    Binding { target: PlayerHost; property: "windowFullscreen"; value: root.fullscreen }
+
+    Connections {
+        target: PlayerHost
+
+        function onToggleSidebar() { root.sidebarToggleRequested() }
+        function onBreadcrumbClicked() { root.breadcrumbClicked() }
+        function onRequestLockUnlockAutoHide(lock) { root.requestLockUnlockAutoHide(lock) }
+    }
 
     // Children
 
@@ -126,7 +123,7 @@ FocusScope {
         id: tapNDrag
 
         anchors.fill: parent
-        active: root.showCSD && !root.fullscreen
+        active: root.showCSD && !root.fullscreen && !PlayerCustomizer.editing
         source: "qrc:///qt/qml/VLC/Widgets/CSDTitlebarTapNDrapHandler.qml"
 
         Connections {
@@ -138,277 +135,42 @@ FocusScope {
         }
     }
 
-    // Left cluster: cone, menu, sidebar toggle, divider, breadcrumb
-    Row {
-        id: leftCluster
+    // cone: 38x28 box (padding 7/2), 24px icon, then a 7px gap before the items
+    Item {
+        id: cone
 
-        // window buttons on the left (macOS convention) push the cluster right
-        x: (root.buttonsOnLeft && root.showCSD) ? (windowButtonsLeft.width + VLCStyle.spacing_6)
-                                                 : VLCStyle.spacing_6
+        x: VLCStyle.spacing_6
         anchors.verticalCenter: parent.verticalCenter
 
+        width: VLCStyle.dp(38, VLCStyle.scale)
         height: VLCStyle.windowButton_h
 
-        spacing: 0
-
-        // cone: 38x28 box (padding 7/2), 24px icon
-        Item {
-            width: VLCStyle.dp(38, VLCStyle.scale)
-            height: VLCStyle.windowButton_h
-
-            Widgets.SvgIcon {
-                anchors.centerIn: parent
-                name: "vlc"
-                size: VLCStyle.icon_normal
-                accentColor: theme.accent
-            }
-        }
-
-        // 7px gap between the cone and the button group
-        Item { width: VLCStyle.dp(7, VLCStyle.scale); height: 1 }
-
-        Widgets.IconToolButton {
-            id: moreButton
-
-            width: VLCStyle.windowButton_h
-            height: VLCStyle.windowButton_h
-
-            focus: true
-
-            iconName: "more"
-            text: VLCIcons.more
-            description: qsTr("Menu")
-
-            AccessibleCompat.id: "topBarMenuButton"
-
-            checked: contextMenu.shown
-            Navigation.parentItem: root
-            Navigation.rightItem: sidebarButton
-
-            onClicked: contextMenu.popup(this.mapToGlobal(0, height))
-
-            onHoveredChanged: root.requestLockUnlockAutoHide(hovered)
-
-            Menus.QmlGlobalMenu {
-                id: contextMenu
-
-                ctx: MainCtx
-
-                onAboutToShow: root.requestLockUnlockAutoHide(true)
-                onAboutToHide: root.requestLockUnlockAutoHide(false)
-            }
-        }
-
-        // 10px gap
-        Item { width: VLCStyle.spacing_10; height: 1; visible: root.showSidebarToggle }
-
-        Widgets.IconToolButton {
-            id: sidebarButton
-
-            visible: root.showSidebarToggle
-
-            width: VLCStyle.windowButton_h
-            height: VLCStyle.windowButton_h
-
-            iconName: "sidebar-left"
-            text: VLCIcons.more
-            iconNameChecked: "sidebar-active"
-            checkable: true
-            checked: root.sidebarVisible
-            description: root.sidebarVisible ? qsTr("Hide sidebar") : qsTr("Show sidebar")
-
-            AccessibleCompat.id: "topBarSidebarButton"
-
-            Navigation.parentItem: root
-            Navigation.leftItem: moreButton
-            Navigation.rightItem: breadcrumbButton
-
-            // the state is owned by the parent
-            onToggled: root.sidebarToggleRequested()
-            onHoveredChanged: root.requestLockUnlockAutoHide(hovered)
-        }
-
-        // divider: 24 wide cell, 1.5px hairline
-        Item {
-            visible: root.showSidebarToggle
-            width: VLCStyle.dp(24, VLCStyle.scale)
-            height: VLCStyle.windowButton_h
-
-            Rectangle {
-                anchors.centerIn: parent
-                width: VLCStyle.dp(1.5, VLCStyle.scale)
-                height: VLCStyle.dp(18, VLCStyle.scale)
-                radius: width / 2
-                color: viewTheme.border
-            }
-        }
-
-        // breadcrumb link: folder icon + label, radius 6
-        T.Button {
-            id: breadcrumbButton
-
-            height: VLCStyle.windowButton_h
-            implicitWidth: VLCStyle.windowButton_h + VLCStyle.spacing_4 + crumbLabel.width + rightPadding
-            width: implicitWidth
-
-            visible: root.showSidebarToggle && root.breadcrumb !== ""
-
-            padding: 0
-            rightPadding: VLCStyle.spacing_4
-            hoverEnabled: true
-
-            Accessible.name: qsTr("Back to %1").arg(root.breadcrumb)
-            AccessibleCompat.id: "topBarBreadcrumb"
-
-            T.ToolTip.visible: (hovered || visualFocus)
-            T.ToolTip.delay: VLCStyle.delayToolTipAppear
-            T.ToolTip.text: qsTr("Back to %1").arg(root.breadcrumb)
-
-            Navigation.parentItem: root
-            Navigation.leftItem: sidebarButton
-
-            Keys.priority: Keys.AfterItem
-            Keys.onPressed: (event) => {
-                if (KeyHelper.matchOk(event)) {
-                    event.accepted = true
-                    breadcrumbButton.clicked()
-                } else {
-                    Navigation.defaultKeyAction(event)
-                }
-            }
-
-            onClicked: root.breadcrumbClicked()
-
-            background: Widgets.AnimatedBackground {
-                radius: VLCStyle.radius_m
-                enabled: toolTheme.initialized
-
-                color: (breadcrumbButton.hovered || breadcrumbButton.down) ? itemTheme.bg.primary
-                                                                           : "transparent"
-
-                border.color: breadcrumbButton.visualFocus ? toolTheme.visualFocus : "transparent"
-            }
-
-            contentItem: Row {
-                spacing: VLCStyle.spacing_4
-
-                // folder icon cell: 28x28, 24px glyph
-                Item {
-                    width: VLCStyle.windowButton_h
-                    height: VLCStyle.windowButton_h
-
-                    Widgets.SvgIcon {
-                        anchors.centerIn: parent
-                        name: "folder"
-                        size: VLCStyle.icon_normal
-                        color: toolTheme.fg.primary
-                    }
-                }
-
-                Text {
-                    id: crumbLabel
-
-                    height: VLCStyle.windowButton_h
-                    // stay clear of the centred title
-                    width: Math.min(implicitWidth, Math.max(VLCStyle.dp(40, VLCStyle.scale),
-                                                            root.width / 2 - VLCStyle.dp(80, VLCStyle.scale)
-                                                            - leftCluster.x - breadcrumbButton.x
-                                                            - VLCStyle.windowButton_h - VLCStyle.spacing_8))
-
-                    text: root.breadcrumb
-                    color: toolTheme.fg.primary
-                    font.pixelSize: VLCStyle.text_body
-                    font.weight: VLCStyle.fontWeight_regular
-                    elide: Text.ElideRight
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
+        Widgets.SvgIcon {
+            anchors.centerIn: parent
+            name: "vlc"
+            size: VLCStyle.icon_normal
+            accentColor: theme.accent
         }
     }
 
-    // Centre title: centred on the window, kept clear of both clusters
-    Text {
-        id: titleText
+    BarRow {
+        id: row
 
-        readonly property real _leftLimit: leftCluster.x + leftCluster.width + VLCStyle.spacing_16
-        readonly property real _rightLimit: (rightCluster.active ? rightCluster.x
-                                             : (fullscreenToggle.visible ? fullscreenToggle.x : root.width)) - VLCStyle.spacing_16
-        readonly property real _available: Math.max(0, _rightLimit - _leftLimit)
-
-        width: Math.min(implicitWidth, _available)
-        height: parent.height
-
-        x: Helpers.clamp((root.width - width) / 2, _leftLimit, Math.max(_leftLimit, _rightLimit - width))
-
-        text: root.title
-        color: toolTheme.fg.primary
-        font.pixelSize: VLCStyle.text_body
-        font.weight: VLCStyle.fontWeight_regular
-        elide: Text.ElideRight
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-
-        Accessible.role: Accessible.Heading
-        Accessible.name: text
-    }
-
-    // Window buttons, right (Figma) ...
-    Loader {
-        id: rightCluster
-
-        anchors.right: parent.right
-        anchors.rightMargin: VLCStyle.spacing_6
+        x: VLCStyle.spacing_6
+        width: parent.width - VLCStyle.spacing_6 * 2
+        height: VLCStyle.windowButton_h
         anchors.verticalCenter: parent.verticalCenter
 
-        height: VLCStyle.windowButton_h
+        keyPrefix: "top"
+        model: root.model
 
-        active: root.showCSD && !root.buttonsOnLeft
-        visible: active
+        leftInset: cone.width + VLCStyle.dp(7, VLCStyle.scale)
+        zoneSpacing: VLCStyle.spacing_16
 
-        sourceComponent: buttonsComponent
-    }
+        focus: true
 
-    // ... or left (macOS convention, optional)
-    Loader {
-        id: windowButtonsLeft
+        Navigation.parentItem: root
 
-        anchors.left: parent.left
-        anchors.leftMargin: VLCStyle.spacing_6
-        anchors.verticalCenter: parent.verticalCenter
-
-        height: VLCStyle.windowButton_h
-
-        active: root.showCSD && root.buttonsOnLeft
-        visible: active
-
-        sourceComponent: buttonsComponent
-    }
-
-    Component {
-        id: buttonsComponent
-
-        CSDWindowButtonSet {
-            height: VLCStyle.windowButton_h
-
-            fullscreenOnly: root.fullscreen
-
-            onButtonHoveredChanged: root.requestLockUnlockAutoHide(buttonHovered)
-        }
-    }
-
-    // fullscreen without CSD: nothing but a fullscreen toggle on the right
-    CSDWindowButtonSet {
-        id: fullscreenToggle
-
-        anchors.right: parent.right
-        anchors.rightMargin: VLCStyle.spacing_6
-        anchors.verticalCenter: parent.verticalCenter
-
-        height: VLCStyle.windowButton_h
-
-        visible: !root.showCSD && root.fullscreen
-        fullscreenOnly: true
-
-        onButtonHoveredChanged: root.requestLockUnlockAutoHide(buttonHovered)
+        onRequestLockUnlockAutoHide: (lock) => root.requestLockUnlockAutoHide(lock)
     }
 }

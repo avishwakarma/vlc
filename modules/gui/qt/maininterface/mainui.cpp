@@ -61,6 +61,7 @@
 #include "dialogs/help/aboutmodel.hpp"
 #include "dialogs/dialogs_provider.hpp"
 #include "dialogs/onboarding/onboarding_controller.hpp"
+#include "dialogs/forms/dialog_forms.hpp"
 #include "dialogs/dialogs/dialogmodel.hpp"
 #include "dialogs/settings/settings_model.hpp"
 #ifdef UPDATE_CHECK
@@ -276,6 +277,7 @@ void MainUI::registerQMLTypes()
         // @uri VLC.Dialogs
         qmlRegisterType<VLCDialog>( uri, versionMajor, versionMinor, "VLCDialog" );
         qmlRegisterType<OnboardingController>( uri, versionMajor, versionMinor, "OnboardingController" );
+        qmlRegisterType<DialogForms>( uri, versionMajor, versionMinor, "DialogForms" );
         assert(VLCDialogModel::getInstance<false>());
         qmlRegisterSingletonInstance<VLCDialogModel>(uri, versionMajor, versionMinor, "VLCDialogModel", VLCDialogModel::getInstance<false>());
         qmlRegisterUncreatableType<DialogId>( uri, versionMajor, versionMinor, "dialogId", "");

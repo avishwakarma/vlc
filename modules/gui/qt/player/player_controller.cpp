@@ -1419,6 +1419,24 @@ void PlayerController::jumpTime(VLCTime i_time)
     vlc_player_JumpTime( d->m_player, i_time.toVLCTick() );
 }
 
+void PlayerController::jumpBy(int i_ms)
+{
+    Q_D(PlayerController);
+    vlc_player_locker lock{ d->m_player };
+    if( !d->isCurrentItemSynced() )
+        return;
+    vlc_player_JumpTime( d->m_player, VLC_TICK_FROM_MS( i_ms ) );
+}
+
+void PlayerController::restart()
+{
+    Q_D(PlayerController);
+    vlc_player_locker lock{ d->m_player };
+    if( !d->isCurrentItemSynced() )
+        return;
+    vlc_player_SetTime( d->m_player, VLC_TICK_0 );
+}
+
 void PlayerController::jumpToPos( double new_pos )
 {
     Q_D(PlayerController);

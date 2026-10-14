@@ -22,7 +22,7 @@ import VLC.Util
 
 // Themed SVG icon from the /svgicons/ resource prefix (pixmaps/svg_icons).
 // color replaces #FF00FF, accentColor #FF8800 and accentDimColor #00FFFF.
-Image {
+Item {
     id: root
 
     // file name without extension, e.g. "home-active"
@@ -39,24 +39,30 @@ Image {
         colorSet: ColorContext.ToolButton
     }
 
-    width: size
-    height: size
-
-    sourceSize: Qt.size(size * Screen.devicePixelRatio, size * Screen.devicePixelRatio)
-
-    fillMode: Image.PreserveAspectFit
-    asynchronous: false
-    cache: true
-    smooth: true
-    mipmap: true
-
-    source: (name === "")
-        ? ""
-        : SVGColorImage.colorize("qrc:///svgicons/" + name + ".svg")
-                       .color1(color)
-                       .accent(accentColor)
-                       .color2(accentDimColor)
-                       .uri()
+    // an Image's implicit size follows its sourceSize, which is in device
+    // pixels here, so wrap it to keep the implicit size logical
+    implicitWidth: size
+    implicitHeight: size
 
     Accessible.ignored: true
+
+    Image {
+        anchors.fill: parent
+
+        sourceSize: Qt.size(root.size * Screen.devicePixelRatio,
+                            root.size * Screen.devicePixelRatio)
+        fillMode: Image.PreserveAspectFit
+        asynchronous: false
+        cache: true
+        smooth: true
+        mipmap: true
+
+        source: (root.name === "")
+            ? ""
+            : SVGColorImage.colorize("qrc:///svgicons/" + root.name + ".svg")
+                           .color1(root.color)
+                           .accent(root.accentColor)
+                           .color2(root.accentDimColor)
+                           .uri()
+    }
 }

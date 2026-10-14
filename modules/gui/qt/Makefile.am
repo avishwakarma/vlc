@@ -127,6 +127,7 @@ libqt_plugin_la_SOURCES = \
 	dialogs/fingerprint/fingerprintdialog.hpp \
 	dialogs/firstrun/firstrunwizard.cpp dialogs/firstrun/firstrunwizard.hpp \
 	dialogs/onboarding/onboarding_controller.cpp dialogs/onboarding/onboarding_controller.hpp \
+	dialogs/forms/dialog_forms.cpp dialogs/forms/dialog_forms.hpp \
 	dialogs/gototime/gototime.cpp dialogs/gototime/gototime.hpp \
 	dialogs/help/aboutmodel.hpp \
 	dialogs/help/help.cpp dialogs/help/help.hpp \
@@ -421,6 +422,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	dialogs/fingerprint/fingerprintdialog.moc.cpp \
 	dialogs/firstrun/firstrunwizard.moc.cpp \
 	dialogs/onboarding/onboarding_controller.moc.cpp \
+	dialogs/forms/dialog_forms.moc.cpp \
 	dialogs/gototime/gototime.moc.cpp \
 	dialogs/help/aboutmodel.moc.cpp \
 	dialogs/help/help.moc.cpp \
@@ -1065,13 +1067,16 @@ libqml_module_dialogs_a_QML = \
 	dialogs/onboarding/qml/ThemePreview.qml \
 	dialogs/onboarding/qml/ShortcutsStep.qml \
 	dialogs/onboarding/qml/KeyCap.qml \
-	dialogs/toolbar/qml/EditorDNDDelegate.qml \
-	dialogs/toolbar/qml/EditorDNDView.qml\
-	dialogs/toolbar/qml/EditorDummyButton.qml \
-	dialogs/toolbar/qml/EditorTabButton.qml \
-	dialogs/toolbar/qml/ToolbarEditor.qml \
+	dialogs/forms/qml/AddSubtitles.qml \
+	dialogs/forms/qml/KeyboardShortcuts.qml \
+	dialogs/forms/qml/DialogDropdown.qml \
+	dialogs/forms/qml/NewPlaylist.qml \
+	dialogs/forms/qml/OpenNetworkStream.qml \
+	dialogs/forms/qml/DialogTextArea.qml \
+	dialogs/forms/qml/DialogHeading.qml \
+	dialogs/forms/qml/DialogShell.qml \
 	dialogs/toolbar/qml/ToolbarEditorDialog.qml \
-	dialogs/toolbar/qml/ToolbarEditorButtonList.qml
+	dialogs/toolbar/qml/PlayerCustomizeOverlay.qml
 libqml_module_dialogs_a_QML += dialogs/settings/qml/AccentSwatches.qml
 libqml_module_dialogs_a_QML += dialogs/settings/qml/HotkeysEditor.qml
 libqml_module_dialogs_a_QML += dialogs/settings/qml/SettingRow.qml
@@ -1104,6 +1109,7 @@ libqml_module_maininterface_a_CPPFLAGS = $(libqt_plugin_la_CPPFLAGS)
 libqml_module_maininterface_a_QML = \
 	maininterface/qml/MenuTopbar.qml \
 	maininterface/qml/LocalTopbar.qml \
+	maininterface/qml/LibraryTitleBar.qml \
 	maininterface/qml/MainInterface.qml \
 	maininterface/qml/MainViewLoader.qml \
 	maininterface/qml/MainDisplay.qml \
@@ -1242,6 +1248,8 @@ libqml_module_player_a_QML = \
 	player/qml/TracksListPage.qml \
 	player/qml/ControlLayout.qml \
 	player/qml/ControlRepeater.qml \
+	player/qml/BarRow.qml \
+	player/qml/BarZone.qml \
 	player/qml/NavigationBox.qml
 
 libqml_module_player_a_Singleton_QML = \
@@ -1299,7 +1307,42 @@ libqml_module_playercontrols_a_QML = \
 	player/qml/controlbarcontrols/TeletextColorButton.qml \
 	player/qml/controlbarcontrols/TeletextWidget.qml \
 	player/qml/controlbarcontrols/VolumeWidget.qml \
-	player/qml/controlbarcontrols/Fallback.qml
+	player/qml/controlbarcontrols/Fallback.qml \
+	player/qml/controlbarcontrols/ArtistNameWidget.qml \
+	player/qml/controlbarcontrols/AudioTracksButton.qml \
+	player/qml/controlbarcontrols/BookmarksListButton.qml \
+	player/qml/controlbarcontrols/ChaptersButton.qml \
+	player/qml/controlbarcontrols/ChoicePopupButton.qml \
+	player/qml/controlbarcontrols/DividerWidget.qml \
+	player/qml/controlbarcontrols/FavoriteButton.qml \
+	player/qml/controlbarcontrols/FavoriteLookup.qml \
+	player/qml/controlbarcontrols/FileNameWidget.qml \
+	player/qml/controlbarcontrols/FolderNameWidget.qml \
+	player/qml/controlbarcontrols/HdrButton.qml \
+	player/qml/controlbarcontrols/HomeButton.qml \
+	player/qml/controlbarcontrols/Jump10BackButton.qml \
+	player/qml/controlbarcontrols/Jump10FwdButton.qml \
+	player/qml/controlbarcontrols/Jump15BackButton.qml \
+	player/qml/controlbarcontrols/Jump15FwdButton.qml \
+	player/qml/controlbarcontrols/PipButton.qml \
+	player/qml/controlbarcontrols/PlaylistNameWidget.qml \
+	player/qml/controlbarcontrols/PlaylistsButton.qml \
+	player/qml/controlbarcontrols/PropertiesButton.qml \
+	player/qml/controlbarcontrols/ReplayButton.qml \
+	player/qml/controlbarcontrols/RightSidebarButton.qml \
+	player/qml/controlbarcontrols/SettingsButton.qml \
+	player/qml/controlbarcontrols/SubtitleTracksButton.qml \
+	player/qml/controlbarcontrols/ThumbnailWidget.qml \
+	player/qml/controlbarcontrols/TimelineWidget.qml \
+	player/qml/controlbarcontrols/TitleBreadcrumbButton.qml \
+	player/qml/controlbarcontrols/TitleMenuButton.qml \
+	player/qml/controlbarcontrols/TitleSidebarButton.qml \
+	player/qml/controlbarcontrols/TitleTextWidget.qml \
+	player/qml/controlbarcontrols/WindowButtonItem.qml \
+	player/qml/controlbarcontrols/WindowCloseButton.qml \
+	player/qml/controlbarcontrols/WindowMaximizeButton.qml \
+	player/qml/controlbarcontrols/WindowMinimizeButton.qml \
+	player/qml/controlbarcontrols/ZoomButton.qml
 libqml_module_playercontrols_a_Singleton_QML =
 libqml_module_playercontrols_a_SOURCES = $(QML_MODULE_playercontrols_SRC)
 nodist_libqml_module_playercontrols_a_SOURCES = playercontrols/qmlassets.cpp $(QML_MODULE_playercontrols_NODIST_EXTRA)
@@ -1389,6 +1432,7 @@ libqml_module_widgets_a_QML = \
 	widgets/qml/IconLabel.qml \
 	widgets/qml/SvgIcon.qml \
 	widgets/qml/SlimTitleBar.qml \
+	widgets/qml/DashedBorder.qml \
 	widgets/qml/TimeChip.qml \
 	widgets/qml/ValueBubble.qml \
 	widgets/qml/SegmentedControl.qml \

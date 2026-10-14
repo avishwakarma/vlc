@@ -286,13 +286,7 @@ QtObject {
             titleRole: "name"
             rowsBright: true
             placeholderIcon: "playlist"
-            leadingActions: [ { text: qsTr("Create playlist"), icon: "add", action: () => createPlaylistDialog() } ]
-
-            function createPlaylistDialog() {
-                const name = DialogsProvider.getTextDialog(null, qsTr("Create playlist"), qsTr("Name"), qsTr("New playlist"))
-                if (name)
-                    model.create(name, [])
-            }
+            leadingActions: [ { text: qsTr("Create playlist"), icon: "add", action: () => DialogsProvider.newPlaylistDialog() } ]
 
             model: MLPlaylistListModel {
                 ml: MediaLib
