@@ -1,0 +1,33 @@
+VLC Redesign (unofficial)
+=========================
+
+An unofficial, redesigned-interface build of VLC media player.
+Based on VLC by VideoLAN (GPLv2+). Design by Juxtopposed (juxtopposed.com).
+Not affiliated with VideoLAN. Apple Silicon, macOS 14 or later.
+
+INSTALL
+  1. Drag "VLC Redesign (unofficial)" onto the Applications folder.
+  2. Open it from Applications.
+
+FIRST LAUNCH: macOS will refuse to open it
+  This build is not signed with an Apple Developer ID and is not notarized,
+  so Gatekeeper blocks it the first time ("Apple could not verify ...").
+  To allow it, once:
+    1. Try to open the app. Click "Done" (not "Move to Trash").
+    2. Open System Settings > Privacy & Security.
+    3. Scroll down to the Security section. Next to the message about
+       "VLC Redesign (unofficial)" click "Open Anyway" and confirm with your
+       password or Touch ID.
+    4. Open the app again and click "Open".
+  (On macOS 15 and later right-click > Open no longer skips this step.)
+
+  Terminal alternative:
+    xattr -dr com.apple.quarantine "/Applications/VLC Redesign (unofficial).app"
+
+DEFAULT PLAYER
+  Select a video file in Finder, Get Info (Cmd+I), "Open with:" choose
+  VLC Redesign (unofficial), then click "Change All...".
+
+COEXISTENCE WITH VLC
+  Settings and caches are kept separately from the official VLC
+  (io.github.avishwakarma.vlc-redesign), so both can be installed.
