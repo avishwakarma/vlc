@@ -56,6 +56,7 @@
 
 
 #include <QMenu>
+#include <QPainter>
 #include <QMenuBar>
 #include <QAction>
 #include <QActionGroup>
@@ -234,6 +235,34 @@ void VLCMenuBar::FileMenu(qt_intf_t *p_intf, QMenu *menu)
 
     addDPStaticEntry( menu, qtr( "&Quit" ) ,
         ":/menu/exit.svg", &DialogsProvider::quit, "Ctrl+Q" );
+}
+
+void VLCMenu::setRightCheck(bool descending)
+{
+    m_rightCheck = true;
+    m_descending = descending;
+    setStyleSheet(VLCMenuStyle::rightCheckStyleSheet());
+}
+
+void VLCMenu::paintEvent(QPaintEvent *event)
+{
+    QMenu::paintEvent(event);
+
+    if (!m_rightCheck)
+        return;
+
+    const int size = 24;
+    const QIcon mark = VLCMenuStyle::icon(m_descending ? QStringLiteral("arrow-down") : QStringLiteral("check-active"));
+
+    QPainter painter(this);
+    for (QAction *action : actions())
+    {
+        if (!action->isCheckable() || !action->isChecked())
+            continue;
+
+        const QRect r = actionGeometry(action);
+        mark.paint(&painter, QRect(r.right() - 10 - size, r.top() + (r.height() - size) / 2, size, size));
+    }
 }
 
 /**

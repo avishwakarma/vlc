@@ -294,7 +294,7 @@ T.Page {
                 Layout.alignment: Qt.AlignVCenter
 
                 visible: defaultPageHeader.itemCount >= 0
-                text: qsTr("%n item(s)", "", defaultPageHeader.itemCount)
+                text: defaultPageHeader.itemCount === 1 ? qsTr("1 item") : qsTr("%1 items").arg(defaultPageHeader.itemCount)
                 color: theme.fg.secondary
                 font.pixelSize: VLCStyle.text_body
             }

@@ -54,6 +54,17 @@ public:
     {
         assert(parent); // use VLCMenu(qt_intf_t* p_intf) if parent is null pointer
     }
+
+    // Draw the check marks (an arrow when `descending`) of the checked actions at the right edge of the
+    // rows, as in the Figma sorting and view options menus.
+    void setRightCheck(bool descending);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    bool m_rightCheck = false;
+    bool m_descending = false;
 };
 
 class VLCMenuBar : public QObject

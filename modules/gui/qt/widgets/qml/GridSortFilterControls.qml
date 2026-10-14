@@ -29,8 +29,23 @@ NavigableRow {
         text: MainCtx.gridView ? VLCIcons.list : VLCIcons.grid
         // Figma shows the current mode (970:2703 grid, 970:3308 list)
         iconName: MainCtx.gridView ? "grid" : "list"
-        description: qsTr("List/Grid")
-        onClicked: MainCtx.gridView = !MainCtx.gridView
+        description: qsTr("View options")
+        checked: viewMenu.visible
+
+        // View Options popup (Figma 858:3290)
+        onClicked: viewMenu.popup(mapToGlobal(0, height), [
+            { text: qsTr("Grid View"), icon: "grid", checked: MainCtx.gridView },
+            { text: qsTr("List View"), icon: "list", checked: !MainCtx.gridView }
+        ])
+
+        StringListMenu {
+            id: viewMenu
+
+            ctx: MainCtx
+            rightCheck: true
+
+            onSelected: (index) => { MainCtx.gridView = (index === 0) }
+        }
     }
 
     SortControl {

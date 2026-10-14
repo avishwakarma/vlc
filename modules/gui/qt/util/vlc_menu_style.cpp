@@ -144,19 +144,13 @@ QString iconImagePath(const QString& name)
     return writeColorizedSvg(name, color1, accent);
 }
 
-QString rightCheckStyleSheet(bool descending)
+QString rightCheckStyleSheet()
 {
-    // Sorting / view options: the check mark (or an arrow for descending order) sits at the right
-    // edge. Applied on the menu itself; includes the application rules since a widget style
-    // sheet replaces them for the subcontrols it overrides.
-    const QString image = writeColorizedSvg(descending ? QStringLiteral("arrow-down") : QStringLiteral("check-active"),
-                                            s_colors.text, s_colors.accent);
+    // checkable rows do not reserve a column for the indicator: the mark is painted by the menu
+    // at the right edge (VLCMenu::setRightCheck). The rules replace the application ones.
     return qApp->styleSheet() + QStringLiteral(
-        "QMenu::indicator { subcontrol-origin: padding; subcontrol-position: right center;"
-        " left: 0px; right: 10px; width: 24px; height: 24px; }\n"
-        "QMenu::item { padding-left: -10px; }\n"
-        "QMenu::item:checked { background-color: %2; }\n"
-        "QMenu::indicator:non-exclusive:checked, QMenu::indicator:exclusive:checked { image: url(%1); }\n").arg(image, css(s_colors.hover));
+        "QMenu::indicator { width: 0px; height: 0px; }\n"
+        "QMenu::item:checked { background-color: %1; }\n").arg(css(s_colors.hover));
 }
 
 QIcon icon(const QString& name)

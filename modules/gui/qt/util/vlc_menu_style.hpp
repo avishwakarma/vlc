@@ -23,6 +23,7 @@
 #include <QIcon>
 #include <QString>
 
+
 // Palette driven styling of native QMenu (Figma menu: radius 10, translucent
 // BG/A4 surface, 48 px rows, separators, accent check marks, SVG icons).
 //
@@ -50,8 +51,9 @@ namespace VLCMenuStyle
     // The style sheet generated for `colors`.
     QString styleSheet(const Colors& colors, const QString& checkImage, const QString& arrowImage);
 
-    // Menu-local style sheet for menus whose check marks are drawn at the right edge.
-    QString rightCheckStyleSheet(bool descending);
+    // Menu-local style sheet of the menus that draw their check marks at the right edge
+    // (Figma sorting / view options, see VLCMenu::setRightCheck).
+    QString rightCheckStyleSheet();
 
     // Menu icon from pixmaps/svg_icons (`name` without extension, e.g. "home"),
     // recoloured with the current menu colors. Use with QAction::setIcon().
