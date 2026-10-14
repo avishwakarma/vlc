@@ -207,8 +207,10 @@ static char *getAppDependentDir(vlc_userdir_t type)
             break;
     }
 
-    // Default fallback
-    NSString *identifier = @"org.videolan.vlc";
+    // Default fallback, used when not running from a bundle with an Info.plist
+    // (e.g. a development build). The redesign fork never falls back to
+    // org.videolan.vlc, so it cannot clobber an installed VLC 3's preferences.
+    NSString *identifier = @"io.github.avishwakarma.vlc-redesign";
     NSBundle *mainBundle = [NSBundle mainBundle];
     if (mainBundle) {
         NSString *bundleId = mainBundle.bundleIdentifier;
