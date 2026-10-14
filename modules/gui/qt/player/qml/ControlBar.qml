@@ -57,6 +57,9 @@ T.Pane {
 
     property real backgroundOpacity: 1.0
 
+    // music player: translucent tinted surface over the cover backdrop
+    property bool frosted: false
+
     property bool playlistVisible: false
 
 
@@ -149,11 +152,14 @@ T.Pane {
     }
 
     background: Rectangle {
-        color: root.overlay ? theme.bg.secondary : theme.bg.primary
-        opacity: root.overlay ? root.backgroundOpacity * 0.95 : root.backgroundOpacity
+        color: root.frosted ? Qt.alpha(theme.bg.primary, theme.palette.isDark ? 0.30 : 0.42)
+                            : (root.overlay ? theme.bg.secondary : theme.bg.primary)
+        opacity: (root.overlay && !root.frosted) ? root.backgroundOpacity * 0.95 : root.backgroundOpacity
+
+        Behavior on color { ColorAnimation { duration: VLCStyle.duration_short } }
 
         Rectangle {
-            visible: root.overlay
+            visible: root.overlay || root.frosted
 
             anchors.top: parent.top
             anchors.left: parent.left

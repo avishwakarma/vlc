@@ -573,6 +573,9 @@ FocusScope {
         // translucent over the video in fullscreen, opaque otherwise
         backgroundOpacity: (rootPlayer._fullscreen && MainCtx.hasEmbededVideo) ? MainCtx.pinOpacity : 1.0
 
+        // music: frosted over the blurred cover
+        frosted: !MainCtx.hasEmbededVideo
+
         plListView: {
             if (playlistpopup.active)
                 return playlistpopup.item
@@ -883,6 +886,7 @@ FocusScope {
         // docked: opaque bar below the video; fullscreen: translucent bar over the video
         overlay: !rootPlayer._controlsUnderVideo
         backgroundOpacity: (rootPlayer._fullscreen && MainCtx.hasEmbededVideo) ? MainCtx.pinOpacity : 1.0
+        frosted: !MainCtx.hasEmbededVideo
 
         playlistVisible: playlistVisibility.isPlaylistVisible
         plListView: topBar.plListView

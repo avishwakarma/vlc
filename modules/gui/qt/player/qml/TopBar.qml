@@ -60,6 +60,9 @@ FocusScope {
     // opacity of the bar background (the video may be shown through it in fullscreen)
     property real backgroundOpacity: 1.0
 
+    // music player: translucent bar over the cover backdrop
+    property bool frosted: false
+
     readonly property bool fullscreen: (MainCtx.intfMainWindow.visibility === Window.FullScreen)
 
     // label of the breadcrumb link: the folder of the playing media
@@ -124,7 +127,8 @@ FocusScope {
         height: root.topMargin
 
         visible: height > 0
-        color: theme.bg.primary
+        color: root.frosted ? Qt.alpha(theme.bg.primary, theme.palette.isDark ? 0.30 : 0.42)
+                            : theme.bg.primary
         opacity: root.backgroundOpacity
     }
 
@@ -163,6 +167,7 @@ FocusScope {
         fullscreen: root.fullscreen
 
         backgroundOpacity: root.backgroundOpacity
+        frosted: root.frosted
 
         Navigation.parentItem: root
 

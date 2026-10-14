@@ -58,6 +58,9 @@ FocusScope {
 
     property alias backgroundOpacity: background.opacity
 
+    // music player: translucent tinted surface over the blurred cover backdrop
+    property bool frosted: false
+
     readonly property var model: {
         const profile = MainCtx.controlbarProfileModel.currentModel
         return profile ? profile.ensureModel(PlayerControlbarModel.Topbar) : null
@@ -115,7 +118,21 @@ FocusScope {
 
         visible: root.showBackground
 
-        color: theme.bg.primary
+        color: root.frosted ? Qt.alpha(theme.bg.primary, theme.palette.isDark ? 0.30 : 0.42)
+                            : theme.bg.primary
+
+        Behavior on color { ColorAnimation { duration: VLCStyle.duration_short } }
+
+        Rectangle {
+            visible: root.frosted
+
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: VLCStyle.dp(1, VLCStyle.scale)
+
+            color: theme.border
+        }
     }
 
     // drag and double click the titlebar in CSD mode
