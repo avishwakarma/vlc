@@ -34,7 +34,8 @@ public:
     {
         System,
         Day,
-        Night
+        Night,
+        Auto // follows OS light/dark using VLC's own palettes (appended, keep order)
     };
 
     struct Item

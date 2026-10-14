@@ -72,6 +72,13 @@ QColor ColorProperty::negative() const
         ColorContext::Negative);
 }
 
+QColor ColorProperty::heading() const
+{
+    return m_context->getColor(
+        static_cast<ColorContext::ColorSection>(m_section),
+        ColorContext::Heading);
+}
+
 
 //ColorContext
 

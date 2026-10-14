@@ -45,6 +45,7 @@ class ColorProperty {
     Q_PROPERTY(QColor positive READ positive CONSTANT FINAL)
     Q_PROPERTY(QColor neutral READ neutral CONSTANT FINAL)
     Q_PROPERTY(QColor negative READ negative CONSTANT FINAL)
+    Q_PROPERTY(QColor heading READ heading CONSTANT FINAL)
 
 public:
     ColorProperty() = default;
@@ -57,6 +58,7 @@ public:
     QColor positive() const;
     QColor neutral() const;
     QColor negative() const;
+    QColor heading() const;
 
 private:
     const ColorContext* m_context;
@@ -86,6 +88,9 @@ public:
         SpinBox = VQTC_SET_SPINBOX,
         TextField = VQTC_SET_TEXTFIELD,
         Switch = VQTC_SET_SWITCH,
+        Menu = VQTC_SET_MENU,
+        Pane = VQTC_SET_PANE,
+        ButtonTonal = VQTC_SET_BUTTON_TONAL,
         ColorSetUndefined = -1
     };
     Q_ENUM(ColorSet)
@@ -119,7 +124,9 @@ public:
         Accent = VQTC_NAME_ACCENT,
         Shadow = VQTC_NAME_SHADOW,
         Separator = VQTC_NAME_SEPARATOR,
-        Indicator = VQTC_NAME_INDICATOR
+        Indicator = VQTC_NAME_INDICATOR,
+
+        Heading = VQTC_NAME_HEADING
     };
 
     Q_PROPERTY(SystemPalette* palette READ palette WRITE setPalette NOTIFY paletteChanged FINAL)

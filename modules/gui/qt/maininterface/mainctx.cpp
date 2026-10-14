@@ -131,6 +131,40 @@ bool loadVLCOption<bool>(vlc_object_t *obj, const char *name)
 
 }
 
+namespace {
+
+const QColor ACCENT_DEFAULT {QStringLiteral("#D37918")};
+
+const char* const ACCENT_PRESETS[] = {
+    "#D37918", // orange (default)
+    "#E15032", // red
+    "#C49E23", // yellow
+    "#19A234", // green
+    "#18AAD3", // teal
+    "#185DD3", // blue
+    "#8E42FF", // purple
+    "#F052B3", // pink
+    "#AFAFAF", // gray
+};
+
+QColor parseAccentColor(const char* value)
+{
+    if (!value || !strcmp(value, "default"))
+        return ACCENT_DEFAULT;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+    if (!strcmp(value, "system"))
+    {
+        if (qApp)
+            return qApp->palette().color(QPalette::Normal, QPalette::Accent);
+        return ACCENT_DEFAULT;
+    }
+#endif
+    const QColor color(QString::fromUtf8(value));
+    return color.isValid() ? color : ACCENT_DEFAULT;
+}
+
+}
+
 MainCtx::MainCtx(qt_intf_t *_p_intf)
     : p_intf(_p_intf)
     , m_csdButtonModel {std::make_unique<CSDButtonModel>(this, this)}
@@ -161,6 +195,12 @@ MainCtx::MainCtx(qt_intf_t *_p_intf)
     settings = getSettings();
     m_colorScheme = new ColorSchemeModel(this);
 
+    {
+        char* accent = var_InheritString(p_intf, "qt-accent-color");
+        m_accentColor = parseAccentColor(accent);
+        free(accent);
+    }
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     connect(m_colorScheme, &ColorSchemeModel::currentChanged, qGuiApp, [colorScheme = m_colorScheme]() {
         QStyleHints *const styleHints = qGuiApp->styleHints();
@@ -177,6 +217,7 @@ MainCtx::MainCtx(qt_intf_t *_p_intf)
             scheme = Qt::ColorScheme::Dark;
             break;
         case ColorSchemeModel::ColorScheme::System:
+        case ColorSchemeModel::ColorScheme::Auto: // follows the OS, handled by SystemPalette
         default:
             styleHints->unsetColorScheme();
             return;
@@ -305,6 +346,25 @@ MainCtx::MainCtx(qt_intf_t *_p_intf)
     m_threadRunner = new ThreadRunner();
 
     m_initialEffectiveMainInterfaceMode = getEffectiveMainInterfaceMode();
+}
+
+void MainCtx::setAccentColor(const QColor& color)
+{
+    if (!color.isValid() || color.rgb() == m_accentColor.rgb())
+        return;
+    m_accentColor = color.toRgb();
+    m_accentColor.setAlpha(255);
+    config_PutPsz("qt-accent-color", qtu(m_accentColor.name(QColor::HexRgb).toUpper()));
+    config_SaveConfigFile(p_intf);
+    emit accentColorChanged();
+}
+
+QStringList MainCtx::accentPresets() const
+{
+    QStringList list;
+    for (const char* preset : ACCENT_PRESETS)
+        list.append(QString::fromLatin1(preset));
+    return list;
 }
 
 MainCtx::~MainCtx()
