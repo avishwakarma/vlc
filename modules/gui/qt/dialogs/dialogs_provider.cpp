@@ -289,6 +289,13 @@ const QEvent::Type DialogEvent::DialogEvent_Type =
 
 void DialogsProvider::prefsDialog()
 {
+    /* the QML settings window needs the main interface (Dialogs.qml) */
+    if (p_intf->p_mi && var_InheritBool(p_intf, "qt-qml-settings"))
+    {
+        emit showSettingsDialog();
+        return;
+    }
+
     if (Q_LIKELY(!m_prefsDialog))
     {
         m_prefsDialog = new PrefsDialog( nullptr, p_intf );

@@ -290,6 +290,8 @@ public:
 signals:
     void releaseMouseEvents();
     void showToolbarEditorDialog();
+    /// the QML settings window should be shown (qt-qml-settings)
+    void showSettingsDialog();
 
     //visiblity signal
     void openDialogVisibleChanged();
