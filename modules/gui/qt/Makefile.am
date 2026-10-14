@@ -1528,6 +1528,15 @@ CLEANFILES += shaders/shaders.qrc
 
 lib_qt_plugin_la_QRC = assets.qrc
 
+# Bundled Inter UI font (OFL). Meson-only switch: -Dqt_bundle_ui_font
+lib_qt_plugin_la_QRC += fonts.qrc
+libqt_plugin_la_CXXFLAGS += -DQT_BUNDLE_UI_FONT
+fonts.cpp: fonts.qrc pixmaps/fonts/InterVariable.ttf pixmaps/fonts/OFL.txt
+	$(AM_V_GEN)$(RCC) $(RCC_EXTRA_PARAMS) --name fonts -o $@ $<
+
+nodist_libqt_plugin_la_SOURCES += fonts.cpp
+EXTRA_DIST += pixmaps/fonts/InterVariable.ttf pixmaps/fonts/OFL.txt
+
 if HAVE_WIN32
 lib_qt_plugin_la_QRC += windows.qrc
 

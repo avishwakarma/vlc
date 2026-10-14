@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/fonts">
+        <file alias="InterVariable.ttf">pixmaps/fonts/InterVariable.ttf</file>
+        <file alias="OFL.txt">pixmaps/fonts/OFL.txt</file>
+    </qresource>
+</RCC>
