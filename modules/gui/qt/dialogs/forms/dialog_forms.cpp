@@ -22,6 +22,7 @@
 #include "dialog_forms.hpp"
 
 #include "maininterface/mainctx.hpp"
+#include "player/player_controller.hpp"
 #include "playlist/media.hpp"
 #include "medialibrary/medialib.hpp"
 #include "medialibrary/mlplaylistlistmodel.hpp"
@@ -33,8 +34,16 @@
 #include <QGuiApplication>
 #include <QRegularExpression>
 #include <QTimer>
+#include <QDir>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QStandardPaths>
+#include <QCollator>
 
 #include <vlc_url.h>
+#include <vlc_playlist.h>
+#include <vlc_input_item.h>
+#include <vlc_interface.h>
 
 using namespace vlc::playlist;
 
@@ -161,4 +170,219 @@ bool DialogForms::createPlaylist(const QString& name, const QStringList& urls)
         items.push_back(url);
     model->create(name.trimmed(), items);
     return true;
+}
+
+// --- Add Subtitles
+
+namespace
+{
+
+QStringList subtitleNameFilters()
+{
+    return QString::fromLatin1(EXTENSIONS_SUBTITLE).split(QLatin1Char(';'), Qt::SkipEmptyParts);
+}
+
+QFileInfoList subtitleFileInfos(const QUrl& folder)
+{
+    if (!folder.isLocalFile())
+        return {};
+    QDir dir(folder.toLocalFile());
+    QFileInfoList list = dir.entryInfoList(subtitleNameFilters(), QDir::Files | QDir::Readable, QDir::NoSort);
+    QCollator collator;
+    collator.setNumericMode(true);
+    collator.setCaseSensitivity(Qt::CaseInsensitive);
+    std::sort(list.begin(), list.end(), [&collator](const QFileInfo& a, const QFileInfo& b) {
+        return collator.compare(a.fileName(), b.fileName()) < 0;
+    });
+    return list;
+}
+
+/** true when the subtitle \`sub\` goes with the video \`video\` (base names) */
+bool subtitleMatches(const QString& videoBase, const QString& subBase, bool* exact)
+{
+    *exact = subBase.compare(videoBase, Qt::CaseInsensitive) == 0;
+    if (*exact)
+        return true;
+    if (subBase.size() <= videoBase.size() || !subBase.startsWith(videoBase, Qt::CaseInsensitive))
+        return false;
+    return !subBase.at(videoBase.size()).isLetterOrNumber();
+}
+
+}
+
+bool DialogForms::hasCurrentMedia() const
+{
+    if (!m_ctx)
+        return false;
+    qt_intf_t* p_intf = m_ctx->getIntf();
+    return !THEMIM->getUrl().isEmpty();
+}
+
+QString DialogForms::currentMediaName() const
+{
+    if (!m_ctx)
+        return {};
+    qt_intf_t* p_intf = m_ctx->getIntf();
+    return THEMIM->getName();
+}
+
+QUrl DialogForms::defaultSubtitleFolder() const
+{
+    if (m_ctx)
+    {
+        qt_intf_t* p_intf = m_ctx->getIntf();
+        const QUrl url = THEMIM->getUrl();
+        if (url.isLocalFile())
+            return QUrl::fromLocalFile(QFileInfo(url.toLocalFile()).absolutePath());
+    }
+
+    QString dir = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+    if (dir.isEmpty())
+        dir = QDir::homePath();
+    return QUrl::fromLocalFile(dir);
+}
+
+QUrl DialogForms::pickFolder(const QUrl& start)
+{
+    const QUrl url = QFileDialog::getExistingDirectoryUrl(nullptr, qtr("Choose a folder with subtitles"),
+            start, QFileDialog::ShowDirsOnly, QStringList(QStringLiteral("file")));
+    return url.isEmpty() ? start : url;
+}
+
+QString DialogForms::folderText(const QUrl& folder) const
+{
+    QString path = folder.isLocalFile() ? folder.toLocalFile() : folder.toString();
+    const QString home = QDir::homePath();
+    if (path == home || path.startsWith(home + QLatin1Char('/')))
+        path = QLatin1Char('~') + path.mid(home.size());
+    return path.split(QLatin1Char('/'), Qt::SkipEmptyParts).join(QStringLiteral(" / "));
+}
+
+QVariantList DialogForms::subtitleFiles(const QUrl& folder) const
+{
+    QVariantList ret;
+    for (const QFileInfo& info : subtitleFileInfos(folder))
+        ret.push_back(QVariantMap{
+            { QStringLiteral("name"), info.fileName() },
+            { QStringLiteral("url"), QUrl::fromLocalFile(info.absoluteFilePath()) }
+        });
+    return ret;
+}
+
+QVariantList DialogForms::queueMatches(const QUrl& folder) const
+{
+    QVariantList ret;
+    if (!m_ctx || !folder.isLocalFile())
+        return ret;
+
+    const QFileInfoList subs = subtitleFileInfos(folder);
+    const QString folderPath = QDir(folder.toLocalFile()).absolutePath();
+
+    qt_intf_t* p_intf = m_ctx->getIntf();
+    vlc_playlist_t* playlist = THEMPL->getPlaylist().m_playlist;
+    if (!playlist)
+        return ret;
+
+    vlc_playlist_Lock(playlist);
+    const size_t count = vlc_playlist_Count(playlist);
+    for (size_t i = 0; i < count; ++i)
+    {
+        input_item_t* media = vlc_playlist_item_GetMedia(vlc_playlist_Get(playlist, i));
+        if (!media || !media->psz_uri)
+            continue;
+        const QUrl url = QUrl::fromEncoded(media->psz_uri);
+        if (!url.isLocalFile())
+            continue;
+        const QFileInfo video(url.toLocalFile());
+        if (video.absolutePath() != folderPath)
+            continue;
+
+        QString subName;
+        QUrl subUrl;
+        bool bestExact = false;
+        for (const QFileInfo& sub : subs)
+        {
+            bool exact;
+            if (!subtitleMatches(video.completeBaseName(), sub.completeBaseName(), &exact))
+                continue;
+            // exact name first, else the closest (shortest) one
+            if (subName.isEmpty() || (exact && !bestExact)
+                    || (!bestExact && sub.fileName().size() < subName.size()))
+            {
+                subName = sub.fileName();
+                subUrl = QUrl::fromLocalFile(sub.absoluteFilePath());
+                bestExact = exact;
+            }
+        }
+
+        ret.push_back(QVariantMap{
+            { QStringLiteral("index"), int(i) },
+            { QStringLiteral("name"), video.fileName() },
+            { QStringLiteral("subName"), subName },
+            { QStringLiteral("subUrl"), subUrl }
+        });
+    }
+    vlc_playlist_Unlock(playlist);
+    return ret;
+}
+
+int DialogForms::attachSubtitles(const QStringList& urls)
+{
+    if (!m_ctx)
+        return 0;
+    qt_intf_t* p_intf = m_ctx->getIntf();
+
+    int added = 0;
+    for (const QString& url : urls)
+    {
+        // the first file is selected, the others only added to the track list
+        if (THEMIM->AddAssociatedMedia(SPU_ES, url, added == 0, true, false) == VLC_SUCCESS)
+            ++added;
+        else
+            msg_Warn(p_intf, "unable to load subtitle '%s'", qtu(url));
+    }
+    return added;
+}
+
+int DialogForms::assignToQueue(const QVariantList& pairs)
+{
+    if (!m_ctx)
+        return 0;
+    qt_intf_t* p_intf = m_ctx->getIntf();
+    vlc_playlist_t* playlist = THEMPL->getPlaylist().m_playlist;
+    if (!playlist)
+        return 0;
+
+    int updated = 0;
+    QStringList attachNow;
+
+    vlc_playlist_Lock(playlist);
+    const size_t count = vlc_playlist_Count(playlist);
+    const ssize_t current = vlc_playlist_GetCurrentIndex(playlist);
+    for (const QVariant& pair : pairs)
+    {
+        const QVariantMap map = pair.toMap();
+        const int index = map.value(QStringLiteral("index"), -1).toInt();
+        const QUrl sub = map.value(QStringLiteral("subUrl")).toUrl();
+        if (index < 0 || size_t(index) >= count || !sub.isLocalFile())
+            continue;
+
+        input_item_t* media = vlc_playlist_item_GetMedia(vlc_playlist_Get(playlist, index));
+        if (!media)
+            continue;
+
+        const QString option = QStringLiteral(":sub-file=") + QDir::toNativeSeparators(sub.toLocalFile());
+        if (input_item_AddOption(media, qtu(option), VLC_INPUT_OPTION_TRUSTED) != VLC_SUCCESS)
+            continue;
+        ++updated;
+        if (index == current)
+            attachNow << sub.toString();
+    }
+    vlc_playlist_Unlock(playlist);
+
+    // the playing item has already been opened, add the subtitle to it directly
+    for (const QString& url : attachNow)
+        THEMIM->AddAssociatedMedia(SPU_ES, url, true, true, false);
+
+    return updated;
 }

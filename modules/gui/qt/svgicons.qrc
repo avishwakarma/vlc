@@ -173,7 +173,9 @@
         <file alias="streaming-selected.svg">pixmaps/svg_icons/streaming-selected.svg</file>
         <file alias="streaming-twotone.svg">pixmaps/svg_icons/streaming-twotone.svg</file>
         <file alias="streaming.svg">pixmaps/svg_icons/streaming.svg</file>
+        <file alias="clapperboard.svg">pixmaps/svg_icons/clapperboard.svg</file>
         <file alias="subtitle.svg">pixmaps/svg_icons/subtitle.svg</file>
+        <file alias="subtitle-file.svg">pixmaps/svg_icons/subtitle-file.svg</file>
         <file alias="subtitles-active.svg">pixmaps/svg_icons/subtitles-active.svg</file>
         <file alias="subtitles-twotone.svg">pixmaps/svg_icons/subtitles-twotone.svg</file>
         <file alias="subtitles.svg">pixmaps/svg_icons/subtitles.svg</file>

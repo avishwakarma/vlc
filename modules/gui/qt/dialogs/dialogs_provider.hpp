@@ -307,6 +307,7 @@ signals:
     void showOpenNetworkStream();
     void showNewPlaylist();
     void showKeyboardShortcuts();
+    void showAddSubtitles();
 
     //visiblity signal
     void openDialogVisibleChanged();

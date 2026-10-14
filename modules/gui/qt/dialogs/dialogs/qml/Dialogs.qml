@@ -727,6 +727,27 @@ Item {
         }
     }
 
+    Loader {
+        id: addSubtitlesLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/AddSubtitles.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowAddSubtitles() {
+                addSubtitlesLoader.active = true
+                const window = addSubtitlesLoader.item
+                if (window.visible) {
+                    window.raise()
+                    window.requestActivate()
+                } else {
+                    window.open()
+                }
+            }
+        }
+    }
+
     // debug aid: VLC_QT_OPEN_FORM opens a form dialog at start-up (see DialogsProvider::openDebugForm)
     Timer {
         interval: 1500

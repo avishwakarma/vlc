@@ -69,6 +69,34 @@ public:
      */
     Q_INVOKABLE bool createPlaylist(const QString& name, const QStringList& urls);
 
+    // --- Add Subtitles
+
+    /** the playing media has a name/URL */
+    Q_INVOKABLE bool hasCurrentMedia() const;
+    Q_INVOKABLE QString currentMediaName() const;
+    /** folder of the playing media when it is a local file, else the folder of the last open dialog */
+    Q_INVOKABLE QUrl defaultSubtitleFolder() const;
+    /** native folder chooser, returns \`start\` if cancelled */
+    Q_INVOKABLE QUrl pickFolder(const QUrl& start);
+    /** "~/Movies/Show" display text of a folder URL */
+    Q_INVOKABLE QString folderText(const QUrl& folder) const;
+    /** subtitle files of a local folder: [{ name, url }] sorted by name */
+    Q_INVOKABLE QVariantList subtitleFiles(const QUrl& folder) const;
+    /**
+     * Items of the play queue that are files of \`folder\`, each with the subtitle file of the
+     * folder that goes with it (same name, followed by a separator or the extension):
+     * [{ index, name, subName, subUrl }]
+     */
+    Q_INVOKABLE QVariantList queueMatches(const QUrl& folder) const;
+    /** adds subtitle files to the playing media (the first one is selected), returns how many were added */
+    Q_INVOKABLE int attachSubtitles(const QStringList& urls);
+    /**
+     * pairs: [{ index, subUrl }] of queue items. The subtitle is added to the item as a
+     * \`sub-file\` option so it is loaded whenever the item plays (not stored beyond the
+     * queue), and attached right away to the playing item. Returns the number of items updated.
+     */
+    Q_INVOKABLE int assignToQueue(const QVariantList& pairs);
+
 signals:
     void ctxChanged();
 
