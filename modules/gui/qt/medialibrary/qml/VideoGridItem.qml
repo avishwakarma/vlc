@@ -43,7 +43,9 @@ Widgets.GridItem {
     fillMode: Image.Stretch
 
     title: model.title || qsTr("Unknown title")
-    subtitle: model?.duration?.formatHMS() ?? ""
+    // Figma grid tiles only show the name below the thumbnail
+    subtitle: ""
+    subtitleVisible: false
     pictureWidth: VLCStyle.gridCover_video_width
     pictureHeight: VLCStyle.gridCover_video_height
 
@@ -103,18 +105,6 @@ Widgets.GridItem {
             visible: root.showNewIndicator
 
             source: VLCStyle.newIndicator
-        }
-
-        Widgets.VideoQualityLabels {
-            anchors {
-                top: parent.top
-                right: parent.right
-                topMargin: VLCStyle.margin_xxsmall
-                leftMargin: VLCStyle.margin_xxsmall
-                rightMargin: VLCStyle.margin_xxsmall
-            }
-
-            labels: root.labels
         }
     }
 

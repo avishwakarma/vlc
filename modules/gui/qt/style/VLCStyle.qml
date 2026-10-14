@@ -199,11 +199,12 @@ QtObject {
     readonly property int gridCover_music_height: gridCover_music_width
     readonly property int gridCover_music_border: MainCtx.dp(3, scale)
 
-    readonly property int gridCover_video_width: colWidth(2)
-    readonly property int gridCover_video_height: ( gridCover_video_width * 10.0 ) / 16
+    // Figma library grid: 316x178 thumbnails
+    readonly property int gridCover_video_width: MainCtx.dp(316, scale)
+    readonly property int gridCover_video_height: ( gridCover_video_width * 9.0 ) / 16
     readonly property int gridCover_video_border: MainCtx.dp(4, scale)
 
-    readonly property int gridCover_radius: MainCtx.dp(4, scale)
+    readonly property int gridCover_radius: radius_l
 
     readonly property int expandCover_music_height: MainCtx.dp(171, scale)
     readonly property int expandCover_music_width: MainCtx.dp(171, scale)

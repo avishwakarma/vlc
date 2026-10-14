@@ -357,6 +357,8 @@ T.ItemDelegate {
                 id: titleLabel
 
                 height: implicitHeight
+                font.pixelSize: VLCStyle.text_heading
+                font.weight: VLCStyle.fontWeight_regular
                 color: root.selected
                     ? theme.fg.highlight
                     : theme.fg.primary
