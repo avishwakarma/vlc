@@ -31,6 +31,8 @@ LangButton {
     id: root
 
     iconName: "subtitles"
+    panelMode: "tracks"
+    panelTab: "subtitles"
     description: qsTr("Subtitles")
 
     AccessibleCompat.id: "subtitleTracksButton"

@@ -1226,6 +1226,40 @@ libqml_module_player_a_QML = \
 	player/qml/SliderBar.qml \
 	player/qml/TopBar.qml \
 	player/qml/TracksMenu.qml \
+	player/qml/effects/EffectCard.qml \
+	player/qml/effects/EffectParamsCard.qml \
+	player/qml/effects/EffectSlider.qml \
+	player/qml/effects/EffectSliderBar.qml \
+	player/qml/effects/EffectsDropdown.qml \
+	player/qml/effects/VarChoiceDropdown.qml \
+	player/qml/effects/ValueField.qml \
+	player/qml/effects/InlineField.qml \
+	player/qml/effects/CropCard.qml \
+	player/qml/effects/ColorsCard.qml \
+	player/qml/effects/HexColorField.qml \
+	player/qml/effects/OptionColorField.qml \
+	player/qml/effects/OptionField.qml \
+	player/qml/effects/PanelToggleRow.qml \
+	player/qml/effects/PanelTabBar.qml \
+	player/qml/effects/PanelHeading.qml \
+	player/qml/effects/PanelRow.qml \
+	player/qml/effects/PanelDivider.qml \
+	player/qml/effects/PanelSubLabel.qml \
+	player/qml/effects/PanelSectionLabel.qml \
+	player/qml/effects/FooterLink.qml \
+	player/qml/effects/DelaySlider.qml \
+	player/qml/effects/SpeedSlider.qml \
+	player/qml/effects/TrackRow.qml \
+	player/qml/effects/TonalButton.qml \
+	player/qml/effects/TracksTab.qml \
+	player/qml/effects/SettingsTabBase.qml \
+	player/qml/effects/SettingsPlaybackTab.qml \
+	player/qml/effects/SettingsVideoTab.qml \
+	player/qml/effects/SettingsAudioTab.qml \
+	player/qml/effects/SettingsSubtitlesTab.qml \
+	player/qml/effects/FilterSection.qml \
+	player/qml/effects/EqVerticalSlider.qml \
+	player/qml/effects/EqualizerWide.qml \
 	player/qml/TracksPage.qml \
 	player/qml/TracksPageAudio.qml \
 	player/qml/TracksPageSpeed.qml \

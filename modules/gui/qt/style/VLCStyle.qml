@@ -375,6 +375,12 @@ QtObject {
     readonly property real settingsNav_w: MainCtx.dp(200, scale)
     readonly property real sidebarRail_w: MainCtx.dp(50, scale)
     readonly property real sidebarPanel_w: MainCtx.dp(377, scale)
+    readonly property real popoverPanel_w: MainCtx.dp(400, scale)      // tracks / settings popovers
+    readonly property real popoverPanel_margin: MainCtx.dp(20, scale)  // gap to the window edge and the control bar
+    readonly property real popoverTab_h: MainCtx.dp(50, scale)
+    readonly property real popoverRow_h: MainCtx.dp(44, scale)
+    readonly property real effectCard_padding: MainCtx.dp(16, scale)
+    readonly property real effectHeader_h: MainCtx.dp(48, scale)
     readonly property real viewport_inset: MainCtx.dp(10, scale)       // player video inset / visible corner radius base
     readonly property real viewport_radius: MainCtx.dp(10, scale)      // visible video corner radius (Figma 19 is the stroke centre-line)
     readonly property real windowButton_w: MainCtx.dp(36, scale)

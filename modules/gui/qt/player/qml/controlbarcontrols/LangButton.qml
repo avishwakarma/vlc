@@ -50,7 +50,13 @@ Widgets.IconToolButton {
     iconName: ""
     iconNameChecked: iconName !== "" ? (iconName + "-active") : ""
 
-    checked: menuLoader.item?.visible ?? false
+    // what the popover opens on (Figma Controls 491:1780): the tracks panel
+    // on the audio / subtitles tab, or the settings panel
+    property string panelMode: "tracks"
+    property string panelTab: "audio"
+
+    checked: (menuLoader.item?.visible ?? false)
+             && (panelMode === "settings" || menuLoader.item.tab === panelTab)
 
     enabled: menuLoader.status === Loader.Ready
 
@@ -60,7 +66,13 @@ Widgets.IconToolButton {
 
     // Events
 
-    onClicked: menuLoader.item.open()
+    onClicked: {
+        const menu = menuLoader.item
+        if (menu.visible)
+            menu.close()
+        else if (Date.now() - menu.closedAt > 250) // a press outside just closed it
+            menu.openMode(root.panelMode, root.panelTab)
+    }
 
     // Children
 
@@ -72,8 +84,6 @@ Widgets.IconToolButton {
 
             parent: root._parentItem
 
-            x: 0
-            y: (parent.positionSliderY - height)
             z: 1
 
             focus: true
