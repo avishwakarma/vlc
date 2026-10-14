@@ -98,8 +98,22 @@ Window {
         // centre on the main window
         const parentWin = MainCtx.intfMainWindow
         if (parentWin) {
-            x = parentWin.x + (parentWin.width - width) / 2
-            y = parentWin.y + (parentWin.height - height) / 2
+            let nx = parentWin.x + (parentWin.width - width) / 2
+            let ny = parentWin.y + (parentWin.height - height) / 2
+
+            // keep the card on the screen of the main window
+            const cx = parentWin.x + parentWin.width / 2
+            const cy = parentWin.y + parentWin.height / 2
+            for (const scr of Qt.application.screens) {
+                if (cx >= scr.virtualX && cx < scr.virtualX + scr.width
+                        && cy >= scr.virtualY && cy < scr.virtualY + scr.height) {
+                    nx = Math.max(scr.virtualX, Math.min(nx, scr.virtualX + scr.width - width))
+                    ny = Math.max(scr.virtualY, Math.min(ny, scr.virtualY + scr.height - height))
+                    break
+                }
+            }
+            x = nx
+            y = ny
         }
         closing_ = false
         show()

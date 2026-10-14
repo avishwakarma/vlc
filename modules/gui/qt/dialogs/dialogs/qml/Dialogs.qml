@@ -706,6 +706,27 @@ Item {
         }
     }
 
+    Loader {
+        id: keyboardShortcutsLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/KeyboardShortcuts.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowKeyboardShortcuts() {
+                keyboardShortcutsLoader.active = true
+                const window = keyboardShortcutsLoader.item
+                if (window.visible) {
+                    window.raise()
+                    window.requestActivate()
+                } else {
+                    window.open()
+                }
+            }
+        }
+    }
+
     // debug aid: VLC_QT_OPEN_FORM opens a form dialog at start-up (see DialogsProvider::openDebugForm)
     Timer {
         interval: 1500

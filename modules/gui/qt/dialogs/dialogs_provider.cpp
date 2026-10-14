@@ -299,6 +299,8 @@ void DialogsProvider::openDebugForm()
         emit showOpenNetworkStream();
     else if (form == QLatin1String("playlist"))
         emit showNewPlaylist();
+    else if (form == QLatin1String("shortcuts"))
+        emit showKeyboardShortcuts();
 }
 
 void DialogsProvider::prefsDialog()
@@ -710,6 +712,10 @@ void DialogsProvider::openNetDialog()
 void DialogsProvider::newPlaylistDialog()
 {
     emit showNewPlaylist();
+}
+void DialogsProvider::keyboardShortcutsDialog()
+{
+    emit showKeyboardShortcuts();
 }
 void DialogsProvider::openCaptureDialog()
 {

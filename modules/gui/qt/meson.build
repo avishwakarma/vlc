@@ -651,6 +651,8 @@ qml_modules += {
         'dialogs/onboarding/qml/ThemePreview.qml',
         'dialogs/onboarding/qml/ShortcutsStep.qml',
         'dialogs/onboarding/qml/KeyCap.qml',
+        'dialogs/forms/qml/KeyboardShortcuts.qml',
+        'dialogs/forms/qml/DialogDropdown.qml',
         'dialogs/forms/qml/NewPlaylist.qml',
         'dialogs/forms/qml/OpenNetworkStream.qml',
         'dialogs/forms/qml/DialogTextArea.qml',

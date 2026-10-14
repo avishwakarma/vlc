@@ -255,6 +255,8 @@ public slots:
     void openNetDialog();
     /// QML "New Playlist" form (needs the media library to save), callable from QML: DialogsProvider.newPlaylistDialog()
     void newPlaylistDialog();
+    /// QML "Keyboard Shortcuts" cheat sheet / editor (HotkeysModel)
+    void keyboardShortcutsDialog();
     void openCaptureDialog();
 
     void PLOpenDir();
@@ -304,6 +306,7 @@ signals:
     /// QML form dialogs (dialogs/forms), enabled with qt-qml-settings
     void showOpenNetworkStream();
     void showNewPlaylist();
+    void showKeyboardShortcuts();
 
     //visiblity signal
     void openDialogVisibleChanged();
