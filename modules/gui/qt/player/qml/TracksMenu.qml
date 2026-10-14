@@ -1,6 +1,6 @@
 
 /*****************************************************************************
- * Copyright (C) 2020 VLC authors and VideoLAN
+ * Copyright (C) 2026 VLC authors and VideoLAN
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,124 +21,337 @@ import QtQuick.Templates as T
 import QtQuick.Layouts
 import QtQml.Models
 
-
 import VLC.Style
 import VLC.Widgets as Widgets
 import VLC.Util
+import VLC.Player
+import VLC.Dialogs
 
-// FIXME: Keyboard navigation needs to be fixed for this Popup.
+// Popover of the audio / subtitle / settings buttons of the control bar
+// (Figma: Controls 491:1780). One 400 px panel anchored above the bar, right
+// aligned, with a tab header:
+//   mode "tracks":   Video | Audio | Subtitles   (embedded tracks, output device, external subtitles)
+//   mode "settings": Playback | Video | Audio | Subtitles + preset footer
+// The tabs hold the effect panels (EQ, compressor, spatializer, stereo
+// widener, video essential / crop / colours) driven by the Effects controller.
 T.Popup {
     id: root
 
-    // Settings
-    property var preferredWidth : stackView.currentItem.preferredWidth
+    // "tracks" | "settings"
+    property string mode: "tracks"
+    property string tab: "audio"
 
-    width: Math.min((typeof preferredWidth !== "undefined")
-                          ? preferredWidth : Number.MAX_VALUE
-                    , root.parent.width)
+    // time the popup was last closed, lets the owner button turn a click into a toggle
+    property double closedAt: 0
 
-    height: VLCStyle.dp(296, VLCStyle.scale)
+    // the wide equalizer panel (opened from the Audio settings tab)
+    property alias equalizerPanel: equalizerPanelItem
 
-    // Animations
+    readonly property var tabsByMode: ({
+        tracks: [
+            { id: "video", text: qsTr("Video"), icon: "video" },
+            { id: "audio", text: qsTr("Audio"), icon: "audio" },
+            { id: "subtitles", text: qsTr("Subtitles"), icon: "subtitles" }
+        ],
+        settings: [
+            { id: "playback", text: qsTr("Playback"), icon: "playback" },
+            { id: "video", text: qsTr("Video"), icon: "video" },
+            { id: "audio", text: qsTr("Audio"), icon: "audio" },
+            { id: "subtitles", text: qsTr("Subtitles"), icon: "subtitles" }
+        ]
+    })
 
-    Behavior on width {
-        SmoothedAnimation {
-            duration: VLCStyle.duration_veryShort
-            easing.type: Easing.InOutSine
-        }
+    readonly property var tabs: tabsByMode[mode]
+
+    readonly property int tabIndex: {
+        for (let i = 0; i < tabs.length; ++i)
+            if (tabs[i].id === tab)
+                return i
+        return 0
     }
 
-    // Children
+    // the player item the popup floats over (Player.qml / MainDisplay)
+    readonly property real _barTop: (parent && parent.positionSliderY !== undefined) ? parent.positionSliderY : (parent ? parent.height : 0)
+    readonly property real _maxHeight: VLCStyle.dp(946, VLCStyle.scale)
+    readonly property real _topLimit: VLCStyle.dp(60, VLCStyle.scale)
+
+    width: VLCStyle.popoverPanel_w
+    height: Math.max(VLCStyle.dp(320, VLCStyle.scale), Math.min(_maxHeight, _barTop - _topLimit - VLCStyle.popoverPanel_margin))
+    x: parent ? parent.width - width - VLCStyle.popoverPanel_margin : 0
+    y: _barTop - height - VLCStyle.popoverPanel_margin
+
+    padding: 0
+    closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutside
+    focus: true
+
+    function openMode(newMode, newTab) {
+        mode = newMode
+        tab = newTab
+        open()
+    }
+
+    // keep the tab valid when the mode changes
+    onModeChanged: {
+        if (tabIndex === 0 && tabs[0].id !== tab)
+            tab = tabs[0].id
+    }
+
+    onClosed: closedAt = Date.now()
 
     readonly property ColorContext colorContext: ColorContext {
         id: popupTheme
-        colorSet: ColorContext.Window
+        colorSet: ColorContext.Pane
     }
 
-    background: Rectangle {
-        // NOTE: The opacity should be stronger on a light background for readability.
-        color: popupTheme.bg.primary.alpha(popupTheme.palette.isDark ? 0.8 : 0.96)
-
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-
-            height: VLCStyle.margin_xxxsmall
-
-            color: popupTheme.border
+    // slide up + fade (VLC popups use 150-200 ms)
+    enter: Transition {
+        ParallelAnimation {
+            NumberAnimation { property: "opacity"; from: 0; to: 1; duration: VLCStyle.duration_long }
+            NumberAnimation { target: slide; property: "y"; from: VLCStyle.spacing_12; to: 0; duration: VLCStyle.duration_long; easing.type: Easing.OutCubic }
         }
     }
 
-    contentItem: T.StackView {
-        id: stackView
+    exit: Transition {
+        ParallelAnimation {
+            NumberAnimation { property: "opacity"; from: 1; to: 0; duration: VLCStyle.duration_short }
+            NumberAnimation { target: slide; property: "y"; from: 0; to: VLCStyle.spacing_8; duration: VLCStyle.duration_short }
+        }
+    }
+
+    background: null
+
+    contentItem: Item {
+        id: panel
 
         focus: true
-        clip: true
 
-        //erf, popup are weird, content is not parented to the root
-        //so, duplicate the context here for the childrens
+        // popups live outside of the item tree: hand the palette to the children
         readonly property ColorContext colorContext: ColorContext {
-            id: theme
             colorSet: popupTheme.colorSet
             palette: popupTheme.palette
         }
 
-        initialItem: TracksListPage {
-            trackMenuController: trackMenuController
+        transform: Translate { id: slide }
+
+        Rectangle {
+            id: surface
+
+            anchors.fill: parent
+            radius: VLCStyle.radius_l
+
+            color: popupTheme.bg.primary
+            opacity: 0.95
+
+            Widgets.RoundedRectangleShadow {
+                z: -1
+                blurRadius: VLCStyle.shadow_floating.blur
+                yOffset: VLCStyle.shadow_floating.y
+                color: Qt.rgba(0, 0, 0, VLCStyle.shadow_floating.alpha)
+            }
         }
 
-        pushEnter: Transition {
-            OpacityAnimator {
-                from: 0
-                to: 1
-                duration: VLCStyle.duration_long
-            }
-        }
-        pushExit: Transition {
-            OpacityAnimator {
-                from: 1
-                to: 0
-                duration: VLCStyle.duration_long
-            }
-        }
-        popEnter: Transition {
-            OpacityAnimator {
-                from: 0
-                to: 1
-                duration: VLCStyle.duration_long
-            }
-        }
-        popExit: Transition {
-            OpacityAnimator {
-                from: 1
-                to: 0
-                duration: VLCStyle.duration_long
+        // clip the content to the rounded surface
+        Item {
+            anchors.fill: parent
+
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 0
+
+                PanelTabBar {
+                    id: tabBar
+
+                    Layout.fillWidth: true
+
+                    model: root.tabs
+                    onCurrentIndexChanged: if (currentIndex >= 0 && root.tabs[currentIndex].id !== root.tab) root.tab = root.tabs[currentIndex].id
+
+                    focus: false
+
+                    Binding {
+                        target: tabBar
+                        property: "currentIndex"
+                        value: root.tabIndex
+                        restoreMode: Binding.RestoreNone
+                    }
+
+                    Keys.onPressed: (event) => {
+                        if (event.key === Qt.Key_Down) {
+                            pageLoader.forceActiveFocus(Qt.TabFocusReason)
+                            event.accepted = true
+                        }
+                    }
+                }
+
+                Loader {
+                    id: pageLoader
+
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    focus: true
+                    clip: true
+
+                    sourceComponent: root.mode === "tracks" ? tracksPage
+                                   : root.tab === "playback" ? playbackPage
+                                   : root.tab === "video" ? videoPage
+                                   : root.tab === "audio" ? audioPage
+                                   : subtitlesPage
+
+                    onLoaded: {
+                        item.opacity = 0
+                        fadeIn.target = item
+                        fadeIn.restart()
+                    }
+
+                    NumberAnimation {
+                        id: fadeIn
+                        property: "opacity"
+                        from: 0
+                        to: 1
+                        duration: VLCStyle.duration_long
+                    }
+                }
+
+                Rectangle {
+                    visible: root.mode === "settings"
+                    Layout.fillWidth: true
+                    implicitHeight: VLCStyle.dp(1, VLCStyle.scale)
+                    color: popupTheme.separator
+                }
+
+                Loader {
+                    id: footerLoader
+
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: item ? item.implicitHeight : 0
+
+                    sourceComponent: root.mode === "tracks" ? tracksFooter : settingsFooter
+                }
             }
         }
     }
 
-    QtObject {
-      id: trackMenuController
+    Component {
+        id: tracksPage
 
-      signal requestAudioPage()
-      signal requestSubtitlePage()
-      signal requestPlaybackSpeedPage()
-      signal requestBack()
+        TracksTab {
+            kind: root.tab
+            onRequestSettings: (tabId) => root.openMode("settings", tabId)
+        }
+    }
 
-      onRequestBack: {
-          stackView.pop()
-      }
+    Component { id: playbackPage; SettingsPlaybackTab {} }
+    Component { id: videoPage; SettingsVideoTab {} }
+    Component { id: subtitlesPage; SettingsSubtitlesTab {} }
 
-      onRequestAudioPage: {
-          stackView.push("qrc:///qt/qml/VLC/Player/TracksPageAudio.qml", {"trackMenuController": trackMenuController})
-      }
+    Component {
+        id: audioPage
 
-      onRequestSubtitlePage: {
-          stackView.push("qrc:///qt/qml/VLC/Player/TracksPageSubtitle.qml", {"trackMenuController": trackMenuController})
-      }
+        SettingsAudioTab {
+            onRequestEqualizer: root.equalizerPanel.wanted = !root.equalizerPanel.wanted
+        }
+    }
 
-      onRequestPlaybackSpeedPage: {
-          stackView.push("qrc:///qt/qml/VLC/Player/TracksPageSpeed.qml", {"trackMenuController": trackMenuController})
-      }
+    Component {
+        id: tracksFooter
+
+        Item {
+            implicitHeight: VLCStyle.dp(32, VLCStyle.scale) + 2 * VLCStyle.spacing_20
+
+            Widgets.SettingButton {
+                anchors.centerIn: parent
+
+                text: qsTr("Show Preferences")
+                onClicked: {
+                    root.close()
+                    DialogsProvider.prefsDialog()
+                }
+            }
+        }
+    }
+
+    Component {
+        id: settingsFooter
+
+        ColumnLayout {
+            spacing: 0
+
+            readonly property ColorContext colorContext: ColorContext {
+                id: footerTheme
+                colorSet: ColorContext.View
+            }
+
+            // Default Preset, New Preset, saved sets (Figma 2372:8834)
+            EffectsDropdown {
+                id: presetDropdown
+
+                readonly property var entries: {
+                    const list = [{ name: "", text: qsTr("New Preset"), iconName: "add", dim: true, action: "new" }]
+                    for (const p of PlayerEffects.presetList)
+                        if (p.custom)
+                            list.push({ name: p.name, text: p.text, iconName: "more", dim: false, action: "load" })
+                    list.push({ name: "", text: qsTr("Default Preset"), iconName: "", dim: false, action: "load" })
+                    return list
+                }
+
+                Layout.fillWidth: true
+                Layout.topMargin: VLCStyle.spacing_20
+                Layout.leftMargin: VLCStyle.spacing_20
+                Layout.rightMargin: VLCStyle.spacing_20
+
+                compact: false
+                openUp: true
+                iconRole: "iconName"
+                dimRole: "dim"
+                textRole: "text"
+                model: entries
+                currentIndex: {
+                    for (let i = 1; i < entries.length; ++i)
+                        if (entries[i].action === "load" && entries[i].name === PlayerEffects.activePreset)
+                            return i
+                    return entries.length - 1
+                }
+                onActivated: (i) => {
+                    const e = entries[i]
+                    if (e.action === "new")
+                        PlayerEffects.saveSettingsPreset()
+                    else
+                        PlayerEffects.loadSettingsPreset(e.name)
+                }
+
+                Keys.onDeletePressed: {
+                    const e = entries[highlightedIndex]
+                    if (popup.visible && e && e.iconName === "more")
+                        PlayerEffects.deleteSettingsPreset(e.name)
+                }
+
+                Accessible.name: qsTr("Settings preset")
+            }
+
+            FooterLink {
+                id: advanced
+
+                Layout.alignment: Qt.AlignHCenter
+                Layout.topMargin: VLCStyle.spacing_8
+                Layout.bottomMargin: VLCStyle.spacing_14
+
+                text: qsTr("Open Advanced Settings")
+                iconName: "settings"
+                onClicked: {
+                    root.close()
+                    DialogsProvider.prefsDialog()
+                }
+            }
+        }
+    }
+
+    // wide equalizer, Figma 3178:16769
+    EqualizerWide {
+        id: equalizerPanelItem
+
+        parent: root.parent
+        anchorPanel: root
+        colorContext.palette: popupTheme.palette
     }
 }

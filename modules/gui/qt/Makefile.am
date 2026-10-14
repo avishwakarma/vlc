@@ -291,6 +291,8 @@ libqt_plugin_la_SOURCES = \
 	player/input_models.cpp player/input_models.hpp \
 	player/delay_estimator.cpp \
 	player/delay_estimator.hpp \
+	player/effects/effects_controller.cpp \
+	player/effects/effects_controller.hpp \
 	player/player_controller.cpp player/player_controller.hpp player/player_controller_p.hpp \
 	player/player_controlbar_model.cpp player/player_controlbar_model.hpp \
 	player/control_list_model.cpp player/control_list_model.hpp \
@@ -502,6 +504,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	style/systempalette.moc.cpp \
 	style/vlcicons.moc.cpp \
 	player/delay_estimator.moc.cpp \
+	player/effects/effects_controller.moc.cpp \
 	player/input_models.moc.cpp \
 	player/player_controller.moc.cpp \
 	player/player_controlbar_model.moc.cpp \
@@ -1250,6 +1253,40 @@ libqml_module_player_a_QML = \
 	player/waveform/qml/WaveformSeekTrack.qml \
 	player/qml/TopBar.qml \
 	player/qml/TracksMenu.qml \
+	player/qml/effects/EffectCard.qml \
+	player/qml/effects/EffectParamsCard.qml \
+	player/qml/effects/EffectSlider.qml \
+	player/qml/effects/EffectSliderBar.qml \
+	player/qml/effects/EffectsDropdown.qml \
+	player/qml/effects/VarChoiceDropdown.qml \
+	player/qml/effects/ValueField.qml \
+	player/qml/effects/InlineField.qml \
+	player/qml/effects/CropCard.qml \
+	player/qml/effects/ColorsCard.qml \
+	player/qml/effects/HexColorField.qml \
+	player/qml/effects/OptionColorField.qml \
+	player/qml/effects/OptionField.qml \
+	player/qml/effects/PanelToggleRow.qml \
+	player/qml/effects/PanelTabBar.qml \
+	player/qml/effects/PanelHeading.qml \
+	player/qml/effects/PanelRow.qml \
+	player/qml/effects/PanelDivider.qml \
+	player/qml/effects/PanelSubLabel.qml \
+	player/qml/effects/PanelSectionLabel.qml \
+	player/qml/effects/FooterLink.qml \
+	player/qml/effects/DelaySlider.qml \
+	player/qml/effects/SpeedSlider.qml \
+	player/qml/effects/TrackRow.qml \
+	player/qml/effects/TonalButton.qml \
+	player/qml/effects/TracksTab.qml \
+	player/qml/effects/SettingsTabBase.qml \
+	player/qml/effects/SettingsPlaybackTab.qml \
+	player/qml/effects/SettingsVideoTab.qml \
+	player/qml/effects/SettingsAudioTab.qml \
+	player/qml/effects/SettingsSubtitlesTab.qml \
+	player/qml/effects/FilterSection.qml \
+	player/qml/effects/EqVerticalSlider.qml \
+	player/qml/effects/EqualizerWide.qml \
 	player/qml/TracksPage.qml \
 	player/qml/TracksPageAudio.qml \
 	player/qml/TracksPageSpeed.qml \

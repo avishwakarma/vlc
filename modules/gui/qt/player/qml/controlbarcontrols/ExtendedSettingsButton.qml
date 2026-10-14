@@ -17,21 +17,20 @@
  *****************************************************************************/
 import QtQuick
 
-
-import VLC.Widgets as Widgets
 import VLC.Style
-import VLC.Dialogs
 import VLC.Util
 
-Widgets.IconToolButton {
+// Playback / video / audio / subtitle settings with the effect panels
+// (Figma 498:2937): a popover above the bar, the button turns orange while it
+// is open. The QWidget extended dialog stays reachable from the main menu.
+LangButton {
     id: extdSettingsBtn
 
-    text: VLCIcons.effect_filter
     iconName: "playback-settings"
+    panelMode: "settings"
+    panelTab: "playback"
 
-    description: qsTr("Extended settings")
+    description: qsTr("Playback settings")
 
     AccessibleCompat.id: "extendedSettingsButton"
-
-    onClicked: DialogsProvider.extendedDialog()
 }

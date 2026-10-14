@@ -31,6 +31,8 @@ LangButton {
     id: root
 
     iconName: "audio"
+    panelMode: "tracks"
+    panelTab: "audio"
     description: qsTr("Audio tracks")
 
     AccessibleCompat.id: "audioTracksButton"
