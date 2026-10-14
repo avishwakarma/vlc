@@ -1447,6 +1447,33 @@ if qt6_dep.found()
             'link_args': qt_link_args,
             'dependencies': [qt6_dep, qt_extra_deps, qtest_qt6_dep],
         }
+
+        vlc_tests += {
+            'name': 'test_qt_settings_model',
+            'sources': files(
+                'tests/vlc_stub_modules.cpp',
+                'tests/test_settings_model.cpp',
+                'dialogs/settings/config_option.cpp',
+                'dialogs/settings/config_option.hpp',
+                'dialogs/settings/hotkeys_model.cpp',
+                'dialogs/settings/hotkeys_model.hpp',
+                'util/vlchotkeyconverter.cpp',
+                'util/vlchotkeyconverter.hpp'
+            ),
+            'moc_sources': files(
+                'tests/test_settings_model.cpp'
+            ),
+            'moc_headers': files(
+                'dialogs/settings/config_option.hpp',
+                'dialogs/settings/hotkeys_model.hpp',
+                'util/vlchotkeyconverter.hpp'
+            ),
+            'suite': ['qt'],
+            'include_directories' : qt_include_dir,
+            'link_with': [libvlccore, libvlc],
+            'link_args': qt_link_args,
+            'dependencies': [qt6_dep, qt_extra_deps, qtest_qt6_dep],
+        }
     endif
 
     quicktest_qt6_dep = dependency('qt6', version: '=' + qt6_dep.version(), modules: ['QuickTest'], required: false)

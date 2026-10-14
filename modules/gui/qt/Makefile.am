@@ -1892,6 +1892,30 @@ test_vlc_dialog_model_LDFLAGS = $(QT_QTEST_COMMON_ldflags)
 check_PROGRAMS += test_vlc_dialog_model
 TESTS += test_vlc_dialog_model
 
+# test_settings_model
+
+test_settings_model_SOURCES = \
+	tests/vlc_stub_modules.cpp tests/vlc_stub_modules.hpp \
+	tests/test_settings_model.cpp \
+	dialogs/settings/config_option.cpp \
+	dialogs/settings/hotkeys_model.cpp \
+	util/vlchotkeyconverter.cpp
+
+nodist_test_settings_model_SOURCES = \
+	tests/test_settings_model.moc \
+	dialogs/settings/config_option.moc.cpp \
+	dialogs/settings/hotkeys_model.moc.cpp \
+	util/vlchotkeyconverter.moc.cpp
+
+BUILT_SOURCES += tests/test_settings_model.moc
+CLEANFILES += tests/test_settings_model.moc
+test_settings_model_CPPFLAGS = $(QT_QTEST_COMMON_cppflags)
+test_settings_model_CXXFLAGS = $(QT_QTEST_COMMON_cxxflags)
+test_settings_model_LDADD = $(QT_QTEST_COMMON_ldadd)
+test_settings_model_LDFLAGS = $(QT_QTEST_COMMON_ldflags)
+check_PROGRAMS += test_settings_model
+TESTS += test_settings_model
+
 
 test_qt_navigation_model_SOURCES = \
 	tests/vlc_stub_modules.cpp \
