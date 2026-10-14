@@ -206,7 +206,7 @@ FocusScope {
             height: VLCStyle.windowButton_h
 
             iconName: "sidebar-left"
-            text: VLCIcons.menu
+            text: VLCIcons.more
             iconNameChecked: "sidebar-active"
             checkable: true
             checked: root.sidebarVisible

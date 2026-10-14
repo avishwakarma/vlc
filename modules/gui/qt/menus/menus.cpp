@@ -49,6 +49,7 @@
 #include "util/varchoicemodel.hpp"
 #include "util/color_scheme_model.hpp"
 #include "util/colorizedsvgicon.hpp"
+#include "util/vlc_menu_style.hpp"
 #include "medialibrary/medialib.hpp"
 #include "medialibrary/mlrecentmediamodel.hpp"
 #include "medialibrary/mlbookmarkmodel.hpp"
@@ -233,6 +234,49 @@ void VLCMenuBar::FileMenu(qt_intf_t *p_intf, QMenu *menu)
 
     addDPStaticEntry( menu, qtr( "&Quit" ) ,
         ":/menu/exit.svg", &DialogsProvider::quit, "Ctrl+Q" );
+}
+
+/**
+ * Content of the main "..." menu of the slim title bar (Figma 6062:13354):
+ * open entries, recent media, then keyboard shortcuts, player customization, settings and about.
+ **/
+void VLCMenuBar::MainMenu(qt_intf_t *p_intf, QMenu *menu)
+{
+    auto mi = p_intf->p_mi;
+
+    auto add = [menu](const QString& text, const char *svg, auto member, const char *shortcut = nullptr) {
+        QAction *action = menu->addAction( VLCMenuStyle::icon( svg ), text, THEDP, member );
+        if( !EMPTY_STR( shortcut ) )
+            action->setShortcut( qfut( shortcut ) );
+        return action;
+    };
+
+    add( qtr( "Open File(s)" ), "file-twotone", []() { THEDP->simpleOpenDialog(); }, "Ctrl+O" );
+    add( qtr( "Open Folder" ), "folder-twotone", &DialogsProvider::PLOpenDir, "Ctrl+F" );
+    add( qtr( "Open Network Stream" ), "streaming-twotone", &DialogsProvider::openNetDialog, "Ctrl+N" );
+    add( qtr( "Open Disc" ), "disc-twotone", &DialogsProvider::openDiscDialog, "Ctrl+D" );
+    add( qtr( "Open Capture Device" ), "capture-device-twotone", &DialogsProvider::openCaptureDialog, "Ctrl+C" );
+    add( qtr( "Convert" ), "swap-twotone", &DialogsProvider::openAndTranscodingDialogs, "Ctrl+R" );
+
+    if( mi && var_InheritBool( p_intf, "save-recentplay" ) && mi->hasMediaLibrary() )
+    {
+        MLRecentMediaModel* recentModel = new MLRecentMediaModel(nullptr);
+        recentModel->setMl(mi->getMediaLibrary());
+        recentModel->setLimit(10);
+        QMenu* recentsMenu = new RecentMenu(recentModel, mi->getMediaLibrary(), menu);
+        recentsMenu->setTitle(qtr( "Open Recent" ) );
+        recentsMenu->setIcon( VLCMenuStyle::icon( "recent-twotone" ) );
+        recentModel->setParent(recentsMenu);
+        menu->addMenu( recentsMenu );
+    }
+
+    menu->addSeparator();
+
+    // TODO: "Profile (...)" submenu once the profile model exists
+    add( qtr( "Keyboard Shortcuts" ), "hotkeys-twotone", &DialogsProvider::prefsDialog );
+    add( qtr( "Customize Player" ), "paint-twotone", &DialogsProvider::showToolbarEditorDialog );
+    add( qtr( "Settings" ), "settings-twotone", &DialogsProvider::prefsDialog, "Ctrl+P" );
+    add( qtr( "About VLC" ), "info-twotone", &DialogsProvider::aboutDialog, "Shift+F1" )->setMenuRole( QAction::AboutRole );
 }
 
 /**
