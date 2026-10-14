@@ -1109,7 +1109,15 @@ libqml_module_maininterface_a_QML = \
 	maininterface/qml/MainDisplay.qml \
 	maininterface/qml/SideNavigationPane.qml \
 	maininterface/qml/SideNavigationDelegate.qml \
-	maininterface/qml/NoMedialibHome.qml
+	maininterface/qml/NoMedialibHome.qml \
+	maininterface/qml/sidebar/HomeSections.qml \
+	maininterface/qml/sidebar/IconRail.qml \
+	maininterface/qml/sidebar/LibrarySidebar.qml \
+	maininterface/qml/sidebar/MediaLibraryPages.qml \
+	maininterface/qml/sidebar/SidebarHeader.qml \
+	maininterface/qml/sidebar/SidebarListPage.qml \
+	maininterface/qml/sidebar/SidebarPage.qml \
+	maininterface/qml/sidebar/SidebarRow.qml
 
 if UPDATE_CHECK
 libqml_module_maininterface_a_QML += maininterface/qml/UpdatePane.qml

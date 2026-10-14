@@ -512,7 +512,7 @@ FocusScope {
     }
 
     // Sidebar slot (Figma 187:328): rail (50) + panel (377), docked against the video.
-    // The content is provided by the library sidebar (W7), this is only the layout area.
+    // The content is the library sidebar (icon rail + panels).
     Loader {
         id: sidebarLoader
 
@@ -525,7 +525,7 @@ FocusScope {
         active: rootPlayer.sidebarVisible || (x + width > 0)
         visible: x + width > 0
 
-        sourceComponent: sidebarPlaceholder
+        sourceComponent: sidebarComponent
 
         Behavior on x {
             enabled: playerToolbarVisibilityFSM.started
@@ -537,37 +537,13 @@ FocusScope {
     }
 
     Component {
-        id: sidebarPlaceholder
+        id: sidebarComponent
 
-        Item {
-            ColorContext {
-                id: railTheme
-                colorSet: ColorContext.Window
-            }
-
-            ColorContext {
-                id: panelTheme
-                colorSet: ColorContext.Pane
-            }
-
-            Rectangle {
-                id: rail
-
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-
-                width: VLCStyle.sidebarRail_w
-                color: railTheme.bg.secondary
-            }
-
-            Rectangle {
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.left: rail.right
-                anchors.right: parent.right
-
-                color: panelTheme.bg.primary
+        LibrarySidebar {
+            onOpenLibraryRequested: (path) => {
+                MainCtx.playerView = false
+                if (path && path.length > 0)
+                    History.push(path)
             }
         }
     }
