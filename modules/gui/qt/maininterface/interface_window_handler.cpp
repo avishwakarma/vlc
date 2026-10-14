@@ -28,8 +28,43 @@
 #include <QQmlProperty>
 #include <cmath>
 
+#ifdef __APPLE__
+#include <objc/runtime.h>
+#include <objc/message.h>
+#endif
+
 namespace
 {
+
+#ifdef __APPLE__
+// Native window with the slim title bar drawn edge to edge: the NSWindow keeps its
+// rounded corners, shadow, edge resizing and native fullscreen (Qt::ExpandedClientAreaHint
+// sets NSWindowStyleMaskFullSizeContentView and a transparent title bar). The standard
+// traffic lights are hidden because the redesign draws its own window buttons.
+void hideNativeWindowButtons(QWindow *window)
+{
+    using IdFn = id (*)(id, SEL);
+    using IdArgFn = id (*)(id, SEL, long);
+    using BoolFn = void (*)(id, SEL, BOOL);
+    if (!window->handle())
+        return;
+    id view = reinterpret_cast<id>(window->winId());
+    if (!view)
+        return;
+    id nsWindow = reinterpret_cast<IdFn>(objc_msgSend)(view, sel_registerName("window"));
+    if (!nsWindow)
+        return;
+    // NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton
+    for (long b = 0; b < 3; ++b)
+    {
+        id button = reinterpret_cast<IdArgFn>(objc_msgSend)(nsWindow, sel_registerName("standardWindowButton:"), b);
+        if (button)
+            reinterpret_cast<BoolFn>(objc_msgSend)(button, sel_registerName("setHidden:"), YES);
+    }
+    // NSWindowTitleHidden = 1
+    reinterpret_cast<void (*)(id, SEL, long)>(objc_msgSend)(nsWindow, sel_registerName("setTitleVisibility:"), 1);
+}
+#endif
 
 void setWindowState(QWindow *window, Qt::WindowState state)
 {
@@ -60,8 +95,7 @@ InterfaceWindowHandler::InterfaceWindowHandler(qt_intf_t *_p_intf, MainCtx* main
     assert(m_window);
     assert(m_mainCtx);
 
-    if (m_mainCtx->useClientSideDecoration())
-        m_window->setFlag(Qt::FramelessWindowHint);
+    updateCSDWindowSettings();
 
     /* */
     m_pauseOnMinimize = var_InheritBool( p_intf, "qt-pause-minimized" );
@@ -188,18 +222,36 @@ InterfaceWindowHandler::~InterfaceWindowHandler()
 
 void InterfaceWindowHandler::updateCSDWindowSettings()
 {
+#ifdef __APPLE__
+    // keep a real NSWindow (rounded corners, shadow, native resize/fullscreen)
+    const bool csd = m_mainCtx->useClientSideDecoration();
+    m_window->setFlag(Qt::ExpandedClientAreaHint, csd);
+    m_window->setFlag(Qt::NoTitleBarBackgroundHint, csd);
+#else
     m_window->setFlag(Qt::FramelessWindowHint, m_mainCtx->useClientSideDecoration());
+#endif
 }
 
 bool InterfaceWindowHandler::eventFilter(QObject*, QEvent* event)
 {
     switch ( event->type() )
     {
+#ifdef __APPLE__
+    case QEvent::Expose:
+    case QEvent::PlatformSurface:
+        if (m_mainCtx->useClientSideDecoration())
+            hideNativeWindowButtons(m_window);
+        break;
+#endif
     case QEvent::WindowStateChange:
     {
         QWindowStateChangeEvent *windowStateChangeEvent = static_cast<QWindowStateChangeEvent*>(event);
         Qt::WindowStates newState = m_window->windowStates();
         Qt::WindowStates oldState = windowStateChangeEvent->oldState();
+#ifdef __APPLE__
+        if (m_mainCtx->useClientSideDecoration())
+            hideNativeWindowButtons(m_window);
+#endif
 
         /* b_maximizedView stores if the window was maximized before entering fullscreen.
          * It is set when entering maximized mode, unset when leaving it to normal mode.

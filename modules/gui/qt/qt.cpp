@@ -427,7 +427,7 @@ vlc_module_begin ()
 
     add_bool( "qt-titlebar",
 #if defined(_WIN32) || defined(__APPLE__)
-              false                              /* use CSD by default on windows and macOS (slim title bar) */,
+              false                              /* slim title bar by default on windows and macOS (a native, rounded NSWindow on macOS) */,
 #else
               true                               /* but not on linux */,
 #endif

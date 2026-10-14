@@ -370,9 +370,18 @@ public:
         });
     }
 
+#ifdef __APPLE__
+    // the macOS window is a real NSWindow (see InterfaceWindowHandler): native resize and shadow
+    Q_INVOKABLE virtual bool platformHandlesResizeWithCSD() const { return true; };
+#else
     Q_INVOKABLE virtual bool platformHandlesResizeWithCSD() const { return false; };
+#endif
     Q_INVOKABLE virtual bool platformHandlesTitleBarButtonsWithCSD() const { return false; };
+#ifdef __APPLE__
+    Q_INVOKABLE virtual bool platformHandlesShadowsWithCSD() const { return true; };
+#else
     Q_INVOKABLE virtual bool platformHandlesShadowsWithCSD() const { return false; };
+#endif
 
     void setUsingTouch(bool touch)
     {
