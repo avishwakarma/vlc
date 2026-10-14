@@ -327,8 +327,21 @@ void DialogsProvider::classicPrefsDialog( bool expert )
         QMetaObject::invokeMethod(m_prefsDialog, "setExpert");
 }
 
+bool DialogsProvider::takeOnboardingRequest()
+{
+    return std::exchange(m_onboardingRequested, false);
+}
+
 void DialogsProvider::firstRunDialog()
 {
+    /* The redesigned QML onboarding is the default; the legacy QWizard stays
+     * available with VLC_QT_LEGACY_FIRSTRUN=1. */
+    if (!qEnvironmentVariableIsSet("VLC_QT_LEGACY_FIRSTRUN"))
+    {
+        m_onboardingRequested = true;
+        emit showOnboarding();
+        return;
+    }
     ensureDialog(m_firstRunDialog);
     QVLCDialog::setWindowTransientParent(m_firstRunDialog.get(), nullptr, p_intf);
     m_firstRunDialog->show();

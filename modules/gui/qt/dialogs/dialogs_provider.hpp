@@ -174,6 +174,7 @@ private:
 
     std::unique_ptr<OpenDialog> m_openDialog;
     std::unique_ptr<FirstRunWizard> m_firstRunDialog;
+    bool m_onboardingRequested = false;
     std::unique_ptr<ExtendedDialog> m_extendedDialog;
     std::unique_ptr<MessagesDialog> m_messagesDialog;
     std::unique_ptr<GotoTimeDialog> m_gotoTimeDialog;
@@ -219,6 +220,8 @@ public slots:
     /// QWidget preferences, even when the QML settings window is enabled
     void classicPrefsDialog( bool expert = false );
     void firstRunDialog();
+    /* true once if the QML onboarding was requested (the QML side may not be loaded yet) */
+    Q_INVOKABLE bool takeOnboardingRequest();
     void extendedDialog();
     void synchroDialog();
     void messagesDialog( int page = 0 );
@@ -292,6 +295,7 @@ signals:
     void showToolbarEditorDialog();
     /// the QML settings window should be shown (qt-qml-settings)
     void showSettingsDialog();
+    void showOnboarding();
 
     //visiblity signal
     void openDialogVisibleChanged();

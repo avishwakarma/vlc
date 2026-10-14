@@ -126,6 +126,7 @@ libqt_plugin_la_SOURCES = \
 	dialogs/fingerprint/fingerprintdialog.cpp \
 	dialogs/fingerprint/fingerprintdialog.hpp \
 	dialogs/firstrun/firstrunwizard.cpp dialogs/firstrun/firstrunwizard.hpp \
+	dialogs/onboarding/onboarding_controller.cpp dialogs/onboarding/onboarding_controller.hpp \
 	dialogs/gototime/gototime.cpp dialogs/gototime/gototime.hpp \
 	dialogs/help/aboutmodel.hpp \
 	dialogs/help/help.cpp dialogs/help/help.hpp \
@@ -419,6 +420,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	dialogs/fingerprint/chromaprint.moc.cpp \
 	dialogs/fingerprint/fingerprintdialog.moc.cpp \
 	dialogs/firstrun/firstrunwizard.moc.cpp \
+	dialogs/onboarding/onboarding_controller.moc.cpp \
 	dialogs/gototime/gototime.moc.cpp \
 	dialogs/help/aboutmodel.moc.cpp \
 	dialogs/help/help.moc.cpp \
@@ -1057,6 +1059,12 @@ libqml_module_dialogs_a_QML = \
 	dialogs/dialogs/qml/Dialogs.qml \
 	dialogs/dialogs/qml/ModalDialog.qml \
 	dialogs/dialogs/qml/WindowDialog.qml \
+	dialogs/onboarding/qml/OnboardingWindow.qml \
+	dialogs/onboarding/qml/WelcomeStep.qml \
+	dialogs/onboarding/qml/ThemeStep.qml \
+	dialogs/onboarding/qml/ThemePreview.qml \
+	dialogs/onboarding/qml/ShortcutsStep.qml \
+	dialogs/onboarding/qml/KeyCap.qml \
 	dialogs/toolbar/qml/EditorDNDDelegate.qml \
 	dialogs/toolbar/qml/EditorDNDView.qml\
 	dialogs/toolbar/qml/EditorDummyButton.qml \
@@ -1208,6 +1216,7 @@ libqml_module_player_a_QML = \
 	player/qml/PlaybackSpeed.qml \
 	player/qml/LyricsFlickable.qml \
 	player/qml/MiniPlayer.qml \
+	player/qml/MusicView.qml \
 	player/qml/PIPPlayer.qml \
 	player/qml/Player.qml \
 	player/qml/PlayerControlLayout.qml \
