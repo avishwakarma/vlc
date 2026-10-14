@@ -207,6 +207,13 @@ FocusScope {
         colorSet: ColorContext.View
     }
 
+    // the library window is drawn on the Pane surface (Figma BG/B1), the title bar keeps the window color
+    ColorContext {
+        id: paneTheme
+        palette: VLCStyle.palette
+        colorSet: ColorContext.Pane
+    }
+
     Loader {
         id: voronoiSnowLoader
 
@@ -225,6 +232,7 @@ FocusScope {
             }
         }
     }
+
 
     MenuTopbar {
         id: menuTopbar
@@ -316,7 +324,7 @@ FocusScope {
             implicitWidth: stackView.implicitWidth
             implicitHeight: stackView.implicitHeight
 
-            color: theme.bg.primary
+            color: paneTheme.bg.primary
 
             layer.enabled: MainCtx.backdropBlurRequested() &&
                            (GraphicsInfo.shaderType === GraphicsInfo.RhiShader) &&
@@ -470,7 +478,8 @@ FocusScope {
 
                     z: 99
                     color: sidebar.background.color
-                    visible: sidebar.visible && (stackViewTopLeftRadiusRectangle.topLeftRadius !== undefined)
+                    // the navigation card floats, the content does not need a rounded corner next to it
+                    visible: false
 
                     anchors.left: stackView.left
                     anchors.leftMargin: -1
@@ -563,7 +572,7 @@ FocusScope {
 
             width: VLCStyle.isScreenReallySmall ? 0.0 : collapsedWidth
 
-            property real collapsedWidth: VLCStyle.icon_normal + VLCStyle.margin_small + VLCStyle.margin_xsmall + VLCStyle.applicationHorizontalMargin
+            property real collapsedWidth: VLCStyle.sidebarRail_w + VLCStyle.spacing_8 + VLCStyle.applicationHorizontalMargin
 
             delegateShowText: (state === "expanded")
 
@@ -673,7 +682,7 @@ FocusScope {
                 atRight: true
 
                 resizeHandle.visible: (sidebar.state === "expanded") && !VLCStyle.isScreenSmall
-                visualBorder.visible: !topLeftCornerBackground.visible
+                visualBorder.visible: false
 
                 minimumWidth: sidebar.minimumWidth
                 maximumWidth: sidebar.maximumWidth

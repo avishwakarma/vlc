@@ -76,6 +76,7 @@ FocusScope {
         font.pixelSize: VLCStyle.icon_banner
 
         text: VLCIcons.search
+        iconName: "search"
         description: qsTr("Filter")
 
         focus: true

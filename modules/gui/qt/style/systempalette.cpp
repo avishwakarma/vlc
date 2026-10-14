@@ -642,7 +642,7 @@ void SystemPalette::fillPalette(bool dark)
         setColor(CS, C::Bg, C::Primary, C::Focused, bgA2);
         setColor(CS, C::Bg, C::Primary, C::Hovered, bgA2);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, fgA3);
+        setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
         setColor(CS, C::Fg, C::Primary, C::Focused, fg1);
         setColor(CS, C::Fg, C::Primary, C::Hovered, fg1);
         setColor(CS, C::Fg, C::Primary, C::Disabled, fgA4);

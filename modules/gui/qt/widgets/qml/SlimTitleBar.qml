@@ -44,6 +44,9 @@ FocusScope {
     // state of the sidebar toggle
     property bool sidebarVisible: false
 
+    // false in the library window (Figma 970:2703): only the cone and the menu button are drawn on the left
+    property bool showSidebarToggle: true
+
     // draw window buttons and handle window dragging
     property bool showCSD: false
 
@@ -197,10 +200,12 @@ FocusScope {
         }
 
         // 10px gap
-        Item { width: VLCStyle.spacing_10; height: 1 }
+        Item { width: VLCStyle.spacing_10; height: 1; visible: root.showSidebarToggle }
 
         Widgets.IconToolButton {
             id: sidebarButton
+
+            visible: root.showSidebarToggle
 
             width: VLCStyle.windowButton_h
             height: VLCStyle.windowButton_h
@@ -225,6 +230,7 @@ FocusScope {
 
         // divider: 24 wide cell, 1.5px hairline
         Item {
+            visible: root.showSidebarToggle
             width: VLCStyle.dp(24, VLCStyle.scale)
             height: VLCStyle.windowButton_h
 
@@ -245,7 +251,7 @@ FocusScope {
             implicitWidth: VLCStyle.windowButton_h + VLCStyle.spacing_4 + crumbLabel.width + rightPadding
             width: implicitWidth
 
-            visible: root.breadcrumb !== ""
+            visible: root.showSidebarToggle && root.breadcrumb !== ""
 
             padding: 0
             rightPadding: VLCStyle.spacing_4

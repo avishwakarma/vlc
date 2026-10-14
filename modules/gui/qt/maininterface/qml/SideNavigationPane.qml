@@ -44,7 +44,45 @@ T.Pane {
 
     property alias model: navigationModel
 
-    readonly property int minimumWidth: VLCStyle.expandNavigationPaneWidth + safeAreaLeftMargin + safeAreaRightMargin
+    // Figma navigation card (970:2703): 201px card + 8px inset
+    readonly property int minimumWidth: VLCStyle.dp(209, VLCStyle.scale) + safeAreaLeftMargin + safeAreaRightMargin
+
+    // Figma icon (pixmaps/svg_icons) of a navigation entry, empty when there is none
+    function svgIcon(uri, depth, selected) {
+        if (!uri || uri.length === 0)
+            return ""
+
+        if (depth === 0) {
+            switch (uri[0]) {
+            case "home": return selected ? "home-selected" : "home"
+            case "video": return selected ? "videos-selected" : "videos"
+            case "music": return selected ? "songs-selected" : "songs"
+            case "network": return selected ? "streaming-selected" : "streaming"
+            case "discover": return selected ? "link-active" : "link"
+            }
+            return ""
+        }
+
+        switch (uri[uri.length - 1]) {
+        case "playlists": return "playlist"
+        case "albums": return "album"
+        case "artists": return "artist"
+        case "genres": return "genre"
+        case "tracks": return "songs"
+        }
+        return "folder"
+    }
+
+    // Figma labels of the top level entries
+    function label(title, uri, depth) {
+        if (depth === 0 && uri && uri.length > 0) {
+            switch (uri[0]) {
+            case "video": return qsTr("Videos")
+            case "network": return qsTr("Network")
+            }
+        }
+        return title
+    }
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
@@ -56,6 +94,11 @@ T.Pane {
     readonly property ColorContext colorContext: ColorContext {
         id: theme
         colorSet: ColorContext.Window
+    }
+
+    ColorContext {
+        id: cardTheme
+        colorSet: ColorContext.Pane
     }
 
     Accessible.name: qsTr("Sidebar")
@@ -88,25 +131,42 @@ T.Pane {
         }
     }
 
-    background: Widgets.AcrylicBackground {
-        enabled: root.useAcrylic
-        tintColor: theme.bg.primary
+    // the card floats over the window, nothing is drawn behind it
+    background: Rectangle {
+        color: "transparent"
     }
 
     contentItem:  Item {
         id: contentItemId
 
+        // navigation card (Pane secondary, radius 10, 8px inset)
+        Rectangle {
+            id: card
+
+            anchors.fill: parent
+            anchors.leftMargin: VLCStyle.spacing_8 + root.safeAreaLeftMargin
+            anchors.topMargin: VLCStyle.spacing_8
+            anchors.bottomMargin: VLCStyle.spacing_8
+
+            radius: VLCStyle.radius_l
+            color: cardTheme.bg.secondary
+        }
+
         //don't use Layout as top item as items put as children of the Control
         //would be parented (and layouted) to the Layout
         ColumnLayout {
-            anchors.fill: parent
-            spacing: VLCStyle.margin_xsmall
+            anchors.fill: card
+            anchors.margins: VLCStyle.spacing_8
+            anchors.topMargin: VLCStyle.spacing_4
+            spacing: 0
 
             Widgets.ListViewExt {
                 id: listView
 
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                Layout.fillHeight: false
+                Layout.preferredHeight: contentHeight
+                Layout.maximumHeight: parent.height
 
                 clip: !fadingEdge.implicitClipping && (height < contentHeight)
                 focus: true
@@ -122,8 +182,7 @@ T.Pane {
 
                 colorContext.colorSet: ColorContext.Window
 
-                fadingEdge.backgroundColor:  (root.background && (root.background.color.a >= 1.0)) ? root.background.color
-                                                                                                   : "transparent"
+                fadingEdge.backgroundColor: cardTheme.bg.secondary
 
                 component DelegateAnimation : NumberAnimation {
                     easing.type: Easing.InOutSine
@@ -163,16 +222,22 @@ T.Pane {
                     width: ListView.view.contentWidth
                     height: preferredHeight
 
-                    property real preferredHeight: shouldShow ? VLCStyle.buttonHeightNavigationPane : 0.0
+                    property real preferredHeight: shouldShow ? VLCStyle.dp(46, VLCStyle.scale) : 0.0
 
-                    leftPadding: root.safeAreaLeftMargin + VLCStyle.margin_xsmall
-                    rightPadding: root.safeAreaRightMargin
+                    leftPadding: VLCStyle.spacing_10 + (depth > 0 ? VLCStyle.spacing_20 : 0)
+                    rightPadding: VLCStyle.spacing_8
 
-                    leftInset: root.safeAreaLeftMargin + implicitLeftInset
-                    rightInset: root.safeAreaRightMargin + implicitRightInset
+                    leftInset: 0
+                    rightInset: 0
+                    topInset: VLCStyle.spacing_2
+                    bottomInset: VLCStyle.spacing_2
+
+                    radius: VLCStyle.radius_m
 
                     iconTxt: icon_alias
-                    text: title
+                    iconName: root.svgIcon(uri, depth, false)
+                    iconNameSelected: root.svgIcon(uri, depth, true)
+                    text: root.label(title, uri, depth)
 
                     showText: root.delegateShowText
 
@@ -262,25 +327,28 @@ T.Pane {
             SideNavigationDelegate {
                 id: preferenceButton
 
-                AccessibleCompat.id: "preferencesButton"
+                AccessibleCompat.id: "addItemButton"
 
                 Layout.fillWidth: true
-                Layout.preferredHeight: VLCStyle.buttonHeightNavigationPane
+                Layout.preferredHeight: VLCStyle.dp(46, VLCStyle.scale)
 
-                leftPadding: root.safeAreaLeftMargin + VLCStyle.margin_xsmall
-                rightPadding: root.safeAreaRightMargin
+                leftPadding: VLCStyle.spacing_10
+                rightPadding: VLCStyle.spacing_8
 
-                leftInset: root.safeAreaLeftMargin + implicitLeftInset
-                rightInset: root.safeAreaRightMargin + implicitRightInset
+                leftInset: 0
+                rightInset: 0
+                topInset: VLCStyle.spacing_2
+                bottomInset: VLCStyle.spacing_2
 
-                iconTxt: VLCIcons.settings
-                text: qsTr("Preferences")
+                radius: VLCStyle.radius_m
 
-                checked: DialogsProvider.prefsDialogVisible
+                iconTxt: VLCIcons.add
+                iconName: "add"
+                text: qsTr("Add item")
 
                 showText: root.delegateShowText
 
-                onClicked: DialogsProvider.prefsDialog()
+                onClicked: DialogsProvider.simpleOpenDialog()
 
                 //SideNavigationDelegate is an ItemDelegate and has NoFocus by default
                 focusPolicy: Qt.StrongFocus
@@ -293,6 +361,11 @@ T.Pane {
                 Keys.onReleased: (e) => Navigation.defaultKeyReleaseAction(e)
             }
 
+            // keeps the entries at the top of the card
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
         }
     }
 }

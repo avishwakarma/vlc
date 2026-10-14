@@ -112,6 +112,9 @@ T.Page {
     header: DefaultPageHeader {
         text: root.title
 
+        pagePrefix: root.pagePrefix
+        itemCount: root._firstChild?.model?.count ?? -1
+
         leftPadding: VLCStyle.dynamicAppMargins(width) + VLCStyle.layout_left_margin + root.leftPadding
         rightPadding: VLCStyle.dynamicAppMargins(width) + VLCStyle.layout_right_margin + root.rightPadding
 
@@ -135,7 +138,38 @@ T.Page {
         id: defaultPageHeader
 
         // Properties
-        property alias text: label.text
+        property string text
+
+        property var pagePrefix: []
+
+        // number of items of the page model, negative when unknown
+        property int itemCount: -1
+
+        // path entries of the page loader (without the "home" sub page) followed by the page title
+        readonly property var crumbs: {
+            const out = []
+            for (let i = 0; i < pagePrefix.length; ++i) {
+                if (i > 0 && pagePrefix[i] === "home")
+                    continue
+                out.push(crumbLabel(pagePrefix[i]))
+            }
+
+            // the network root page is titled "Browse", the Figma title is "Network"
+            if (!(pagePrefix[0] === "network" && text === qsTr("Browse") && out.length === 1) && text !== "")
+                out.push(text)
+            return out
+        }
+
+        // Figma labels of the path entries of the page loader
+        function crumbLabel(name) {
+            const names = {
+                "home": qsTr("Home"), "video": qsTr("Videos"), "music": qsTr("Music"),
+                "network": qsTr("Network"), "playlists": qsTr("Playlists"), "discover": qsTr("Discover"),
+                "albums": qsTr("Albums"), "artists": qsTr("Artists"), "genres": qsTr("Genres"),
+                "tracks": qsTr("Songs"), "videos": qsTr("Videos"), "groups": qsTr("Shows")
+            }
+            return names[name] ?? name
+        }
 
         property alias sortMenu: gridSortFilter.sortMenu
 
@@ -168,8 +202,9 @@ T.Page {
             colorSet: ColorContext.View
         }
 
+        // transparent: the library window is drawn on the Pane surface
         background: Rectangle {
-            color: theme.bg.primary
+            color: "transparent"
         }
 
         RowLayout {
@@ -177,12 +212,91 @@ T.Page {
 
             anchors.fill: parent
 
-            SubtitleLabel {
-                id: label
+            // back / forward arrows (the history has no forward stack: the arrow is drawn disabled)
+            IconToolButton {
+                id: backButton
+
+                Layout.alignment: Qt.AlignVCenter
+                Layout.preferredWidth: VLCStyle.bannerButton_width
+                Layout.preferredHeight: VLCStyle.bannerButton_height
+
+                iconName: "arrow-left"
+                text: VLCIcons.back
+                description: qsTr("Previous")
+                enabled: !History.previousEmpty
+
+                onClicked: History.previous()
+
+                Navigation.parentItem: defaultPageHeader
+                Navigation.rightItem: forwardButton
+            }
+
+            IconToolButton {
+                id: forwardButton
+
+                Layout.alignment: Qt.AlignVCenter
+                Layout.leftMargin: VLCStyle.spacing_8
+                Layout.preferredWidth: VLCStyle.bannerButton_width
+                Layout.preferredHeight: VLCStyle.bannerButton_height
+
+                iconName: "arrow-right"
+                text: VLCIcons.back
+                description: qsTr("Next")
+                enabled: false
+            }
+
+            // breadcrumb: path entries, the current page in semibold
+            Row {
+                id: crumbRow
 
                 Layout.fillWidth: true
+                Layout.leftMargin: VLCStyle.spacing_12
+                Layout.alignment: Qt.AlignVCenter
 
-                color: theme.fg.primary
+                spacing: VLCStyle.spacing_8
+
+                Repeater {
+                    model: defaultPageHeader.crumbs
+
+                    delegate: Row {
+                        id: crumb
+
+                        required property int index
+                        required property string modelData
+
+                        readonly property bool isLast: (index === defaultPageHeader.crumbs.length - 1)
+
+                        spacing: VLCStyle.spacing_8
+
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            text: crumb.modelData
+                            color: crumb.isLast ? theme.fg.highlight : theme.fg.primary
+                            font.pixelSize: VLCStyle.text_heading
+                            font.weight: crumb.isLast ? VLCStyle.fontWeight_semibold : VLCStyle.fontWeight_regular
+                            textFormat: Text.PlainText
+                        }
+
+                        SvgIcon {
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            visible: !crumb.isLast
+                            name: "chevron-right"
+                            size: VLCStyle.icon_xsmall
+                            color: theme.fg.secondary
+                        }
+                    }
+                }
+            }
+
+            Text {
+                Layout.alignment: Qt.AlignVCenter
+
+                visible: defaultPageHeader.itemCount >= 0
+                text: qsTr("%n item(s)", "", defaultPageHeader.itemCount)
+                color: theme.fg.secondary
+                font.pixelSize: VLCStyle.text_body
             }
 
             GridSortFilterControls {

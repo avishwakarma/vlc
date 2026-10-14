@@ -27,6 +27,8 @@ NavigableRow {
         height: VLCStyle.bannerButton_height
         font.pixelSize: VLCStyle.icon_banner
         text: MainCtx.gridView ? VLCIcons.list : VLCIcons.grid
+        // Figma shows the current mode (970:2703 grid, 970:3308 list)
+        iconName: MainCtx.gridView ? "grid" : "list"
         description: qsTr("List/Grid")
         onClicked: MainCtx.gridView = !MainCtx.gridView
     }
@@ -39,6 +41,8 @@ NavigableRow {
         width: VLCStyle.bannerButton_width
         height: VLCStyle.bannerButton_height
         font.pixelSize: VLCStyle.icon_banner
+        iconName: "sort"
+        iconNameChecked: "sort-active"
         description: qsTr("Sort")
 
         model: root.sort.model
