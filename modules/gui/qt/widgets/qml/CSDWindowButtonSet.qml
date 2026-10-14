@@ -15,13 +15,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
+
 import QtQuick
 import QtQuick.Window
 
 
 import VLC.MainInterface
+import VLC.Player
 import VLC.Style
 
+// Window buttons of the slim title bar: minimize, maximize/restore, fullscreen, close.
+// Order and icons follow the Figma title bar (jf8IwqZrI8Q0bWCTounVPx 247:464).
 Row {
     id: windowButtonGroup
 
@@ -31,14 +35,23 @@ Row {
     width: implicitWidth
 
     property color color: theme.fg.primary
-    property color hoverColor: theme.bg.primary.alpha(0.5)
+    property color hoverColor: itemTheme.bg.primary
 
-    readonly property bool useWinIcons: ((MainCtx.osName === MainCtx.Windows)&&(MainCtx.osVersion >= 10))
+    // show a fullscreen toggle between maximize and close
+    property bool showFullscreen: true
+    // only show the fullscreen toggle (used while the window is fullscreen)
+    property bool fullscreenOnly: false
+
+    readonly property bool _isFullscreen: (MainCtx.intfMainWindow.visibility === Window.FullScreen)
 
     readonly property bool buttonHovered: {
-        let h = false
+        let h = fullscreenButton.hovered
         for (let i = 0; i < repeater.count; ++i) {
             const button = repeater.itemAt(i)
+            h = h || button.hovered || button.showHovered
+        }
+        for (let i = 0; i < repeaterClose.count; ++i) {
+            const button = repeaterClose.itemAt(i)
             h = h || button.hovered || button.showHovered
         }
 
@@ -47,7 +60,92 @@ Row {
 
     readonly property ColorContext colorContext: ColorContext {
         id: theme
-        colorSet: ColorContext.Window
+        colorSet: ColorContext.ToolButton
+    }
+
+    readonly property ColorContext itemColorContext: ColorContext {
+        id: itemTheme
+        colorSet: ColorContext.Item
+        hovered: true
+    }
+
+    function toggleFullscreen() {
+        if (Player.hasVideoOutput)
+            Player.fullscreen = !Player.fullscreen
+        else
+            MainCtx.toggleInterfaceFullScreen()
+    }
+
+    component WindowButton : CSDWindowButton {
+        id: windowButton
+
+        required property var modelData
+
+        // false: minimize/maximize, true: close
+        property bool closeButton: false
+
+        readonly property bool _isClose: (modelData.type === CSDButton.Close)
+
+        y: (windowButtonGroup.height - height) / 2
+
+        visible: !windowButtonGroup.fullscreenOnly && (_isClose === closeButton)
+
+        showHovered: modelData.showHovered
+
+        externalPressed: modelData.externalPressed
+
+        color: windowButtonGroup.color
+        hoverColor: _isClose ? VLCStyle.windowButton_closeHover
+                             : windowButtonGroup.hoverColor
+        hoverIconColor: _isClose ? theme.fg.primary
+                                 : windowButtonGroup.color
+
+        iconName: {
+            switch (modelData.type) {
+            case CSDButton.Minimize:
+                return "minimize"
+            case CSDButton.MaximizeRestore:
+                return "maximize"
+            case CSDButton.Close:
+                return "close"
+            }
+            return ""
+        }
+
+        Accessible.name: {
+            switch (modelData.type) {
+            case CSDButton.Minimize:
+                return qsTr("Minimize")
+            case CSDButton.MaximizeRestore:
+                return qsTr("Maximize")
+            case CSDButton.Close:
+                return qsTr("Close")
+            }
+            return ""
+        }
+
+        onClicked: modelData.click()
+
+        // handles VLCStyle.scale changes
+        onWidthChanged: Qt.callLater(updateRect)
+        onHeightChanged: Qt.callLater(updateRect)
+        onYChanged: Qt.callLater(updateRect)
+        onVisibleChanged: Qt.callLater(updateRect)
+
+        Connections {
+            target: VLCStyle
+
+            // handle window resize
+            function onAppWidthChanged() { Qt.callLater(windowButton.updateRect) }
+            function onAppHeightChanged() { Qt.callLater(windowButton.updateRect) }
+        }
+
+        function updateRect() {
+            const point = mapToItem(null, 0, 0)
+            const rect = Qt.rect(point.x, point.y, width, height)
+
+            modelData.rect = rect
+        }
     }
 
     Repeater {
@@ -55,79 +153,37 @@ Row {
 
         model: MainCtx.csdButtonModel.windowCSDButtons
 
-        CSDWindowButton {
-            required property var modelData
+        WindowButton {
+            closeButton: false
+        }
+    }
 
-            height: windowButtonGroup.height
+    // Fullscreen toggle sits between maximize and close
+    CSDWindowButton {
+        id: fullscreenButton
 
-            showHovered: modelData.showHovered
+        y: (windowButtonGroup.height - height) / 2
 
-            externalPressed: modelData.externalPressed
+        visible: windowButtonGroup.showFullscreen
 
-            color: (modelData.type === CSDButton.Close && (hovered || modelData.showHovered))
-                   ? "white"
-                   : windowButtonGroup.color
+        color: windowButtonGroup.color
+        hoverColor: windowButtonGroup.hoverColor
+        hoverIconColor: windowButtonGroup.color
 
-            hoverColor: (modelData.type === CSDButton.Close) ? "red" : windowButtonGroup.hoverColor
+        iconName: windowButtonGroup._isFullscreen ? "fullscreen-active" : "fullscreen"
 
-            isThemeDark: theme.palette.isDark
+        Accessible.name: qsTr("Fullscreen")
 
-            iconTxt:{
-                switch (modelData.type) {
-                case CSDButton.Minimize:
-                {
-                    if (useWinIcons)
-                        return "\uE921"
+        onClicked: windowButtonGroup.toggleFullscreen()
+    }
 
-                    else
-                        return VLCIcons.window_minimize
-                }
+    Repeater {
+        id: repeaterClose
 
-                case CSDButton.MaximizeRestore:
-                {
-                    if (useWinIcons)
-                        return (MainCtx.intfMainWindow.visibility === Window.Maximized)
-                                ? "\uE923"
-                                : "\uE922"
+        model: MainCtx.csdButtonModel.windowCSDButtons
 
-                    else
-                        return (MainCtx.intfMainWindow.visibility === Window.Maximized)
-                                ? VLCIcons.window_restore
-                                : VLCIcons.window_maximize
-                }
-
-                case CSDButton.Close:
-                {
-                    if (useWinIcons)
-                        return "\uE8BB"
-
-                    else
-                        return VLCIcons.window_close
-                }
-                }
-                console.assert(false, "unreachable")
-            }
-
-            onClicked: modelData.click()
-
-            // handles VLCStyle.scale changes
-            onWidthChanged: Qt.callLater(updateRect)
-            onHeightChanged: Qt.callLater(updateRect)
-
-            Connections {
-                target: VLCStyle
-
-                // handle window resize
-                function onAppWidthChanged() { Qt.callLater(updateRect) }
-                function onAppHeightChanged() { Qt.callLater(updateRect) }
-            }
-
-            function updateRect() {
-                const point = mapToItem(null, 0, 0)
-                const rect = Qt.rect(point.x, point.y, width, height)
-
-                modelData.rect = rect
-            }
+        WindowButton {
+            closeButton: true
         }
     }
 }

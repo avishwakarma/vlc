@@ -375,6 +375,19 @@ QtObject {
     readonly property real settingsNav_w: MainCtx.dp(200, scale)
     readonly property real sidebarRail_w: MainCtx.dp(50, scale)
     readonly property real sidebarPanel_w: MainCtx.dp(377, scale)
+    readonly property real viewport_inset: MainCtx.dp(10, scale)       // player video inset / visible corner radius base
+    readonly property real viewport_radius: MainCtx.dp(10, scale)      // visible video corner radius (Figma 19 is the stroke centre-line)
+    readonly property real windowButton_w: MainCtx.dp(36, scale)
+    readonly property real windowButton_h: MainCtx.dp(28, scale)
+    readonly property real iconButton_w: MainCtx.dp(30, scale)
+    readonly property real iconButton_h: MainCtx.dp(32, scale)
+    readonly property color windowButton_closeHover: "#E15032"           // Figma "red" accent, used as the close hover fill
+
+    // Volume wedge gradient (Figma 244:184), absolute, not accent themed: green -> yellow -> orange -> red
+    readonly property color volumeGradient_0: "#95D318"
+    readonly property color volumeGradient_1: "#B2A918"
+    readonly property color volumeGradient_2: "#D37918"
+    readonly property color volumeGradient_3: "#FF3737"
 
     // Type
     readonly property string fontFamily: Qt.application.font.family
