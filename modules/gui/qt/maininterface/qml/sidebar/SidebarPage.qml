@@ -77,6 +77,11 @@ FocusScope {
         colorSet: ColorContext.Pane
     }
 
+    // popup of the "more" menu (folder menu), used by the context menu of rows that have no media menu
+    function popupMore(globalPos) {
+        moreMenu.popupEntries(globalPos)
+    }
+
     function focusContent() {
         contentArea.forceActiveFocus(Qt.TabFocusReason)
     }

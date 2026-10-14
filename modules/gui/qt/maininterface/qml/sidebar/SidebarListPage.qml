@@ -82,6 +82,8 @@ SidebarPage {
     function _popupContext(index, pos) {
         if (root.contextMenu && root.model)
             root.contextMenu.popup([root.model.index(index, 0)], pos)
+        else
+            root.popupMore(pos)
     }
 
     function setCurrentItemFocus(reason) {
