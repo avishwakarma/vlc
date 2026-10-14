@@ -621,6 +621,12 @@ void MainCtx::updateIntfScaleFactor()
         if (screen)
         {
             qreal dpi = screen->logicalDotsPerInch();
+#ifdef Q_OS_MACOS
+            /* macOS reports 72 logical DPI and already maps points to
+             * device pixels, so a point is the design unit: don't shrink
+             * the interface to 72/96 */
+            dpi = VLC_REFERENCE_SCALE_FACTOR;
+#endif
             newValue = m_intfUserScaleFactor * dpi / VLC_REFERENCE_SCALE_FACTOR;
         }
     }
