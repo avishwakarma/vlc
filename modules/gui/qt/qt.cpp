@@ -938,7 +938,14 @@ static void *Thread( void *obj )
             family.clear();
         if ( !family.isEmpty() )
         {
-            if ( QFontDatabase::families().contains( family, Qt::CaseInsensitive ) )
+            const QStringList families = QFontDatabase::families();
+            // the bundled variable font registers as "Inter Variable"
+            if ( !families.contains( family, Qt::CaseInsensitive )
+              && family.compare( QStringLiteral( "Inter" ), Qt::CaseInsensitive ) == 0
+              && families.contains( QStringLiteral( "Inter Variable" ), Qt::CaseInsensitive ) )
+                family = QStringLiteral( "Inter Variable" );
+
+            if ( families.contains( family, Qt::CaseInsensitive ) )
             {
                 QFont font = QGuiApplication::font();
                 font.setFamily( family );
