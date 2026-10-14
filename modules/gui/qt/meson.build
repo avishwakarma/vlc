@@ -170,6 +170,13 @@ moc_headers = files(
     'widgets/native/viewblockingrectangle.hpp',
 )
 
+moc_headers += files(
+    'dialogs/settings/config_option.hpp',
+    'dialogs/settings/hotkeys_model.hpp',
+    'dialogs/settings/settings_model.hpp',
+    'dialogs/settings/virtual_options.hpp',
+)
+
 if host_system == 'windows'
     moc_headers += files(
         'maininterface/mainctx_win32.hpp',
@@ -541,6 +548,17 @@ qt_plugin_sources = files(
     'widgets/native/doubleclickignoringitem.hpp',
 )
 
+qt_plugin_sources += files(
+    'dialogs/settings/config_option.cpp',
+    'dialogs/settings/config_option.hpp',
+    'dialogs/settings/hotkeys_model.cpp',
+    'dialogs/settings/hotkeys_model.hpp',
+    'dialogs/settings/settings_model.cpp',
+    'dialogs/settings/settings_model.hpp',
+    'dialogs/settings/virtual_options.cpp',
+    'dialogs/settings/virtual_options.hpp',
+)
+
 if host_system == 'windows'
     qt_plugin_sources += files(
         'maininterface/mainctx_win32.cpp',
@@ -627,7 +645,8 @@ qml_modules += {
         'dialogs/toolbar/qml/EditorTabButton.qml',
         'dialogs/toolbar/qml/ToolbarEditor.qml',
         'dialogs/toolbar/qml/ToolbarEditorDialog.qml',
-        'dialogs/toolbar/qml/ToolbarEditorButtonList.qml'
+        'dialogs/toolbar/qml/ToolbarEditorButtonList.qml',
+        'dialogs/settings/qml/SettingsWindow.qml'
     ),
 }
 
@@ -1427,6 +1446,33 @@ if qt6_dep.found()
             ),
             'moc_headers': files(
                 'dialogs/dialogs/dialogmodel.hpp'
+            ),
+            'suite': ['qt'],
+            'include_directories' : qt_include_dir,
+            'link_with': [libvlccore, libvlc],
+            'link_args': qt_link_args,
+            'dependencies': [qt6_dep, qt_extra_deps, qtest_qt6_dep],
+        }
+
+        vlc_tests += {
+            'name': 'test_qt_settings_model',
+            'sources': files(
+                'tests/vlc_stub_modules.cpp',
+                'tests/test_settings_model.cpp',
+                'dialogs/settings/config_option.cpp',
+                'dialogs/settings/config_option.hpp',
+                'dialogs/settings/hotkeys_model.cpp',
+                'dialogs/settings/hotkeys_model.hpp',
+                'util/vlchotkeyconverter.cpp',
+                'util/vlchotkeyconverter.hpp'
+            ),
+            'moc_sources': files(
+                'tests/test_settings_model.cpp'
+            ),
+            'moc_headers': files(
+                'dialogs/settings/config_option.hpp',
+                'dialogs/settings/hotkeys_model.hpp',
+                'util/vlchotkeyconverter.hpp'
             ),
             'suite': ['qt'],
             'include_directories' : qt_include_dir,

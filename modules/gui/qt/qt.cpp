@@ -303,6 +303,10 @@ static void ShowDialog   ( intf_thread_t *, int, int, intf_dialog_args_t * );
     "(the bundled 'Inter' font when available, otherwise the system font). " \
     "Use 'system' to force the system font." )
 
+#define QML_SETTINGS_TEXT N_( "Use the new settings window" )
+#define QML_SETTINGS_LONGTEXT N_( "Show the QML settings window instead of the classic " \
+    "preferences dialog. All options remain available from the classic dialog." )
+
 static const int initial_prefs_view_list[] = { 0, 1, 2 };
 static const char *const initial_prefs_view_list_texts[] =
     { N_("Simple"), N_("Advanced"), N_("Expert") };
@@ -486,6 +490,8 @@ vlc_module_begin ()
     add_string( "qt-accent-color", "default", ACCENT_COLOR_TEXT, ACCENT_COLOR_LONGTEXT )
 
     add_string( "qt-ui-font", "", UI_FONT_TEXT, UI_FONT_LONGTEXT )
+
+    add_bool( "qt-qml-settings", true, QML_SETTINGS_TEXT, QML_SETTINGS_LONGTEXT )
 
     cannot_unload_broken_library()
 

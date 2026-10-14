@@ -61,6 +61,7 @@
 #include "dialogs/help/aboutmodel.hpp"
 #include "dialogs/dialogs_provider.hpp"
 #include "dialogs/dialogs/dialogmodel.hpp"
+#include "dialogs/settings/settings_model.hpp"
 #ifdef UPDATE_CHECK
 #include "dialogs/help/help.hpp" // UpdateModel
 #endif
@@ -280,6 +281,10 @@ void MainUI::registerQMLTypes()
         qmlRegisterSingletonInstance<DialogsProvider>(uri, versionMajor, versionMinor, "DialogsProvider", DialogsProvider::getInstance());
         assert(DialogErrorModel::getInstance<false>());
         qmlRegisterSingletonInstance<DialogErrorModel>(uri, versionMajor, versionMinor, "DialogErrorModel", DialogErrorModel::getInstance<false>());
+
+        qmlRegisterUncreatableType<ConfigOption>(uri, versionMajor, versionMinor, "ConfigOption", "ConfigOption is obtained from SettingsModel.option()");
+        qmlRegisterUncreatableType<HotkeysModel>(uri, versionMajor, versionMinor, "HotkeysModel", "HotkeysModel is obtained from SettingsModel.hotkeys");
+        qmlRegisterSingletonInstance<SettingsModel>(uri, versionMajor, versionMinor, "SettingsModel", new SettingsModel(m_intf, m_mainCtx, this));
 
         qmlRegisterModule(uri, versionMajor, versionMinor);
         qmlProtectModule(uri, versionMajor);

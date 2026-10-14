@@ -542,6 +542,22 @@ nodist_libqt_plugin_la_SOURCES = \
 	widgets/native/searchlineedit.moc.cpp \
 	widgets/native/viewblockingrectangle.moc.cpp
 
+libqt_plugin_la_SOURCES += \
+	dialogs/settings/config_option.cpp \
+	dialogs/settings/config_option.hpp \
+	dialogs/settings/hotkeys_model.cpp \
+	dialogs/settings/hotkeys_model.hpp \
+	dialogs/settings/settings_model.cpp \
+	dialogs/settings/settings_model.hpp \
+	dialogs/settings/virtual_options.cpp \
+	dialogs/settings/virtual_options.hpp
+
+nodist_libqt_plugin_la_SOURCES += \
+	dialogs/settings/config_option.moc.cpp \
+	dialogs/settings/hotkeys_model.moc.cpp \
+	dialogs/settings/settings_model.moc.cpp \
+	dialogs/settings/virtual_options.moc.cpp
+
 nodist_libqt_plugin_la_SOURCES += \
 	dialogs/extended/ui_equalizer.h \
 	dialogs/extended/ui_video_effects.h \
@@ -1048,6 +1064,7 @@ libqml_module_dialogs_a_QML = \
 	dialogs/toolbar/qml/ToolbarEditor.qml \
 	dialogs/toolbar/qml/ToolbarEditorDialog.qml \
 	dialogs/toolbar/qml/ToolbarEditorButtonList.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/SettingsWindow.qml
 libqml_module_dialogs_a_Singleton_QML =
 libqml_module_dialogs_a_SOURCES = $(QML_MODULE_dialogs_SRC)
 nodist_libqml_module_dialogs_a_SOURCES = dialogs/qmlassets.cpp $(QML_MODULE_dialogs_NODIST_EXTRA)
@@ -1880,6 +1897,30 @@ test_vlc_dialog_model_LDADD = $(QT_QTEST_COMMON_ldadd)
 test_vlc_dialog_model_LDFLAGS = $(QT_QTEST_COMMON_ldflags)
 check_PROGRAMS += test_vlc_dialog_model
 TESTS += test_vlc_dialog_model
+
+# test_settings_model
+
+test_settings_model_SOURCES = \
+	tests/vlc_stub_modules.cpp tests/vlc_stub_modules.hpp \
+	tests/test_settings_model.cpp \
+	dialogs/settings/config_option.cpp \
+	dialogs/settings/hotkeys_model.cpp \
+	util/vlchotkeyconverter.cpp
+
+nodist_test_settings_model_SOURCES = \
+	tests/test_settings_model.moc \
+	dialogs/settings/config_option.moc.cpp \
+	dialogs/settings/hotkeys_model.moc.cpp \
+	util/vlchotkeyconverter.moc.cpp
+
+BUILT_SOURCES += tests/test_settings_model.moc
+CLEANFILES += tests/test_settings_model.moc
+test_settings_model_CPPFLAGS = $(QT_QTEST_COMMON_cppflags)
+test_settings_model_CXXFLAGS = $(QT_QTEST_COMMON_cxxflags)
+test_settings_model_LDADD = $(QT_QTEST_COMMON_ldadd)
+test_settings_model_LDFLAGS = $(QT_QTEST_COMMON_ldflags)
+check_PROGRAMS += test_settings_model
+TESTS += test_settings_model
 
 
 test_qt_navigation_model_SOURCES = \

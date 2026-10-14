@@ -608,4 +608,25 @@ Item {
             }
         }
     }
+
+    Loader {
+        id: settingsWindowLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/SettingsWindow.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowSettingsDialog() {
+                settingsWindowLoader.active = true
+                const window = settingsWindowLoader.item
+                if (window.visible) {
+                    window.raise()
+                    window.requestActivate()
+                } else {
+                    window.open()
+                }
+            }
+        }
+    }
 }

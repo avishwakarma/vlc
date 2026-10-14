@@ -216,6 +216,8 @@ public slots:
                                               const QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
                                               const QMessageBox::Icon icon = QMessageBox::NoIcon);
     void prefsDialog();
+    /// QWidget preferences, even when the QML settings window is enabled
+    void classicPrefsDialog( bool expert = false );
     void firstRunDialog();
     void extendedDialog();
     void synchroDialog();
@@ -288,6 +290,8 @@ public:
 signals:
     void releaseMouseEvents();
     void showToolbarEditorDialog();
+    /// the QML settings window should be shown (qt-qml-settings)
+    void showSettingsDialog();
 
     //visiblity signal
     void openDialogVisibleChanged();
