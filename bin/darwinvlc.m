@@ -116,6 +116,72 @@ BreakpadRef initBreakpad()
 }
 #endif
 
+
+/*
+ * Files opened from Finder (double-click, "Open With", `open -a`) are delivered
+ * as an 'odoc' Apple Event right after launch, before the Qt interface has
+ * started its Cocoa event loop, and would be lost. When launched by
+ * LaunchServices, wait briefly for that first event and pass the files to
+ * libvlc as if they had been given on the command line.
+ */
+@interface VLCLaunchOpenHandler : NSObject
+@property (nonatomic) BOOL received;
+@property (nonatomic, strong) NSMutableArray<NSString *> *paths;
+@end
+
+@implementation VLCLaunchOpenHandler
+- (instancetype)init
+{
+    if ((self = [super init]))
+        _paths = [NSMutableArray array];
+    return self;
+}
+
+- (void)handleOpenDocuments:(NSAppleEventDescriptor *)event withReply:(NSAppleEventDescriptor *)reply
+{
+    NSAppleEventDescriptor *list = [event paramDescriptorForKeyword:keyDirectObject];
+    for (NSInteger i = 1; i <= [list numberOfItems]; i++) {
+        NSString *s = [[list descriptorAtIndex:i] stringValue];
+        NSURL *url = s ? [NSURL URLWithString:s] : nil;
+        if (url.isFileURL)
+            [self.paths addObject:url.path];
+    }
+    self.received = YES;
+}
+
+- (void)handleOpenApplication:(NSAppleEventDescriptor *)event withReply:(NSAppleEventDescriptor *)reply
+{
+    self.received = YES;
+}
+@end
+
+static NSArray<NSString *> *CollectLaunchFiles(VLCLaunchOpenHandler **keepAlive)
+{
+    if (getppid() != 1 || ![[[NSBundle mainBundle] bundlePath] hasSuffix:@".app"])
+        return @[];
+
+    VLCLaunchOpenHandler *h = [VLCLaunchOpenHandler new];
+    /* Apple Events are only dispatched through an NSApplication event queue, and
+     * NSApplication installs its own handlers: install ours afterwards. */
+    [NSApplication sharedApplication];
+    NSAppleEventManager *m = [NSAppleEventManager sharedAppleEventManager];
+    [m setEventHandler:h andSelector:@selector(handleOpenDocuments:withReply:)
+         forEventClass:kCoreEventClass andEventID:kAEOpenDocuments];
+    [m setEventHandler:h andSelector:@selector(handleOpenApplication:withReply:)
+         forEventClass:kCoreEventClass andEventID:kAEOpenApplication];
+    NSDate *end = [NSDate dateWithTimeIntervalSinceNow:1.0];
+    int extra = 3; /* keep pumping briefly: 'odoc' may follow 'oapp' */
+    while ([end timeIntervalSinceNow] > 0 && (!h.received || extra-- > 0)) {
+        NSEvent *e = [NSApp nextEventMatchingMask:NSEventMaskAny
+                                        untilDate:[NSDate dateWithTimeIntervalSinceNow:0.02]
+                                           inMode:NSDefaultRunLoopMode dequeue:YES];
+        if (e)
+            [NSApp sendEvent:e];
+    }
+    *keepAlive = h; /* the manager does not retain its handler */
+    return h.paths;
+}
+
 /*****************************************************************************
  * main: parse command line, start interface and spawn threads.
  *****************************************************************************/
@@ -217,7 +283,9 @@ int main(int i_argc, const char *ppsz_argv[])
     dispatch_resume(sigTermSource);
 
     /* Handle parameters */
-    const char **argv = calloc(i_argc + 2, sizeof (argv[0]));
+    VLCLaunchOpenHandler *launchHandler = nil;
+    NSArray<NSString *> *launchFiles = CollectLaunchFiles(&launchHandler);
+    const char **argv = calloc(i_argc + 2 + launchFiles.count, sizeof (argv[0]));
     if (argv == NULL)
         exit(1);
 
@@ -254,6 +322,8 @@ int main(int i_argc, const char *ppsz_argv[])
 
     memcpy (argv + argc, ppsz_argv, i_argc * sizeof(*argv));
     argc += i_argc;
+    for (NSString *f in launchFiles)
+        argv[argc++] = strdup(f.fileSystemRepresentation);
     argv[argc] = NULL;
 
     dispatch_queue_t intf_queue = dispatch_queue_create("org.videolan.vlc", NULL);
