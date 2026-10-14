@@ -287,6 +287,18 @@ bool DialogsProvider::eventFilter(QObject *watched, QEvent *event) {
 const QEvent::Type DialogEvent::DialogEvent_Type =
         (QEvent::Type)QEvent::registerEventType();
 
+QString DialogsProvider::debugFormRequest() const
+{
+    return qEnvironmentVariable("VLC_QT_OPEN_FORM");
+}
+
+void DialogsProvider::openDebugForm()
+{
+    const QString form = debugFormRequest();
+    if (form == QLatin1String("network"))
+        emit showOpenNetworkStream();
+}
+
 void DialogsProvider::prefsDialog()
 {
     /* the QML settings window needs the main interface (Dialogs.qml) */
@@ -685,6 +697,12 @@ void DialogsProvider::openDiscDialog()
 }
 void DialogsProvider::openNetDialog()
 {
+    /* the QML form needs the main interface (Dialogs.qml) */
+    if (p_intf->p_mi && var_InheritBool(p_intf, "qt-qml-settings"))
+    {
+        emit showOpenNetworkStream();
+        return;
+    }
     openDialog( OpenDialog::OPEN_NETWORK_TAB );
 }
 void DialogsProvider::openCaptureDialog()

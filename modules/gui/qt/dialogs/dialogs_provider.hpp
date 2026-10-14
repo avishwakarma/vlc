@@ -220,6 +220,9 @@ public slots:
     /// QWidget preferences, even when the QML settings window is enabled
     void classicPrefsDialog( bool expert = false );
     void firstRunDialog();
+    /* debug aid: VLC_QT_OPEN_FORM=network|playlist|shortcuts|subtitles opens a form dialog (design comparison) */
+    Q_INVOKABLE QString debugFormRequest() const;
+    Q_INVOKABLE void openDebugForm();
     /* true once if the QML onboarding was requested (the QML side may not be loaded yet) */
     Q_INVOKABLE bool takeOnboardingRequest();
     void extendedDialog();
@@ -296,6 +299,8 @@ signals:
     /// the QML settings window should be shown (qt-qml-settings)
     void showSettingsDialog();
     void showOnboarding();
+    /// QML form dialogs (dialogs/forms), enabled with qt-qml-settings
+    void showOpenNetworkStream();
 
     //visiblity signal
     void openDialogVisibleChanged();
