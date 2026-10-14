@@ -38,11 +38,13 @@ class DialogForms : public QObject
     Q_OBJECT
 
     Q_PROPERTY(MainCtx* ctx READ ctx WRITE setCtx NOTIFY ctxChanged FINAL)
+    Q_PROPERTY(bool mediaLibraryAvailable READ mediaLibraryAvailable NOTIFY ctxChanged FINAL)
 
 public:
     explicit DialogForms(QObject* parent = nullptr);
 
     MainCtx* ctx() const { return m_ctx; }
+    bool mediaLibraryAvailable() const { return m_ctx && m_ctx->hasMediaLibrary(); }
     void setCtx(MainCtx* ctx);
 
     /**
@@ -57,6 +59,15 @@ public:
 
     /** text of the clipboard when it holds one or more URLs, else "" */
     Q_INVOKABLE QString clipboardLocations() const;
+
+    /** native file chooser for media files, returns the selected URLs (empty if cancelled) */
+    Q_INVOKABLE QStringList pickMediaFiles(const QString& title);
+
+    /**
+     * Creates a media library playlist and appends \`urls\` to it. Needs the media library
+     * (mediaLibraryAvailable), returns false without it.
+     */
+    Q_INVOKABLE bool createPlaylist(const QString& name, const QStringList& urls);
 
 signals:
     void ctxChanged();

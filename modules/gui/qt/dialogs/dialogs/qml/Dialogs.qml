@@ -685,6 +685,27 @@ Item {
         }
     }
 
+    Loader {
+        id: newPlaylistLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/NewPlaylist.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowNewPlaylist() {
+                newPlaylistLoader.active = true
+                const window = newPlaylistLoader.item
+                if (window.visible) {
+                    window.raise()
+                    window.requestActivate()
+                } else {
+                    window.open()
+                }
+            }
+        }
+    }
+
     // debug aid: VLC_QT_OPEN_FORM opens a form dialog at start-up (see DialogsProvider::openDebugForm)
     Timer {
         interval: 1500

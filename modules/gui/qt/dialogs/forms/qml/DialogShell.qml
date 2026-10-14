@@ -300,10 +300,14 @@ Window {
                             Behavior on color { ColorAnimation { duration: VLCStyle.duration_short } }
                         }
 
-                        contentItem: Widgets.SvgIcon {
-                            name: "close"
-                            size: VLCStyle.icon_normal
-                            color: closeButton.hovered ? theme.fg.highlight : theme.fg.primary
+                        // the icon keeps its 24 px size inside the 32 px button
+                        contentItem: Item {
+                            Widgets.SvgIcon {
+                                anchors.centerIn: parent
+                                name: "close"
+                                size: VLCStyle.icon_normal
+                                color: closeButton.hovered ? theme.fg.highlight : theme.fg.primary
+                            }
                         }
                     }
                 }

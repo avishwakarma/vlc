@@ -253,6 +253,8 @@ public slots:
     void openFileDialog();
     void openUrlDialog();
     void openNetDialog();
+    /// QML "New Playlist" form (needs the media library to save), callable from QML: DialogsProvider.newPlaylistDialog()
+    void newPlaylistDialog();
     void openCaptureDialog();
 
     void PLOpenDir();
@@ -301,6 +303,7 @@ signals:
     void showOnboarding();
     /// QML form dialogs (dialogs/forms), enabled with qt-qml-settings
     void showOpenNetworkStream();
+    void showNewPlaylist();
 
     //visiblity signal
     void openDialogVisibleChanged();

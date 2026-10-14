@@ -23,12 +23,16 @@
 
 #include "maininterface/mainctx.hpp"
 #include "playlist/media.hpp"
+#include "medialibrary/medialib.hpp"
+#include "medialibrary/mlplaylistlistmodel.hpp"
+#include "dialogs/dialogs_provider.hpp"
 #include "playlist/playlist_controller.hpp"
 #include "qt.hpp"
 
 #include <QClipboard>
 #include <QGuiApplication>
 #include <QRegularExpression>
+#include <QTimer>
 
 #include <vlc_url.h>
 
@@ -126,4 +130,35 @@ int DialogForms::openLocations(const QString& text, const QString& name, bool en
     qt_intf_t* p_intf = m_ctx->getIntf();
     THEMPL->append(medias, !enqueue);
     return uris.size();
+}
+
+QStringList DialogForms::pickMediaFiles(const QString& title)
+{
+    return THEDP->showSimpleOpen(title, EXT_FILTER_MEDIA | EXT_FILTER_VIDEO | EXT_FILTER_AUDIO);
+}
+
+bool DialogForms::createPlaylist(const QString& name, const QStringList& urls)
+{
+    if (!mediaLibraryAvailable() || name.trimmed().isEmpty())
+        return false;
+
+    auto model = new MLPlaylistListModel(this);
+    model->setMl(m_ctx->getMediaLibrary());
+
+    // create() appends the items in a second transaction once the playlist exists,
+    // the model can go once both are done
+    connect(model, &MLPlaylistListModel::transactionPendingChanged, model, [model](bool pending) {
+        if (pending)
+            return;
+        QTimer::singleShot(0, model, [model]() {
+            if (!model->transactionPending())
+                model->deleteLater();
+        });
+    });
+
+    QVariantList items;
+    for (const QString& url : urls)
+        items.push_back(url);
+    model->create(name.trimmed(), items);
+    return true;
 }

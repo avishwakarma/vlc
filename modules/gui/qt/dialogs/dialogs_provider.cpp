@@ -297,6 +297,8 @@ void DialogsProvider::openDebugForm()
     const QString form = debugFormRequest();
     if (form == QLatin1String("network"))
         emit showOpenNetworkStream();
+    else if (form == QLatin1String("playlist"))
+        emit showNewPlaylist();
 }
 
 void DialogsProvider::prefsDialog()
@@ -704,6 +706,10 @@ void DialogsProvider::openNetDialog()
         return;
     }
     openDialog( OpenDialog::OPEN_NETWORK_TAB );
+}
+void DialogsProvider::newPlaylistDialog()
+{
+    emit showNewPlaylist();
 }
 void DialogsProvider::openCaptureDialog()
 {
