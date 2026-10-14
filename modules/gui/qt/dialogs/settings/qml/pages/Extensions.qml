@@ -17,22 +17,107 @@
  *****************************************************************************/
 
 
-// Extensions. Figma 6575:17137.
-// Stub from the settings shell: the sections are laid out, the rows are still
-// to be filled in. Header of this file = Figma row -> VLC option map (see
-// pages/General.qml) and the rows omitted for lack of an option.
+// Extensions settings. Figma 6575:17137.
+//
+// Figma row                                  -> VLC option
+//   Add-ons list, Search, Remove             -> (no QML add-ons model yet: the list shows an empty state and
+//                                               Remove stays disabled, see the report)
+//   Find more extensions                     -> opens the add-ons website
+//   Add                                      -> (disabled: needs the add-ons manager)
+//   Load add-ons on startup                  -> qt-autoload-extensions (needs the lua module)
+//   Advanced                                 -> lua-intf, lua-config (lua module only)
 
 import QtQuick
+import QtQuick.Layouts
 
+import VLC.MainInterface
 import VLC.Dialogs
 import VLC.Style
+import VLC.Widgets as Widgets
 
 SettingsPage {
+    id: page
+
+    readonly property bool luaAvailable: SettingsModel.option("qt-autoload-extensions").available
+
     SettingSection {
         title: qsTr("Add-ons")
 
-        showWhenEmpty: true
+        // list well, 784 x 192 in the Figma frame
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: VLCStyle.dp(192, VLCStyle.scale)
+            Layout.topMargin: VLCStyle.spacing_6
 
-        // TODO(Extensions page): rows
+            radius: VLCStyle.radius_m
+            color: wellTheme.bg.secondary
+            border.width: VLCStyle.dp(2, VLCStyle.scale)
+            border.color: wellTheme.border
+
+            readonly property ColorContext colorContext: ColorContext {
+                id: wellTheme
+                colorSet: ColorContext.TextField
+            }
+
+            Text {
+                anchors.centerIn: parent
+                visible: !page.luaAvailable
+                text: qsTr("Extensions are not available in this build of VLC.")
+                color: wellTheme.fg.secondary
+                font.pixelSize: VLCStyle.text_body
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.topMargin: VLCStyle.spacing_6
+            spacing: VLCStyle.spacing_10
+
+            Widgets.TextFieldExt {
+                Layout.preferredWidth: VLCStyle.dp(210, VLCStyle.scale)
+                Layout.preferredHeight: VLCStyle.input_h
+                placeholderText: qsTr("Search")
+                enabled: page.luaAvailable
+                Accessible.name: placeholderText
+            }
+
+            Item { Layout.fillWidth: true }
+
+            Widgets.DialogButton {
+                text: qsTr("Find more extensions")
+                onClicked: Qt.openUrlExternally("https://addons.videolan.org/")
+            }
+
+            Widgets.DialogButton {
+                text: qsTr("Add")
+                implicitWidth: VLCStyle.dp(100, VLCStyle.scale)
+                enabled: false
+            }
+
+            Widgets.DialogButton {
+                text: qsTr("Remove")
+                implicitWidth: VLCStyle.dp(100, VLCStyle.scale)
+                enabled: false
+            }
+        }
+
+        SettingRow {
+            label: qsTr("Load add-ons on startup")
+            option: SettingsModel.option("qt-autoload-extensions")
+        }
     }
+
+    advanced: [
+        SettingSection {
+            SettingRow {
+                label: qsTr("Lua interface script")
+                option: SettingsModel.option("lua-intf")
+            }
+
+            SettingRow {
+                label: qsTr("Lua interface configuration")
+                option: SettingsModel.option("lua-config")
+            }
+        }
+    ]
 }
