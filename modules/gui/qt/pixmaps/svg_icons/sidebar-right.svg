@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+  <g transform="translate(-20 -240)">
+    <path d="M26 243.75H38C39.2426 243.75 40.25 244.757 40.25 246V258C40.25 259.243 39.2426 260.25 38 260.25H26C24.7574 260.25 23.75 259.243 23.75 258V246C23.75 244.757 24.7574 243.75 26 243.75Z" stroke="#FF00FF" stroke-width="1.5"/>
+    <rect x="36" y="246" width="2" height="12" rx="0.5" fill="#FF00FF"/>
+  </g>
+</svg>
