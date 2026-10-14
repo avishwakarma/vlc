@@ -45,7 +45,15 @@ VLCSystray::VLCSystray(MainCtx* ctx, QObject* parent)
     else
         iconVLC = QIcon::fromTheme( "vlc", QIcon( ":/logo/vlc256.png" ) );
 
+#ifdef Q_OS_MACOS
+    /* Menu bar: monochrome logo as a template image (18pt, @2x) so that macOS
+     * tints it for light/dark menu bars; the app icon stays on the menu entry. */
+    QIcon trayIcon( QStringLiteral( ":/logo/tray.png" ) );
+    trayIcon.setIsMask( true );
+    setIcon( trayIcon );
+#else
     setIcon(iconVLC);
+#endif
     setToolTip( qtr( "VLC media player" ));
 
     m_menu = std::make_unique<VLCMenu>( qtr( "VLC media player"), m_intf );

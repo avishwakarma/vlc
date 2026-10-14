@@ -1330,7 +1330,11 @@ static void *Thread( void *obj )
     if( QDate::currentDate().dayOfYear() >= QT_XMAS_JOKE_DAY && var_InheritBool( p_intf, "qt-icon-change" ) )
         app.setWindowIcon( QIcon::fromTheme( "vlc-xmas", QIcon( ":/logo/vlc128-xmas.png" ) ) );
     else
+#ifdef Q_OS_MACOS
+        app.setWindowIcon( QIcon( ":/logo/vlc512.png" ) ); /* Dock icon when not run from a bundle */
+#else
         app.setWindowIcon( QIcon::fromTheme( "vlc", QIcon( ":/logo/vlc256.png" ) ) );
+#endif
 
     app.setDesktopFileName( PACKAGE );
 
