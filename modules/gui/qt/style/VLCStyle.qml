@@ -331,6 +331,70 @@ QtObject {
     readonly property real scrollBarInteractingSize: MainCtx.dp(8, scale)
     readonly property real scrollBarNonInteractingSize: MainCtx.dp(2, scale)
 
+    // ---- Redesign semantic tokens (appended, legacy tokens above are unchanged) ----
+
+    // Radii
+    readonly property real radius_xxs: MainCtx.dp(2, scale)
+    readonly property real radius_xs: MainCtx.dp(3, scale)
+    readonly property real radius_s: MainCtx.dp(4, scale)
+    readonly property real radius_m: MainCtx.dp(6, scale)
+    readonly property real radius_l: MainCtx.dp(10, scale)
+    readonly property real radius_xl: MainCtx.dp(14, scale)
+    readonly property real radius_viewport: MainCtx.dp(19, scale)
+
+    // Spacing scale
+    readonly property real spacing_2: MainCtx.dp(2, scale)
+    readonly property real spacing_4: MainCtx.dp(4, scale)
+    readonly property real spacing_6: MainCtx.dp(6, scale)
+    readonly property real spacing_8: MainCtx.dp(8, scale)
+    readonly property real spacing_10: MainCtx.dp(10, scale)
+    readonly property real spacing_12: MainCtx.dp(12, scale)
+    readonly property real spacing_14: MainCtx.dp(14, scale)
+    readonly property real spacing_16: MainCtx.dp(16, scale)
+    readonly property real spacing_17: MainCtx.dp(17, scale)
+    readonly property real spacing_20: MainCtx.dp(20, scale)
+    readonly property real spacing_24: MainCtx.dp(24, scale)
+
+    // Control sizes
+    readonly property real titleBar_height: MainCtx.dp(40, scale)
+    readonly property real controlBar_height: MainCtx.dp(54, scale)
+    readonly property real playButton_w: MainCtx.dp(54, scale)
+    readonly property real playButton_h: MainCtx.dp(28, scale)
+    readonly property real seek_height: MainCtx.dp(28, scale)
+    readonly property real timeChip_w: MainCtx.dp(76, scale)
+    readonly property real volume_w: MainCtx.dp(88, scale)
+    readonly property real toggle_w: MainCtx.dp(68, scale)
+    readonly property real toggle_h: MainCtx.dp(32, scale)
+    readonly property real segmented_h: MainCtx.dp(44, scale)
+    readonly property real segmentedCompact_h: MainCtx.dp(36, scale)
+    readonly property real dropdown_h: MainCtx.dp(44, scale)
+    readonly property real dropdownCompact_h: MainCtx.dp(32, scale)
+    readonly property real menuItem_h: MainCtx.dp(48, scale)
+    readonly property real input_h: MainCtx.dp(36, scale)
+    readonly property real settingsHeader_h: MainCtx.dp(50, scale)
+    readonly property real settingsNav_w: MainCtx.dp(200, scale)
+    readonly property real sidebarRail_w: MainCtx.dp(50, scale)
+    readonly property real sidebarPanel_w: MainCtx.dp(377, scale)
+
+    // Type
+    readonly property string fontFamily: Qt.application.font.family
+    readonly property int text_caption: MainCtx.dp(12, scale)
+    readonly property int text_body: MainCtx.dp(14, scale)
+    readonly property int text_time: MainCtx.dp(15, scale)
+    readonly property int text_heading: MainCtx.dp(16, scale)
+    readonly property int text_title: MainCtx.dp(24, scale)
+    readonly property int text_display: MainCtx.dp(32, scale)
+
+    readonly property int fontWeight_light: Font.Light
+    readonly property int fontWeight_regular: Font.Normal
+    readonly property int fontWeight_medium: Font.Medium
+    readonly property int fontWeight_semibold: Font.DemiBold
+
+    // Blur and shadow for floating surfaces
+    readonly property real blur_radius: 25
+    readonly property var shadow_floating: ({ x: 0, y: MainCtx.dp(8, scale), blur: MainCtx.dp(15, scale), alpha: 0.46 })
+    readonly property var shadow_popup: ({ x: 0, y: MainCtx.dp(4, scale), blur: MainCtx.dp(14, scale), alpha: 0.35 })
+
     function dp(size: real, scale: real) : real {
         if (!scale)
             return MainCtx.dp(size, MainCtx.intfScaleFactor)
