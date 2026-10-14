@@ -113,46 +113,125 @@ FocusScope {
         property string caption
 
         // set once the cover (or the placeholder) is ready, hides the layer until then
-        readonly property bool ready: (coverImage.status !== Image.Loading)
+        readonly property bool ready: (coverImage.status !== Image.Loading) && (backdropImage.status !== Image.Loading)
 
         property bool shown: false
 
         anchors.fill: parent
+
+        // the incoming layer is stacked above and fades in; the outgoing one stays opaque until
+        // the fade is done, so that the window colour never shows through in the middle of the fade
+        z: shown ? 1 : 0
 
         opacity: (shown && ready) ? 1.0 : 0.0
 
         visible: opacity > 0.0
 
         Behavior on opacity {
-            NumberAnimation {
-                duration: VLCStyle.duration_veryLong
-                easing.type: Easing.InOutSine
+            SequentialAnimation {
+                PauseAnimation { duration: layer.shown ? 0 : VLCStyle.duration_veryLong }
+                NumberAnimation {
+                    duration: layer.shown ? VLCStyle.duration_veryLong : 0
+                    easing.type: Easing.InOutSine
+                }
             }
         }
 
-        // backdrop: blurred and darkened cover
+        // average luminance of the cover (0..1), measured once per cover on a 16x16 downscale
+        property real luminance: 0.4
+
+        readonly property bool hasCover: !(layer.cover.toString() === ""
+                                           || layer.cover.toString() === VLCStyle.noArtAlbumCover.toString()
+                                           || layer.cover.toString() === VLCStyle.noArtVideoCover.toString()
+                                           || coverImage._failed)
+
+        // darkness (dark theme) or whiteness (light theme) of the veil over the blurred cover:
+        // bright covers get a stronger veil so that text and the accent pill keep their contrast
+        readonly property real veilTarget: bgtheme.palette.isDark ? (0.20 + 0.52 * luminance)
+                                                            : (0.46 + 0.34 * (1.0 - luminance))
+
+        property real veil: veilTarget
+
+        Behavior on veil { NumberAnimation { duration: VLCStyle.duration_long } }
+
+        // no cover: subtle accent tinted gradient
+        Rectangle {
+            anchors.fill: parent
+
+            visible: !layer.hasCover
+
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Qt.tint(bgtheme.bg.primary, Qt.alpha(bgtheme.accent, 0.30)) }
+                GradientStop { position: 0.6; color: Qt.tint(bgtheme.bg.primary, Qt.alpha(bgtheme.accent, 0.10)) }
+                GradientStop { position: 1.0; color: Qt.tint(bgtheme.bg.primary, Qt.alpha(bgtheme.accent, 0.18)) }
+            }
+        }
+
+        // backdrop source: small version of the cover (cheap to blur, all detail is lost anyway)
+        Widgets.ImageExt {
+            id: backdropImage
+
+            visible: false
+            width: 1
+            height: 1
+
+            source: layer.hasCover ? coverImage.source : ""
+            sourceSize: Qt.size(24, 24)
+            fillMode: Image.PreserveAspectCrop
+            cache: false
+            asynchronous: true
+        }
+
+        Canvas {
+            id: lumaProbe
+
+            visible: false
+            width: 16
+            height: 16
+            renderTarget: Canvas.Image
+
+            property url src: layer.hasCover ? coverImage.source : ""
+
+            onSrcChanged: {
+                if (src.toString() !== "")
+                    loadImage(src)
+            }
+            onImageLoaded: requestPaint()
+            onPaint: {
+                if (src.toString() === "" || !isImageLoaded(src))
+                    return
+                const ctx = getContext("2d")
+                ctx.drawImage(src, 0, 0, width, height)
+                const d = ctx.getImageData(0, 0, width, height).data
+                let sum = 0
+                for (let i = 0; i < d.length; i += 4)
+                    sum += (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255
+                layer.luminance = sum / (d.length / 4)
+            }
+        }
+
+        // backdrop: heavily blurred cover, filling the whole window (rendered once per cover)
         Widgets.DualKawaseBlur {
             id: blurredBackground
 
-            // Six pass is free here since we release the intermediate layers
-            // through unsetting `live` (see `liveTimer`):
+            visible: layer.hasCover
+
             mode: Widgets.DualKawaseBlur.Mode.SixPass
-            radius: 2
+            radius: 8
 
             live: true
 
-            readonly property real dar: parent.width / parent.height
-            readonly property real sar: (coverImage.paintedHeight > 0) ? (coverImage.paintedWidth / coverImage.paintedHeight) : 1
+            readonly property real side: Math.max(parent.width, parent.height) * 1.15
 
             anchors.centerIn: parent
-            width: (sar < dar) ? parent.width : parent.height * sar
-            height: (sar < dar) ? parent.width / sar : parent.height
+            width: side
+            height: side
 
             source: textureProviderIndirection
 
+            // noise dithers the gradients, no visible banding
             postprocess: true
-            tint: bgtheme.palette.isDark ? "black" : "white"
-            tintStrength: 0.6
+            noiseStrength: 0.03
             backgroundColor: bgtheme.bg.primary
 
             readonly property ColorContext colorContext: ColorContext {
@@ -167,7 +246,7 @@ FocusScope {
             TextureProviderIndirection {
                 id: textureProviderIndirection
 
-                source: coverImage.sourceTextureProviderItem
+                source: backdropImage.sourceTextureProviderItem
             }
 
             Component.onCompleted: {
@@ -190,6 +269,30 @@ FocusScope {
                 }
 
                 onTriggered: blurredBackground.live = false
+            }
+        }
+
+        // veil + vignette: contrast for the translucent bars and the caption
+        Rectangle {
+            anchors.fill: parent
+
+            visible: layer.hasCover
+            color: bgtheme.palette.isDark ? "black" : "white"
+            opacity: layer.veil
+        }
+
+        Rectangle {
+            anchors.fill: parent
+
+            visible: layer.hasCover
+
+            readonly property color edge: bgtheme.palette.isDark ? Qt.rgba(0, 0, 0, 0.18) : Qt.rgba(1, 1, 1, 0.15)
+
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: parent.edge }
+                GradientStop { position: 0.22; color: "transparent" }
+                GradientStop { position: 0.72; color: "transparent" }
+                GradientStop { position: 1.0; color: parent.edge }
             }
         }
 
