@@ -148,7 +148,7 @@ FocusScope {
         // darkness (dark theme) or whiteness (light theme) of the veil over the blurred cover:
         // bright covers get a stronger veil so that text and the accent pill keep their contrast
         readonly property real veilTarget: bgtheme.palette.isDark ? (0.20 + 0.52 * luminance)
-                                                            : (0.46 + 0.34 * (1.0 - luminance))
+                                                            : (0.50 + 0.32 * (1.0 - luminance))
 
         property real veil: veilTarget
 
@@ -221,7 +221,7 @@ FocusScope {
 
             live: true
 
-            readonly property real side: Math.max(parent.width, parent.height) * 1.15
+            readonly property real side: Math.max(parent.width, parent.height) * 1.6
 
             anchors.centerIn: parent
             width: side
@@ -282,6 +282,8 @@ FocusScope {
         }
 
         Rectangle {
+            id: vignette
+
             anchors.fill: parent
 
             visible: layer.hasCover
@@ -289,10 +291,10 @@ FocusScope {
             readonly property color edge: bgtheme.palette.isDark ? Qt.rgba(0, 0, 0, 0.18) : Qt.rgba(1, 1, 1, 0.15)
 
             gradient: Gradient {
-                GradientStop { position: 0.0; color: parent.edge }
+                GradientStop { position: 0.0; color: vignette.edge }
                 GradientStop { position: 0.22; color: "transparent" }
                 GradientStop { position: 0.72; color: "transparent" }
-                GradientStop { position: 1.0; color: parent.edge }
+                GradientStop { position: 1.0; color: vignette.edge }
             }
         }
 
