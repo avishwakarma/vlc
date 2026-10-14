@@ -1216,6 +1216,7 @@ libqml_module_player_a_QML = \
 	player/qml/PlaybackSpeed.qml \
 	player/qml/LyricsFlickable.qml \
 	player/qml/MiniPlayer.qml \
+	player/qml/MusicView.qml \
 	player/qml/PIPPlayer.qml \
 	player/qml/Player.qml \
 	player/qml/PlayerControlLayout.qml \
