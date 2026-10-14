@@ -302,6 +302,24 @@ void DialogsProvider::prefsDialog()
     }
 }
 
+void DialogsProvider::classicPrefsDialog( bool expert )
+{
+    if (!m_prefsDialog)
+    {
+        m_prefsDialog = new PrefsDialog( nullptr, p_intf );
+        m_prefsDialog->setAttribute(Qt::WA_DeleteOnClose);
+        m_prefsDialog->installEventFilter(this);
+        m_prefsDialog->open();
+    }
+    else
+    {
+        m_prefsDialog->raise();
+        m_prefsDialog->activateWindow();
+    }
+    if (expert)
+        QMetaObject::invokeMethod(m_prefsDialog, "setExpert");
+}
+
 void DialogsProvider::firstRunDialog()
 {
     ensureDialog(m_firstRunDialog);

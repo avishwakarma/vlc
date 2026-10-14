@@ -540,6 +540,22 @@ nodist_libqt_plugin_la_SOURCES = \
 	widgets/native/searchlineedit.moc.cpp \
 	widgets/native/viewblockingrectangle.moc.cpp
 
+libqt_plugin_la_SOURCES += \
+	dialogs/settings/config_option.cpp \
+	dialogs/settings/config_option.hpp \
+	dialogs/settings/hotkeys_model.cpp \
+	dialogs/settings/hotkeys_model.hpp \
+	dialogs/settings/settings_model.cpp \
+	dialogs/settings/settings_model.hpp \
+	dialogs/settings/virtual_options.cpp \
+	dialogs/settings/virtual_options.hpp
+
+nodist_libqt_plugin_la_SOURCES += \
+	dialogs/settings/config_option.moc.cpp \
+	dialogs/settings/hotkeys_model.moc.cpp \
+	dialogs/settings/settings_model.moc.cpp \
+	dialogs/settings/virtual_options.moc.cpp
+
 nodist_libqt_plugin_la_SOURCES += \
 	dialogs/extended/ui_equalizer.h \
 	dialogs/extended/ui_video_effects.h \

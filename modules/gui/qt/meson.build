@@ -170,6 +170,13 @@ moc_headers = files(
     'widgets/native/viewblockingrectangle.hpp',
 )
 
+moc_headers += files(
+    'dialogs/settings/config_option.hpp',
+    'dialogs/settings/hotkeys_model.hpp',
+    'dialogs/settings/settings_model.hpp',
+    'dialogs/settings/virtual_options.hpp',
+)
+
 if host_system == 'windows'
     moc_headers += files(
         'maininterface/mainctx_win32.hpp',
@@ -537,6 +544,17 @@ qt_plugin_sources = files(
     'widgets/native/viewblockingrectangle.cpp',
     'widgets/native/viewblockingrectangle.hpp',
     'widgets/native/doubleclickignoringitem.hpp',
+)
+
+qt_plugin_sources += files(
+    'dialogs/settings/config_option.cpp',
+    'dialogs/settings/config_option.hpp',
+    'dialogs/settings/hotkeys_model.cpp',
+    'dialogs/settings/hotkeys_model.hpp',
+    'dialogs/settings/settings_model.cpp',
+    'dialogs/settings/settings_model.hpp',
+    'dialogs/settings/virtual_options.cpp',
+    'dialogs/settings/virtual_options.hpp',
 )
 
 if host_system == 'windows'
