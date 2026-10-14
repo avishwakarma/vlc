@@ -127,6 +127,7 @@ libqt_plugin_la_SOURCES = \
 	dialogs/fingerprint/fingerprintdialog.hpp \
 	dialogs/firstrun/firstrunwizard.cpp dialogs/firstrun/firstrunwizard.hpp \
 	dialogs/onboarding/onboarding_controller.cpp dialogs/onboarding/onboarding_controller.hpp \
+	dialogs/forms/dialog_forms.cpp dialogs/forms/dialog_forms.hpp \
 	dialogs/gototime/gototime.cpp dialogs/gototime/gototime.hpp \
 	dialogs/help/aboutmodel.hpp \
 	dialogs/help/help.cpp dialogs/help/help.hpp \
@@ -421,6 +422,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	dialogs/fingerprint/fingerprintdialog.moc.cpp \
 	dialogs/firstrun/firstrunwizard.moc.cpp \
 	dialogs/onboarding/onboarding_controller.moc.cpp \
+	dialogs/forms/dialog_forms.moc.cpp \
 	dialogs/gototime/gototime.moc.cpp \
 	dialogs/help/aboutmodel.moc.cpp \
 	dialogs/help/help.moc.cpp \
@@ -1065,7 +1067,14 @@ libqml_module_dialogs_a_QML = \
 	dialogs/onboarding/qml/ThemePreview.qml \
 	dialogs/onboarding/qml/ShortcutsStep.qml \
 	dialogs/onboarding/qml/KeyCap.qml \
-
+	dialogs/forms/qml/AddSubtitles.qml \
+	dialogs/forms/qml/KeyboardShortcuts.qml \
+	dialogs/forms/qml/DialogDropdown.qml \
+	dialogs/forms/qml/NewPlaylist.qml \
+	dialogs/forms/qml/OpenNetworkStream.qml \
+	dialogs/forms/qml/DialogTextArea.qml \
+	dialogs/forms/qml/DialogHeading.qml \
+	dialogs/forms/qml/DialogShell.qml \
 	dialogs/toolbar/qml/ToolbarEditorDialog.qml \
 	dialogs/toolbar/qml/PlayerCustomizeOverlay.qml
 libqml_module_dialogs_a_QML += dialogs/settings/qml/AccentSwatches.qml

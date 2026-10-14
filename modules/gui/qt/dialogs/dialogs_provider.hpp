@@ -220,6 +220,9 @@ public slots:
     /// QWidget preferences, even when the QML settings window is enabled
     void classicPrefsDialog( bool expert = false );
     void firstRunDialog();
+    /* debug aid: VLC_QT_OPEN_FORM=network|playlist|shortcuts|subtitles opens a form dialog (design comparison) */
+    Q_INVOKABLE QString debugFormRequest() const;
+    Q_INVOKABLE void openDebugForm();
     /* true once if the QML onboarding was requested (the QML side may not be loaded yet) */
     Q_INVOKABLE bool takeOnboardingRequest();
     void extendedDialog();
@@ -250,6 +253,10 @@ public slots:
     void openFileDialog();
     void openUrlDialog();
     void openNetDialog();
+    /// QML "New Playlist" form (needs the media library to save), callable from QML: DialogsProvider.newPlaylistDialog()
+    void newPlaylistDialog();
+    /// QML "Keyboard Shortcuts" cheat sheet / editor (HotkeysModel)
+    void keyboardShortcutsDialog();
     void openCaptureDialog();
 
     void PLOpenDir();
@@ -296,6 +303,11 @@ signals:
     /// the QML settings window should be shown (qt-qml-settings)
     void showSettingsDialog();
     void showOnboarding();
+    /// QML form dialogs (dialogs/forms), enabled with qt-qml-settings
+    void showOpenNetworkStream();
+    void showNewPlaylist();
+    void showKeyboardShortcuts();
+    void showAddSubtitles();
 
     //visiblity signal
     void openDialogVisibleChanged();

@@ -662,4 +662,96 @@ Item {
             }
         }
     }
+
+    // Form dialogs (dialogs/forms)
+    Loader {
+        id: openNetworkStreamLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/OpenNetworkStream.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowOpenNetworkStream() {
+                openNetworkStreamLoader.active = true
+                const window = openNetworkStreamLoader.item
+                if (window.visible) {
+                    window.raise()
+                    window.requestActivate()
+                } else {
+                    window.open()
+                }
+            }
+        }
+    }
+
+    Loader {
+        id: newPlaylistLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/NewPlaylist.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowNewPlaylist() {
+                newPlaylistLoader.active = true
+                const window = newPlaylistLoader.item
+                if (window.visible) {
+                    window.raise()
+                    window.requestActivate()
+                } else {
+                    window.open()
+                }
+            }
+        }
+    }
+
+    Loader {
+        id: keyboardShortcutsLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/KeyboardShortcuts.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowKeyboardShortcuts() {
+                keyboardShortcutsLoader.active = true
+                const window = keyboardShortcutsLoader.item
+                if (window.visible) {
+                    window.raise()
+                    window.requestActivate()
+                } else {
+                    window.open()
+                }
+            }
+        }
+    }
+
+    Loader {
+        id: addSubtitlesLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/AddSubtitles.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowAddSubtitles() {
+                addSubtitlesLoader.active = true
+                const window = addSubtitlesLoader.item
+                if (window.visible) {
+                    window.raise()
+                    window.requestActivate()
+                } else {
+                    window.open()
+                }
+            }
+        }
+    }
+
+    // debug aid: VLC_QT_OPEN_FORM opens a form dialog at start-up (see DialogsProvider::openDebugForm)
+    Timer {
+        interval: 1500
+        running: DialogsProvider.debugFormRequest() !== ""
+        onTriggered: DialogsProvider.openDebugForm()
+    }
 }

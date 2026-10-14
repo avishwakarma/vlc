@@ -287,6 +287,24 @@ bool DialogsProvider::eventFilter(QObject *watched, QEvent *event) {
 const QEvent::Type DialogEvent::DialogEvent_Type =
         (QEvent::Type)QEvent::registerEventType();
 
+QString DialogsProvider::debugFormRequest() const
+{
+    return qEnvironmentVariable("VLC_QT_OPEN_FORM");
+}
+
+void DialogsProvider::openDebugForm()
+{
+    const QString form = debugFormRequest();
+    if (form == QLatin1String("network"))
+        emit showOpenNetworkStream();
+    else if (form == QLatin1String("playlist"))
+        emit showNewPlaylist();
+    else if (form == QLatin1String("shortcuts"))
+        emit showKeyboardShortcuts();
+    else if (form == QLatin1String("subtitles"))
+        emit showAddSubtitles();
+}
+
 void DialogsProvider::prefsDialog()
 {
     /* the QML settings window needs the main interface (Dialogs.qml) */
@@ -685,7 +703,21 @@ void DialogsProvider::openDiscDialog()
 }
 void DialogsProvider::openNetDialog()
 {
+    /* the QML form needs the main interface (Dialogs.qml) */
+    if (p_intf->p_mi && var_InheritBool(p_intf, "qt-qml-settings"))
+    {
+        emit showOpenNetworkStream();
+        return;
+    }
     openDialog( OpenDialog::OPEN_NETWORK_TAB );
+}
+void DialogsProvider::newPlaylistDialog()
+{
+    emit showNewPlaylist();
+}
+void DialogsProvider::keyboardShortcutsDialog()
+{
+    emit showKeyboardShortcuts();
 }
 void DialogsProvider::openCaptureDialog()
 {
@@ -1035,6 +1067,12 @@ void  DialogsProvider::loadMediaFile( const es_format_category_e category, const
 
 void DialogsProvider::loadSubtitlesFile()
 {
+    /* the QML form needs the main interface (Dialogs.qml) */
+    if (p_intf->p_mi && var_InheritBool(p_intf, "qt-qml-settings"))
+    {
+        emit showAddSubtitles();
+        return;
+    }
     loadMediaFile( SPU_ES, EXT_FILTER_SUBTITLE, qtr( "Open subtitles..." ) );
 }
 
