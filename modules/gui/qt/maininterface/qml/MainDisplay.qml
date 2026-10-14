@@ -233,8 +233,6 @@ FocusScope {
         }
     }
 
-
-
     MenuTopbar {
         id: menuTopbar
         z: 6
