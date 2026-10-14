@@ -18,9 +18,16 @@
 
 
 // Recording settings. Figma 6571:16429.
-// Stub from the settings shell: the sections are laid out, the rows are still
-// to be filled in. Header of this file = Figma row -> VLC option map (see
-// pages/General.qml) and the rows omitted for lack of an option.
+//
+// Figma row                                  -> VLC option
+//   Save recordings to                       -> input-record-path
+//   Record without re-encoding when possible -> input-record-native
+//   Discover cast devices                    -> (omitted: no option, discovery is the renderer service)
+//   Cast quality                             -> sout-chromecast-conversion-quality (hidden without chromecast)
+//   Play locally while streaming             -> sout-display
+//   Include audio / video / subtitles        -> sout-audio / sout-video / sout-spu
+//   Encoding preset / Tuning                 -> sout-x264-preset / sout-x264-tune (hidden without x264)
+//   Advanced: Keep stream output open        -> sout-keep, sout-all
 
 import QtQuick
 
@@ -31,24 +38,76 @@ SettingsPage {
     SettingSection {
         title: qsTr("Recording")
 
-        showWhenEmpty: true
+        SettingRow {
+            label: qsTr("Save recordings to")
+            option: SettingsModel.option("input-record-path")
+        }
 
-        // TODO(Recording page): rows
+        SettingRow {
+            label: qsTr("Record without re-encoding when possible")
+            info: ""
+            option: SettingsModel.option("input-record-native")
+        }
     }
 
     SettingSection {
         title: qsTr("Casting")
 
-        showWhenEmpty: true
-
-        // TODO(Recording page): rows
+        SettingRow {
+            label: qsTr("Cast quality")
+            option: SettingsModel.option("sout-chromecast-conversion-quality")
+        }
     }
 
     SettingSection {
         title: qsTr("Streaming")
 
-        showWhenEmpty: true
+        SettingRow {
+            label: qsTr("Play locally while streaming")
+            info: ""
+            option: SettingsModel.option("sout-display")
+        }
 
-        // TODO(Recording page): rows
+        SettingRow {
+            label: qsTr("Include audio")
+            info: ""
+            option: SettingsModel.option("sout-audio")
+        }
+
+        SettingRow {
+            label: qsTr("Include video")
+            info: ""
+            option: SettingsModel.option("sout-video")
+        }
+
+        SettingRow {
+            label: qsTr("Include subtitles")
+            info: ""
+            option: SettingsModel.option("sout-spu")
+        }
+
+        SettingRow {
+            label: qsTr("Encoding preset")
+            option: SettingsModel.option("sout-x264-preset")
+        }
+
+        SettingRow {
+            label: qsTr("Tuning")
+            option: SettingsModel.option("sout-x264-tune")
+        }
     }
+
+    advanced: [
+        SettingSection {
+            SettingRow {
+                label: qsTr("Stream all elementary streams")
+                option: SettingsModel.option("sout-all")
+            }
+
+            SettingRow {
+                label: qsTr("Keep stream output open")
+                option: SettingsModel.option("sout-keep")
+            }
+        }
+    ]
 }
