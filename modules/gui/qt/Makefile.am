@@ -358,6 +358,8 @@ libqt_plugin_la_SOURCES = \
 	util/vlcqtmessagehandler.hpp \
 	util/colorizedsvgicon.cpp \
 	util/colorizedsvgicon.hpp \
+	util/vlc_menu_style.cpp \
+	util/vlc_menu_style.hpp \
 	util/textureproviderobserver.cpp \
 	util/textureproviderobserver.hpp \
 	util/kirigamiwheelhandler.cpp \

@@ -511,6 +511,8 @@ qt_plugin_sources = files(
     'util/vlcqtmessagehandler.hpp',
     'util/colorizedsvgicon.cpp',
     'util/colorizedsvgicon.hpp',
+    'util/vlc_menu_style.cpp',
+    'util/vlc_menu_style.hpp',
     'util/kirigamiwheelhandler.cpp',
     'util/kirigamiwheelhandler.hpp',
     'util/textureproviderindirection.cpp',
