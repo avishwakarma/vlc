@@ -83,6 +83,11 @@ public:
     /// ask the interface to quit (the user restarts VLC)
     Q_INVOKABLE void quitForRestart() const;
 
+    /// native file / folder pickers for the Browse buttons. They return the
+    /// chosen local path, or an empty string when cancelled.
+    Q_INVOKABLE QString pickFile(const QString& current, bool save) const;
+    Q_INVOKABLE QString pickDirectory(const QString& current) const;
+
     HotkeysModel* hotkeys() const { return m_hotkeys; }
     bool restartPending() const { return m_restartPending; }
     bool savePending() const { return m_saveTimer.isActive(); }

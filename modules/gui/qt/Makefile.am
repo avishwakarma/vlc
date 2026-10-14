@@ -1064,7 +1064,26 @@ libqml_module_dialogs_a_QML = \
 	dialogs/toolbar/qml/ToolbarEditor.qml \
 	dialogs/toolbar/qml/ToolbarEditorDialog.qml \
 	dialogs/toolbar/qml/ToolbarEditorButtonList.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/AccentSwatches.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/HotkeysEditor.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/SettingRow.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/SettingSection.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/SettingsNavButton.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/SettingsPage.qml
 libqml_module_dialogs_a_QML += dialogs/settings/qml/SettingsWindow.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Audio.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Controls.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Extensions.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/General.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Interface.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Library.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Network.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Performance.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Playback.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Privacy.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Recording.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Subtitles.qml
+libqml_module_dialogs_a_QML += dialogs/settings/qml/pages/Video.qml
 libqml_module_dialogs_a_Singleton_QML =
 libqml_module_dialogs_a_SOURCES = $(QML_MODULE_dialogs_SRC)
 nodist_libqml_module_dialogs_a_SOURCES = dialogs/qmlassets.cpp $(QML_MODULE_dialogs_NODIST_EXTRA)

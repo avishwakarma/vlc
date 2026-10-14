@@ -32,6 +32,8 @@
 
 #include <QColor>
 #include <QDesktopServices>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QQmlEngine>
 #include <QSettings>
 #include <QUrl>
@@ -207,6 +209,18 @@ void SettingsModel::openConfigFolder() const
     const QString path = configFolder();
     if (!path.isEmpty())
         QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+}
+
+QString SettingsModel::pickFile(const QString& current, bool save) const
+{
+    const QString dir = current.isEmpty() ? QString() : QFileInfo(current).absolutePath();
+    return save ? QFileDialog::getSaveFileName(nullptr, qtr("Save File"), dir)
+                : QFileDialog::getOpenFileName(nullptr, qtr("Select File"), dir);
+}
+
+QString SettingsModel::pickDirectory(const QString& current) const
+{
+    return QFileDialog::getExistingDirectory(nullptr, qtr("Select Directory"), current);
 }
 
 void SettingsModel::openAllOptions() const
