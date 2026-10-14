@@ -29,6 +29,7 @@
 #include "player/control_list_model.hpp"
 #include "player/control_list_filter.hpp"
 #include "player/delay_estimator.hpp"
+#include "player/effects/effects_controller.hpp"
 
 #include "dialogs/toolbar/controlbar_profile_model.hpp"
 #include "dialogs/toolbar/controlbar_profile.hpp"
@@ -321,6 +322,9 @@ void MainUI::registerQMLTypes()
         qmlRegisterUncreatableType<ProgramListModel>(uri, versionMajor, versionMinor, "ProgramListModel", "available programs of a media" );
         assert(m_intf->p_mainPlayerController);
         qmlRegisterSingletonInstance<PlayerController>(uri, versionMajor, versionMinor, "Player", m_intf->p_mainPlayerController);
+        qmlRegisterUncreatableType<EffectParam>(uri, versionMajor, versionMinor, "EffectParam", "EffectParam is obtained from PlayerEffects");
+        qmlRegisterUncreatableType<FilterEffect>(uri, versionMajor, versionMinor, "FilterEffect", "FilterEffect is obtained from PlayerEffects");
+        qmlRegisterSingletonInstance<EffectsController>(uri, versionMajor, versionMinor, "PlayerEffects", new EffectsController(m_intf, this));
         qmlRegisterTypesAndRevisions<TimedText>(uri, versionMajor);
         qmlRegisterType<PlayerHighResolutionTimeUpdater>(uri, versionMajor, versionMinor, "HighResolutionTimeUpdater");
         qmlRegisterUncreatableMetaObject(VLCTickForeign::staticMetaObject, uri, versionMajor, versionMinor, "VLCTick", "Not Instantiable" );
