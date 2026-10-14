@@ -41,12 +41,25 @@ T.ProgressBar {
 
     readonly property bool _active: hoverHandler.hovered || control.visualFocus || dragHandler.active
 
+    // Waveform (Figma 2139:8124, music bar 4767:23726): drawn instead of the fill and the
+    // thumb for local audio files. Set to false to always use the plain bar.
+    property bool waveformEnabled: !Player.hasVideoOutput
+
+    readonly property bool _waveform: waveformTrack.active
+
+    readonly property color handleColor: control._active ? Qt.lighter(theme.accent, 1.12) : theme.accent
+
+    // position for an x coordinate of the control
+    function _positionAt(x) {
+        return control._waveform ? waveformTrack.positionAt(x) : x / control.width
+    }
+
     // position (in px, relative to the control) of the hovered / dragged point
     readonly property real _pointerX: dragHandler.active ? Helpers.clamp(dragHandler.centroid.position.x, 0, control.width)
                                                          : (hoverHandler.hovered ? Helpers.clamp(hoverHandler.point.position.x, 0, control.width)
                                                                                  : (control._thumbX + _thumbWidth / 2))
 
-    property real _tooltipPosition: control.width > 0 ? (control._pointerX / control.width) : 0
+    property real _tooltipPosition: control.width > 0 ? control._positionAt(control._pointerX) : 0
 
     property color backgroundColor: theme.bg.primary
     property real touchHandlerMargin: VLCStyle.touchHandlerMargin
@@ -227,10 +240,10 @@ T.ProgressBar {
 
             onPressedChanged: {
                 if (pressed) {
-                    fsm.pressControl(point.position.x / control.width, point.modifiers === Qt.ShiftModifier)
+                    fsm.pressControl(control._positionAt(point.position.x), point.modifiers === Qt.ShiftModifier)
                 } else {
                     // NOTE: Point is still valid at this point.
-                    fsm.releaseControl(point.position.x / control.width, point.modifiers === Qt.ShiftModifier)
+                    fsm.releaseControl(control._positionAt(point.position.x), point.modifiers === Qt.ShiftModifier)
                 }
             }
         }
@@ -249,16 +262,16 @@ T.ProgressBar {
             property bool filterEvents: false
 
             function moveControl() {
-                fsm.moveControl(dragHandler.centroid.position.x / control.width,
+                fsm.moveControl(control._positionAt(dragHandler.centroid.position.x),
                                 dragHandler.centroid.modifiers === Qt.ShiftModifier)
             }
 
             onActiveChanged: {
                 if (active) {
                     filterEvents = false
-                    fsm.pressControl(centroid.position.x / control.width, centroid.modifiers === Qt.ShiftModifier)
+                    fsm.pressControl(control._positionAt(centroid.position.x), centroid.modifiers === Qt.ShiftModifier)
                 } else {
-                    fsm.releaseControl( centroid.position.x / control.width, centroid.modifiers === Qt.ShiftModifier)
+                    fsm.releaseControl(control._positionAt(centroid.position.x), centroid.modifiers === Qt.ShiftModifier)
                 }
             }
 
@@ -339,6 +352,13 @@ T.ProgressBar {
 
             color: theme.fg.primary
 
+            opacity: control._waveform ? 0 : 1
+            visible: opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: VLCStyle.duration_long }
+            }
+
             // We use dynamic mutability group because time interpolation
             // may induce rapid change:
             // TODO: Do not use `Binding` when minimum Qt is 6.12:
@@ -349,6 +369,16 @@ T.ProgressBar {
                 value: (Player.playingState === Player.PLAYING_STATE_PLAYING) ? Item.DynamicMutabilityGroup
                                                                               : Item.StaticMutabilityGroup
             }
+        }
+
+        WaveformSeekTrack {
+            id: waveformTrack
+
+            anchors.fill: parent
+
+            slider: control
+            source: control.waveformEnabled ? Player.url : ""
+            pointerX: (hoverHandler.hovered || dragHandler.active) ? control._pointerX : -1
         }
 
         // chapter marks
@@ -504,7 +534,14 @@ T.ProgressBar {
 
         radius: VLCStyle.radius_s
 
-        color: control._active ? Qt.lighter(theme.accent, 1.12) : theme.accent
+        color: control.handleColor
+
+        opacity: control._waveform ? 0 : 1
+        visible: opacity > 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: VLCStyle.duration_long }
+        }
 
         Behavior on color {
             ColorAnimation {
