@@ -1,5 +1,12 @@
 # VLC media player
 
+> **About this fork:** this is an unofficial fork of VLC that implements a full redesign of
+> the Qt/QML desktop interface. It is not affiliated with or endorsed by VideoLAN.
+>
+> **Design credit:** the redesign, including the layout, color system and icon set, is by
+> **Juxtopposed**, from the Figma Community file "VLC Redesign (Community)".
+> All credit for the design goes to them; any implementation mistakes are ours.
+
 **VLC** is a libre and open source **media player** and **multimedia engine**,
 focused on **playing everything**, and **running everywhere**.
 
