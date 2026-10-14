@@ -60,13 +60,14 @@ void StringListMenu::popup(const QPoint &point, const QVariantList &stringList)
                 continue;
             }
             const QString str = map.value(QStringLiteral("text")).toString();
-            QAction *action = m->addAction(str);
+            // '&' would be taken as a mnemonic marker
+            QAction *action = m->addAction(QString(str).replace(QLatin1Char('&'), QStringLiteral("&&")));
             const QString icon = map.value(QStringLiteral("icon")).toString();
             if (!icon.isEmpty())
                 action->setIcon(VLCMenuStyle::icon(icon));
             const QString shortcut = map.value(QStringLiteral("shortcut")).toString();
             if (!shortcut.isEmpty())
-                action->setText(str + QLatin1Char('\t') + shortcut);
+                action->setText(QString(str).replace(QLatin1Char('&'), QStringLiteral("&&")) + QLatin1Char('\t') + shortcut);
             if (map.contains(QStringLiteral("checked")) || m_rightCheck)
             {
                 action->setCheckable(true);
@@ -895,7 +896,7 @@ void PlaylistMediaContextMenu::popup(const QModelIndexList & selected, QPoint po
     });
 
     if (options.contains("information") && options["information"].typeId() == QMetaType::Int) {
-        action = menu->addAction(VLCMenuStyle::icon("info-twotone"), qtr("Properties & Metadata"));
+        action = menu->addAction(VLCMenuStyle::icon("info-twotone"), qtr("Properties && Metadata"));
 
         QSignalMapper * mapper = new QSignalMapper(menu);
 
@@ -941,7 +942,7 @@ void NetworkMediaContextMenu::popup(const QModelIndexList& selected, QPoint pos)
         m_model->addToPlaylist(selected);
     });
 
-    action = menu->addAction( VLCMenuStyle::icon("info-twotone"), qtr("Properties & Metadata") );
+    action = menu->addAction( VLCMenuStyle::icon("info-twotone"), qtr("Properties && Metadata") );
     connect(action, &QAction::triggered, [this, selected]( ) {
         if (selected.isEmpty()) return;
 
@@ -1010,7 +1011,7 @@ void NetworkDeviceContextMenu::popup(const QModelIndexList& selected, QPoint pos
         m_model->addToPlaylist(selected);
     });
 
-    action = menu->addAction( VLCMenuStyle::icon("info-twotone"), qtr("Properties & Metadata") );
+    action = menu->addAction( VLCMenuStyle::icon("info-twotone"), qtr("Properties && Metadata") );
     connect(action, &QAction::triggered, [this, selected]( ) {
         if (selected.isEmpty()) return;
 
@@ -1082,7 +1083,7 @@ void PlaylistContextMenu::popup(int selectedIndex, QPoint pos )
     }
 
     if (selectedItem) {
-        action = m_menu->addAction( VLCMenuStyle::icon("info-twotone"), qtr("Properties & Metadata") );
+        action = m_menu->addAction( VLCMenuStyle::icon("info-twotone"), qtr("Properties && Metadata") );
         action->setIcon(QIcon(":/menu/info.svg"));
         connect(action, &QAction::triggered, [selectedItem]( ) {
             DialogsProvider::getInstance()->mediaInfoDialog(selectedItem);

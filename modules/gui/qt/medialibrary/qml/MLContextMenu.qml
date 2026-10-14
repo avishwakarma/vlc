@@ -128,7 +128,7 @@ NativeMenu {
             "action": (root.showPlayAsAudioAction ? root.addToVideoOnlyPlaylist : root.addToAudioOnlyPlaylist)
         }, {
             "text": qsTr("Delete"),
-            "icon": "remove",
+            "icon": "close",
             "action": deleteStream,
             "visible": _deleteStream
         }, {
@@ -138,7 +138,7 @@ NativeMenu {
             "visible": showInformationAvailable
         }, {
             "text": qsTr("Delete File From System"),
-            "icon": "remove",
+            "icon": "close",
             "action": deleteFileFromSource,
             "visible": _deleteFileFromSource
         }

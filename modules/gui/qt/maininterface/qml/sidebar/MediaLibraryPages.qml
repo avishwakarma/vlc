@@ -119,6 +119,7 @@ QtObject {
             id: page
 
             placeholderIcon: "songs"
+            iconRole: "icon"
             itemCount: 4
             leadingActions: [ { text: qsTr("Add"), icon: "add", action: () => DialogsProvider.PLOpenDir() } ]
 

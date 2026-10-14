@@ -43,8 +43,9 @@ SidebarPage {
     // draw the rows with the primary text color (playlists) instead of the dimmed one
     property bool rowsBright: false
 
-    // icon of rows without thumbnail
+    // icon of rows without thumbnail, or the role holding the icon name of each row
     property string placeholderIcon: "folder"
+    property string iconRole: ""
 
     // rows drawn before the items: [{text, icon, action}] ("Add", "Create playlist", ...)
     property var leadingActions: []
@@ -205,7 +206,7 @@ SidebarPage {
                 title: model[root.titleRole] ?? ""
                 subtitle: root.subtitleRole !== "" ? (model[root.subtitleRole] ?? "") : ""
                 thumbnail: root.thumbRole !== "" ? ((model[root.thumbRole] ?? "").toString()) : ""
-                iconName: root.placeholderIcon
+                iconName: (root.iconRole !== "" ? model[root.iconRole] : "") || root.placeholderIcon
                 progress: root.progressRole !== "" ? (model[root.progressRole] ?? -1) : -1
                 isNew: root.newRole !== "" ? (model[root.newRole] ?? true) : true
                 newKnown: root.newRole !== "" || root.rowsBright
