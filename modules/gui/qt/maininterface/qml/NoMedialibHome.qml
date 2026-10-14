@@ -38,136 +38,83 @@ FocusScope {
     Accessible.name: qsTr("Home View")
 
 
+    // Empty library state of the redesign. The horizontal orientation is
+    // used above the media rows of a populated home page, where the design
+    // shows nothing, so it collapses there.
     component ConeNButtons: FocusScope {
         id: coneNButtons
 
         property int orientation: Qt.Vertical
 
-        property real spacing: VLCStyle.margin_large
+        readonly property bool _canAddFolder: MainCtx.mediaLibraryAvailable
 
-        implicitWidth: orientation === Qt.Vertical ? Math.max(cone.implicitWidth, buttons.implicitWidth)
-                                                   : cone.implicitWidth + spacing + buttons.implicitWidth
-        implicitHeight: orientation === Qt.Vertical ? cone.implicitHeight + spacing + buttons.implicitHeight
-                                                    : cone.implicitHeight
+        visible: orientation === Qt.Vertical
+        implicitWidth: visible ? column.implicitWidth : 0
+        implicitHeight: visible ? column.implicitHeight : 0
 
-        states: [
-            State {
-                name: "vertical"
-                AnchorChanges {
-                    target: cone
-
-                    anchors.left: undefined
-                    anchors.horizontalCenter: coneNButtons.horizontalCenter
-                }
-                AnchorChanges {
-                    target: buttons
-
-                    anchors.left: undefined
-                    anchors.verticalCenter: undefined
-                    anchors.top: cone.bottom
-                    anchors.horizontalCenter: coneNButtons.horizontalCenter
-                }
-                PropertyChanges {
-                    target: buttons
-
-                    anchors.topMargin: coneNButtons.spacing
-                }
-            },
-            State {
-                name: "horizontal"
-                AnchorChanges {
-                    target: cone
-
-                    anchors.horizontalCenter: undefined
-                    anchors.left: coneNButtons.left
-                }
-                AnchorChanges {
-                    target: buttons
-
-                    anchors.top: undefined
-                    anchors.horizontalCenter: undefined
-                    anchors.left: cone.right
-                    anchors.verticalCenter: coneNButtons.verticalCenter
-                }
-                PropertyChanges {
-                    target: buttons
-
-                    anchors.leftMargin: coneNButtons.spacing
-                }
-            }
-        ]
-
-        state: orientation === Qt.Vertical ? "vertical" : "horizontal"
-
-
-        Image {
-            id: cone
-
-            property real _eDPR: MainCtx.effectiveDevicePixelRatio(Window.window)
-
-            sourceSize: Qt.size(0, orientation === Qt.Vertical ? VLCStyle.colWidth(1)
-                                                               : buttons.implicitHeight * 1.618 * _eDPR) // 1.618 = golden ratio approximation
-
-            source: MainCtx.useXmasCone() ? "qrc:///logo/vlc48-xmas.png" // TODO: new xmas cone designs
-                                          : "qrc:///misc/cone.svg"
-
-            Connections {
-                target: MainCtx
-
-                function onIntfDevicePixelRatioChanged() {
-                    // Update the DPR:
-                    // Normally, this is not done, as we display the images at the size we
-                    // want, and we don't want to re-load all images on DPR change. But
-                    // in this case we depend on the implicit size, so we should re-load
-                    // the image with the updated DPR:
-                    cone._eDPR = MainCtx.effectiveDevicePixelRatio(cone.Window.window)
-                }
-            }
+        readonly property ColorContext colorContext: ColorContext {
+            id: emptyTheme
+            colorSet: ColorContext.View
         }
 
-        Row {
-            id: buttons
+        Column {
+            id: column
 
-            spacing: coneNButtons.spacing
+            anchors.centerIn: parent
+            spacing: VLCStyle.margin_small
 
-            Widgets.ActionButtonPrimary {
-                id: fileButton
-
-                AccessibleCompat.id: "openFileButton"
-
-                focus: true
-
-                text: qsTr("Open File")
-
-                // NOTE: Use the same width for the buttons (give more width if necessary) to have bilateral symmetry:
-                width: Math.max(fileButton.implicitWidth, discButton.implicitWidth)
-
-                Navigation.parentItem: coneNButtons
-                Navigation.rightItem: discButton
-
-                // TODO: The full-fledged open dialog is advertised as "Open Multiple Files" in the menu.
-                //       In the future, we can have the "Open File" button as a combo box button that has these options,
-                //       with the default being a simple open dialog:
-                //       - Default: simple open dialog.
-                //       - Combo box option 1 (user clicks the down button, and the combo box reveals all buttons): open multiple files (Ctrl+Shift+O).
-                //       - Combo box option 2: open location from clipboard (Ctrl+V) / simple text edit dialog.
-                onClicked: DialogsProvider.simpleOpenDialog()
+            Widgets.SvgIcon {
+                anchors.horizontalCenter: parent.horizontalCenter
+                name: "folder"
+                size: VLCStyle.icon_large
+                color: emptyTheme.fg.secondary
             }
 
+            Item { width: 1; height: VLCStyle.margin_xsmall }
+
+            Widgets.SubtitleLabel {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: coneNButtons._canAddFolder ? qsTr("Your library is empty")
+                                                 : qsTr("Nothing to show yet")
+                color: emptyTheme.fg.primary
+            }
+
+            Widgets.CaptionLabel {
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: Text.AlignHCenter
+                text: coneNButtons._canAddFolder
+                      ? qsTr("Add a folder with your videos and music to get started.")
+                      : qsTr("Open a file to start playing.")
+                color: emptyTheme.fg.secondary
+            }
+
+            Item { width: 1; height: VLCStyle.margin_normal }
+
             Widgets.ActionButtonPrimary {
-                id: discButton
+                id: addButton
 
-                AccessibleCompat.id: "discButton"
+                anchors.horizontalCenter: parent.horizontalCenter
+                focus: true
 
-                text: qsTr("Open Disc")
+                AccessibleCompat.id: "addMediaFolderButton"
 
-                // NOTE: Use the same width for the buttons (give more width if necessary) to have bilateral symmetry:
-                width: Math.max(fileButton.implicitWidth, discButton.implicitWidth)
+                text: coneNButtons._canAddFolder ? qsTr("Add media folder")
+                                                 : qsTr("Open File")
 
                 Navigation.parentItem: coneNButtons
-                Navigation.leftItem: fileButton
 
-                onClicked: DialogsProvider.openDiscDialog()
+                onClicked: {
+                    if (!coneNButtons._canAddFolder) {
+                        DialogsProvider.simpleOpenDialog()
+                        return
+                    }
+                    const path = SettingsModel.pickDirectory("")
+                    if (!path)
+                        return
+                    const folders = SettingsModel.option("mlFolders")
+                    if (folders && folders.model)
+                        folders.model.add("file://" + encodeURI(path))
+                }
             }
         }
     }
