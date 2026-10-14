@@ -296,6 +296,12 @@ libqt_plugin_la_SOURCES = \
 	player/control_list_model.cpp player/control_list_model.hpp \
 	player/control_list_filter.cpp \
 	player/control_list_filter.hpp \
+	player/waveform/waveform_analyzer.c \
+	player/waveform/waveform_analyzer.h \
+	player/waveform/waveform_item.cpp \
+	player/waveform/waveform_item.hpp \
+	player/waveform/waveform_service.cpp \
+	player/waveform/waveform_service.hpp \
 	playlist/media.hpp \
 	playlist/playlist_common.hpp \
 	playlist/playlist_controller.cpp \
@@ -501,6 +507,8 @@ nodist_libqt_plugin_la_SOURCES = \
 	player/player_controlbar_model.moc.cpp \
 	player/control_list_model.moc.cpp \
 	player/control_list_filter.moc.cpp \
+	player/waveform/waveform_item.moc.cpp \
+	player/waveform/waveform_service.moc.cpp \
 	playlist/playlist_controller.moc.cpp \
 	playlist/playlist_item.moc.cpp \
 	playlist/playlist_model.moc.cpp \
@@ -1239,6 +1247,7 @@ libqml_module_player_a_QML = \
 	player/qml/MinimalView.qml \
 	player/qml/ResumeDialog.qml \
 	player/qml/SliderBar.qml \
+	player/waveform/qml/WaveformSeekTrack.qml \
 	player/qml/TopBar.qml \
 	player/qml/TracksMenu.qml \
 	player/qml/TracksPage.qml \
