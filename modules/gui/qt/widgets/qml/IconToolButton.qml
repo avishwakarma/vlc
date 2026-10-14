@@ -125,7 +125,7 @@ T.ToolButton {
         pressed: control.down
     }
 
-    contentItem: control._svg ? svgIcon : glyphLabel
+    contentItem: control._svg ? svgHolder : glyphLabel
 
     Widgets.IconLabel {
         id: glyphLabel
@@ -147,16 +147,29 @@ T.ToolButton {
         font: control.font
     }
 
-    Widgets.SvgIcon {
-        id: svgIcon
+    // the icon keeps its own (logical) size and is centered in the button
+    Item {
+        id: svgHolder
 
         visible: control._svg
 
-        name: (control.checked && control.iconNameChecked !== "") ? control.iconNameChecked : control.iconName
-        size: control.iconSize
+        implicitWidth: svgIcon.implicitWidth
+        implicitHeight: svgIcon.implicitHeight
 
-        // hover/pressed/focus/disabled variants come from the ToolButton color set
-        color: (control.checked && control.iconNameChecked !== "") ? theme.fg.primary : control.color
-        accentColor: theme.accent
+        Widgets.SvgIcon {
+            id: svgIcon
+
+            anchors.centerIn: parent
+
+            width: size
+            height: size
+
+            name: (control.checked && control.iconNameChecked !== "") ? control.iconNameChecked : control.iconName
+            size: control.iconSize
+
+            // hover/pressed/focus/disabled variants come from the ToolButton color set
+            color: (control.checked && control.iconNameChecked !== "") ? theme.fg.primary : control.color
+            accentColor: theme.accent
+        }
     }
 }

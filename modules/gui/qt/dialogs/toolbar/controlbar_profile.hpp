@@ -41,6 +41,14 @@ public:
 
     PlayerControlbarModel* newModel(int identifier);
     Q_INVOKABLE PlayerControlbarModel* getModel(int identifier) const;
+    // like getModel() but creates the model (filled with the built-in layout for that
+    // identifier) when the profile was saved before the identifier existed
+    Q_INVOKABLE PlayerControlbarModel* ensureModel(int identifier);
+
+    // built-in (Figma) layout of a player: left, center, right
+    static std::array<QVector<int>, 3> builtinLayout(int identifier);
+    // true when the data is the pre-redesign default layout of a player
+    static bool isLegacyDefault(int identifier, const std::array<QVector<int>, 3>& data);
 
     void setModelData(int identifier, const std::array<QVector<int>, 3>& data);
     std::array<QVector<int>, 3> getModelData(int identifier) const;

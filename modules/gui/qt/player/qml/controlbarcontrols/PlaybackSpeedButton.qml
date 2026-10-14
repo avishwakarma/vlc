@@ -32,6 +32,9 @@ PopupIconToolButton {
     popup.width: VLCStyle.dp(256, VLCStyle.scale)
 
     text: qsTr("Playback Speed")
+    iconName: "speed"
+    iconNameChecked: "speed-active"
+    checked: popup.visible
 
     description: qsTr("change playback speed")
 
@@ -47,34 +50,6 @@ PopupIconToolButton {
 
         onRadioButtonClicked: {
             root.popup.close()
-        }
-    }
-
-    contentItem: Item {
-        implicitHeight: label.implicitHeight
-        implicitWidth: textMetrics.width
-
-        TextMetrics {
-            id: textMetrics
-            font: label.font
-            // '-' is for additional space if certain digits have more width with certain fonts
-            text: "0.00x-"
-        }
-
-        Text {
-            id: label
-
-            anchors.fill: parent
-
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-
-            font.pixelSize: VLCStyle.fontSize_normal
-
-            text: !root.paintOnly ? qsTr("%1x").arg(+Player.rate.toFixed(2))
-                                  : qsTr("1x")
-
-            color: root.color
         }
     }
 

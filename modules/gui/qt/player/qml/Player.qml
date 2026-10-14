@@ -947,6 +947,46 @@ FocusScope {
         }
     }
 
+    // State and requests of the items of the title bar / control bar (see PlayerHost)
+    Binding { target: PlayerHost; property: "playlistVisible"; value: playlistVisibility.isPlaylistVisible }
+    Binding { target: PlayerHost; property: "plListView"; value: topBar.plListView }
+
+    Connections {
+        target: PlayerHost
+
+        function onToggleQueue() {
+            playlistVisibility.togglePlaylistVisibility()
+        }
+    }
+
+    // Customize Player (modal box over the video, the bars are edited live)
+    Loader {
+        id: customizeLoader
+
+        anchors.top: topBar.bottom
+        anchors.bottom: controlBar.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        z: 100
+
+        active: PlayerCustomizer.requested || PlayerCustomizer.editing
+        source: "qrc:///qt/qml/VLC/Dialogs/PlayerCustomizeOverlay.qml"
+
+        focus: active
+
+        onLoaded: item.forceActiveFocus()
+    }
+
+    Connections {
+        target: PlayerCustomizer
+
+        // keep the bars on screen while they are edited
+        function onEditingChanged() {
+            rootPlayer.lockUnlockAutoHide(PlayerCustomizer.editing)
+        }
+    }
+
     // Hide-UI mode: hides the title bar, the control bar and the sidebar until toggled again
     Menus.ShortcutExt {
         context: Qt.WindowShortcut

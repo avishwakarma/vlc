@@ -19,6 +19,7 @@
  *****************************************************************************/
 
 import QtQuick
+import QtQuick.Templates as T
 
 
 import VLC.MainInterface
@@ -62,7 +63,7 @@ Widgets.IconToolButton {
 
     // Children
 
-    Popup {
+    T.Popup {
         id: popup
 
         x: (parent.width - width) / 2
