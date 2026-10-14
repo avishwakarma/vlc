@@ -646,7 +646,26 @@ qml_modules += {
         'dialogs/toolbar/qml/ToolbarEditor.qml',
         'dialogs/toolbar/qml/ToolbarEditorDialog.qml',
         'dialogs/toolbar/qml/ToolbarEditorButtonList.qml',
-        'dialogs/settings/qml/SettingsWindow.qml'
+        'dialogs/settings/qml/AccentSwatches.qml',
+        'dialogs/settings/qml/HotkeysEditor.qml',
+        'dialogs/settings/qml/SettingRow.qml',
+        'dialogs/settings/qml/SettingSection.qml',
+        'dialogs/settings/qml/SettingsNavButton.qml',
+        'dialogs/settings/qml/SettingsPage.qml',
+        'dialogs/settings/qml/SettingsWindow.qml',
+        'dialogs/settings/qml/pages/Audio.qml',
+        'dialogs/settings/qml/pages/Controls.qml',
+        'dialogs/settings/qml/pages/Extensions.qml',
+        'dialogs/settings/qml/pages/General.qml',
+        'dialogs/settings/qml/pages/Interface.qml',
+        'dialogs/settings/qml/pages/Library.qml',
+        'dialogs/settings/qml/pages/Network.qml',
+        'dialogs/settings/qml/pages/Performance.qml',
+        'dialogs/settings/qml/pages/Playback.qml',
+        'dialogs/settings/qml/pages/Privacy.qml',
+        'dialogs/settings/qml/pages/Recording.qml',
+        'dialogs/settings/qml/pages/Subtitles.qml',
+        'dialogs/settings/qml/pages/Video.qml'
     ),
 }
 
