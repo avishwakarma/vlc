@@ -866,11 +866,11 @@ QMenu* VLCMenuBar::PopupMenu( qt_intf_t *p_intf, bool show )
     menu->addSeparator();
 
     if( mi )
-        add( "window-twotone", qtr( "Hide UI" ), "Ctrl+\\", [mi]() { emit mi->toggleHideUIRequested(); } );
+        add( "ui-twotone", qtr( "Hide UI" ), "Ctrl+\\", [mi]() { emit mi->toggleHideUIRequested(); } );
 
     menu->addSeparator();
 
-    QMenu *submenu = addSub( "playback-twotone", qtr( "Playback" ) );
+    QMenu *submenu = addSub( "playback-selected-twotone", qtr( "Playback" ) );
     NavigMenu( p_intf, submenu );
     menu->addMenu( submenu )->setEnabled( hasInput && !submenu->isEmpty() );
 

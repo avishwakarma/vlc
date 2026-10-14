@@ -100,20 +100,20 @@ QString styleSheet(const Colors& c, const QString& checkImage, const QString& ar
     s += QStringLiteral("QMenu { background-color: %1; border: 1px solid %2; border-radius: 10px; padding: 4px; font-size: 14px; icon-size: 24px; }\n")
             .arg(css(c.surface), css(c.separator));
     s += QStringLiteral("QMenu::item { background: transparent; color: %1; min-height: 48px; max-height: 48px;"
-                        " padding: 0px 24px 0px 19px; margin: 0px; min-width: 180px; border-radius: 6px; }\n")
+                        " padding: 0px 14px 0px 19px; margin: 0px; min-width: 180px; border-radius: 6px; }\n")
             .arg(css(c.text));
     s += QStringLiteral("QMenu::item:selected { background-color: %1; color: %2; }\n")
             .arg(css(c.hover), css(c.textHover));
     s += QStringLiteral("QMenu::item:disabled { color: %1; background: transparent; }\n").arg(css(c.textDisabled));
     s += QStringLiteral("QMenu::icon { padding-left: 28px; width: 24px; height: 24px; }\n");
-    s += QStringLiteral("QMenu::separator { height: 1px; background-color: %1; margin: 2px 0px 4px 0px; }\n")
+    s += QStringLiteral("QMenu::separator { height: 1px; background-color: %1; margin: 0px 0px 1px 0px; }\n")
             .arg(css(c.separator));
     s += QStringLiteral("QMenu::indicator { width: 24px; height: 24px; left: 10px; }\n");
     if (!checkImage.isEmpty())
         s += QStringLiteral("QMenu::indicator:non-exclusive:checked, QMenu::indicator:exclusive:checked"
                             " { image: url(%1); }\n").arg(checkImage);
     if (!arrowImage.isEmpty())
-        s += QStringLiteral("QMenu::right-arrow { image: url(%1); width: 24px; height: 24px; }\n").arg(arrowImage);
+        s += QStringLiteral("QMenu::right-arrow { image: url(%1); width: 24px; height: 24px; margin-right: 12px; }\n").arg(arrowImage);
     return s;
 }
 
