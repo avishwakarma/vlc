@@ -61,7 +61,17 @@ T.ProgressBar {
 
     property real _tooltipPosition: control.width > 0 ? control._positionAt(control._pointerX) : 0
 
-    property color backgroundColor: theme.bg.primary
+    // Track (Figma B2, darker than the bar in the dark theme, a touch lighter in the light one).
+    // Derived from the surface the bar sits on: with the "System" colour scheme the Slider set
+    // comes from the platform palette, where its background equals the window one and the unplayed
+    // part of the track became invisible (the bar looked like a short orange block).
+    readonly property color _surface: surfaceTheme.bg.primary
+    readonly property color _track: surfaceTheme.palette.isDark ? Qt.darker(_surface, 3.3)
+                                                                : Qt.lighter(_surface, 1.04)
+    // played fill: accent over the track (Figma Accent Bright = accent at 24 % over B2)
+    readonly property color _fill: Qt.tint(_track, Qt.alpha(theme.accent, surfaceTheme.palette.isDark ? 0.24 : 0.30))
+
+    property color backgroundColor: _track
     property real touchHandlerMargin: VLCStyle.touchHandlerMargin
 
     Keys.onRightPressed: Player.jumpFwd()
@@ -72,6 +82,11 @@ T.ProgressBar {
 
     // chapter marks are always drawn, kept for API compatibility
     function showChapterMarks() {
+    }
+
+    readonly property ColorContext surfaceColorContext: ColorContext {
+        id: surfaceTheme
+        colorSet: ColorContext.Window
     }
 
     readonly property ColorContext colorContext: ColorContext {
@@ -350,7 +365,7 @@ T.ProgressBar {
 
             radius: VLCStyle.radius_s
 
-            color: theme.fg.primary
+            color: control._fill
 
             opacity: control._waveform ? 0 : 1
             visible: opacity > 0

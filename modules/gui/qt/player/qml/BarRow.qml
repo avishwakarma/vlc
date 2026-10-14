@@ -82,12 +82,35 @@ FocusScope {
 
     // gap between two zones, only when both have something to show
     function _gap(a, b) {
-        return (a.implicitWidth > 0 && b.implicitWidth > 0) ? zoneSpacing : 0
+        return (a.width > 0 && b.width > 0) ? zoneSpacing : 0
     }
 
+    // Inline layout (zones side by side, one of them expands): the expanding zone always keeps
+    // at least its minimum width, the other zones share what is left in the order left, center,
+    // right. What does not fit in a zone is hidden by the zone itself (items too far right of the
+    // zone are hidden, see ControlRepeater), so the seek bar never collapses under the other items.
+    readonly property real _expMin: left.expanding ? left.minimumContentWidth
+                                                   : (center.expanding ? center.minimumContentWidth
+                                                                       : (right.expanding ? right.minimumContentWidth : 0))
+
+    function _zoneUsed(zone, cap) {
+        return (zone.expanding || cap > 0) ? 1 : 0
+    }
+
+    // width kept for the non expanding zones, gaps excluded
+    readonly property real _room: Math.max(0, width - leftInset - _expMin - 2 * zoneSpacing)
+
+    // (the full width of a zone counts, whether its items are hidden or not: hidden items
+    // leave the zone's implicit width, which would shrink the zone again and hide more of them)
+    readonly property real _capL: left.expanding ? 0 : Math.min(left.minimumContentWidth, _room)
+    readonly property real _capC: center.expanding ? 0 : Math.min(center.minimumContentWidth, Math.max(0, _room - _capL))
+    readonly property real _capR: right.expanding ? 0 : Math.min(right.minimumContentWidth, Math.max(0, _room - _capL - _capC))
+
+    // gaps between the zones that are on screen
+    readonly property real _gapsInline: zoneSpacing * Math.max(0, _zoneUsed(left, _capL) + _zoneUsed(center, _capC) + _zoneUsed(right, _capR) - 1)
+
     // inline: the expanding zone takes what the others leave
-    readonly property real _freeInline: Math.max(0, width - leftInset - _leftW - _centerW - _rightW
-                                                     - _gap(left, center) - _gap(center, right))
+    readonly property real _freeInline: Math.max(0, width - leftInset - _capL - _capC - _capR - _gapsInline)
 
     BarZone {
         id: left
@@ -98,12 +121,12 @@ FocusScope {
         titleBar: root.titleBar
 
         height: root.height
-        availableWidth: root.width
+        availableWidth: root.inline ? width : root.width
 
         x: root.leftInset
         width: {
             if (root.inline)
-                return left.expanding ? left.implicitWidth + root._freeInline : left.implicitWidth
+                return left.expanding ? root._freeInline : root._capL
 
             if (root.editing)
                 return Math.max(left.implicitWidth, Math.max(0, center.x - root.zoneSpacing - root.leftInset))
@@ -132,11 +155,11 @@ FocusScope {
         titleBar: root.titleBar
 
         height: root.height
-        availableWidth: root.width
+        availableWidth: root.inline ? width : root.width
 
         // centered in the row, unless the zones are laid side by side
         readonly property real _maxCentered: Math.max(0, root.width - 2 * Math.max(root._leftW + root.leftInset, root._rightW) - 2 * root.zoneSpacing)
-        readonly property real _centerWidth: root.inline ? (center.expanding ? center.implicitWidth + root._freeInline : center.implicitWidth)
+        readonly property real _centerWidth: root.inline ? (center.expanding ? root._freeInline : root._capC)
                                                          : Math.min(center.implicitWidth, _maxCentered)
 
         width: _centerWidth
@@ -163,11 +186,11 @@ FocusScope {
         titleBar: root.titleBar
 
         height: root.height
-        availableWidth: root.width
+        availableWidth: root.inline ? width : root.width
 
         width: {
             if (root.inline)
-                return right.expanding ? right.implicitWidth + root._freeInline : right.implicitWidth
+                return right.expanding ? root._freeInline : root._capR
 
             const start = center.x + center.width + root.zoneSpacing
             if (root.editing)
@@ -175,7 +198,7 @@ FocusScope {
 
             return Math.min(right.implicitWidth, Math.max(0, root.width - start))
         }
-        x: root.width - width
+        x: root.inline ? (center.x + center.width + root._gap(center, right)) : root.width - width
 
         Navigation.parentItem: root
         Navigation.leftAction: function() { return !(center.focusLast(Qt.BacktabFocusReason) || left.focusLast(Qt.BacktabFocusReason)) }

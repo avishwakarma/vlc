@@ -83,7 +83,9 @@ FocusScope {
     implicitWidth: VLCStyle.dp(420, VLCStyle.scale)
     implicitHeight: VLCStyle.seek_height
 
-    Layout.minimumWidth: VLCStyle.dp(160, VLCStyle.scale)
+    // both time chips and a track that stays usable
+    Layout.minimumWidth: Math.max(timeChip.Layout.preferredWidth, 0) + Math.max(durationChip.Layout.preferredWidth, 0)
+                         + VLCStyle.spacing_8 * 2 + VLCStyle.dp(140, VLCStyle.scale)
 
     Accessible.role: Accessible.Pane
     Accessible.name: qsTr("Seek bar")

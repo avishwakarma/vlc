@@ -68,6 +68,18 @@ FocusScope {
         return list.indexOf(ControlListModel.TIMELINE) !== -1
     }
 
+    // smallest width the items can take (the expanding item at its minimum)
+    readonly property real minimumContentWidth: {
+        void normalRepeater.count
+        let w = 0
+        for (let i = 0; i < normalRepeater.count; ++i) {
+            const l = normalRepeater.itemAt(i)
+            if (l)
+                w += Math.max(0, l.Layout.minimumWidth) + Math.max(0, l.Layout.leftMargin)
+        }
+        return w
+    }
+
     // true if there is no item to show in normal mode
     readonly property bool empty: (controls ? controls.count : 0) === 0
 
