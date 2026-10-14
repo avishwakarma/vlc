@@ -1332,6 +1332,7 @@ libqml_module_widgets_a_QML = \
 	widgets/qml/GridSortFilterControls.qml \
 	widgets/qml/HorizontalResizeHandle.qml \
 	widgets/qml/IconLabel.qml \
+	widgets/qml/SvgIcon.qml \
 	widgets/qml/IconButton.qml \
 	widgets/qml/IconToolButton.qml \
 	widgets/qml/IconTrackButton.qml \
@@ -1527,6 +1528,7 @@ libqt_plugin_la_SOURCES += $(libqt_plugin_la_SHADER)
 CLEANFILES += shaders/shaders.qrc
 
 lib_qt_plugin_la_QRC = assets.qrc
+lib_qt_plugin_la_QRC += svgicons.qrc
 
 if HAVE_WIN32
 lib_qt_plugin_la_QRC += windows.qrc
@@ -1541,6 +1543,12 @@ endif
 EXTRA_DIST += $(lib_qt_plugin_la_QRC) $(libqt_plugin_la_RES) $(libqt_plugin_la_SHADER)
 
 nodist_libqt_plugin_la_SOURCES += assets.cpp  shaders/shaders.cpp
+
+svgicons.cpp: svgicons.qrc
+	$(AM_V_GEN)$(RCC) $(RCC_EXTRA_PARAMS) --name svgicons -o $@ $<
+
+EXTRA_DIST += pixmaps/svg_icons
+nodist_libqt_plugin_la_SOURCES += svgicons.cpp
 endif
 
 # Emit shader source dependencies so that the built shaders are properly

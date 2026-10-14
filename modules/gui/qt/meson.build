@@ -573,6 +573,7 @@ if have_wayland and cpp.has_header('qpa/qplatformnativeinterface.h', dependencie
 endif
 
 qrc_files = files('assets.qrc')
+qrc_files += files('svgicons.qrc')
 if host_system == 'windows'
   qrc_files += files('windows.qrc')
 endif
@@ -891,6 +892,7 @@ qml_modules += {
         'widgets/qml/GridSortFilterControls.qml',
         'widgets/qml/HorizontalResizeHandle.qml',
         'widgets/qml/IconLabel.qml',
+        'widgets/qml/SvgIcon.qml',
         'widgets/qml/IconButton.qml',
         'widgets/qml/IconToolButton.qml',
         'widgets/qml/IconTrackButton.qml',
