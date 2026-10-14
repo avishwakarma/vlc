@@ -27,9 +27,36 @@
 
 #ifdef __APPLE__
 #include <objc/runtime.h>
+#include <objc/message.h>
+#include <TargetConditionals.h>
 #endif
 
 using namespace vlc;
+
+#if defined(__APPLE__) && TARGET_OS_OSX
+// The video output only covers the picture rectangle of the native video view. Paint the rest
+// (letterbox/pillarbox) black, as the window behind it may have no background (frameless window).
+static void setVideoViewBackgroundBlack(WId wid)
+{
+    id view = reinterpret_cast<id>(wid);
+    if (!view)
+        return;
+
+    using SetBoolFn = void (*)(id, SEL, BOOL);
+    using GetIdFn = id (*)(id, SEL);
+    using SetColorFn = void (*)(id, SEL, void *);
+    using GetPtrFn = void *(*)(id, SEL);
+
+    reinterpret_cast<SetBoolFn>(objc_msgSend)(view, sel_registerName("setWantsLayer:"), YES);
+    id layer = reinterpret_cast<GetIdFn>(objc_msgSend)(view, sel_registerName("layer"));
+    Class nsColor = objc_getClass("NSColor");
+    if (!layer || !nsColor)
+        return;
+    id black = reinterpret_cast<GetIdFn>(objc_msgSend)(reinterpret_cast<id>(nsColor), sel_registerName("blackColor"));
+    void *cgColor = reinterpret_cast<GetPtrFn>(objc_msgSend)(black, sel_registerName("CGColor"));
+    reinterpret_cast<SetColorFn>(objc_msgSend)(layer, sel_registerName("setBackgroundColor:"), cgColor);
+}
+#endif
 
 
 CompositorPlatform::CompositorPlatform(qt_intf_t *p_intf, QObject *parent)
@@ -78,6 +105,9 @@ bool CompositorPlatform::makeMainInterface(MainCtx *mainCtx, std::function<void 
     m_rootWindow = std::make_unique<QWindow>();
 
     m_videoWindow = new QWindow(m_rootWindow.get());
+#if defined(__APPLE__) && TARGET_OS_OSX
+    setVideoViewBackgroundBlack(m_videoWindow->winId());
+#endif
 
     m_quickWindow = new QQuickView(m_rootWindow.get());
     m_quickWindow->setResizeMode(QQuickView::SizeRootObjectToView);

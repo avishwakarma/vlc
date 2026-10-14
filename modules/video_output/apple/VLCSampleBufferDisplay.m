@@ -928,8 +928,16 @@ API_AVAILABLE(tvos(17.0), visionos(1.0))
     VLCView *window = self.window;
     CGRect frame = CGRectMake(place->x, place->y, place->width, place->height);
 #if TARGET_OS_OSX
-    frame = [window convertRectFromBacking:frame];
-    frame.origin.y = window.bounds.size.height - frame.origin.y - frame.size.height;
+    /* The place is in pixels, with a top-left origin. Only convert sizes
+     * from the backing store: converting the rect would also flip its
+     * origin when the host view is flipped (e.g. the Qt interface view),
+     * which then gets flipped a second time below. */
+    const NSSize unit = [window convertSizeFromBacking:NSMakeSize(1.0, 1.0)];
+    const CGFloat sx = fabs(unit.width), sy = fabs(unit.height);
+    frame = CGRectMake(place->x * sx, place->y * sy,
+                       place->width * sx, place->height * sy);
+    if (!window.isFlipped)
+        frame.origin.y = window.bounds.size.height - frame.origin.y - frame.size.height;
 #else
     CGFloat scale = window.contentScaleFactor;
     frame.origin.x /= scale;
