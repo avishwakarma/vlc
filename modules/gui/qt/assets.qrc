@@ -4,11 +4,11 @@
         <file alias="vlc128.png">../../../share/icons/128x128/vlc.png</file>
         <file alias="vlc16.png">../../../share/icons/16x16/vlc.png</file>
         <file alias="vlc48.png">../../../share/icons/48x48/vlc.png</file>
-        <file alias="vlc128-xmas.png">../../../share/icons/128x128/vlc-xmas.png</file>
-        <file alias="vlc48-xmas.png">../../../share/icons/48x48/vlc-xmas.png</file>
-        <file alias="vlc128-aprilfools.png">../../../share/icons/128x128/vlc-aprilfools.png</file>
-        <file alias="vlc48-aprilfools.png">../../../share/icons/48x48/vlc-aprilfools.png</file>
-        <file alias="vlc128-kb.png">../../../share/icons/128x128/vlc-kb.png</file>
+        <file alias="vlc128-xmas.png">../../../share/icons/128x128/vlc.png</file>
+        <file alias="vlc48-xmas.png">../../../extras/package/macosx/asset_sources/redesign/png/cone_96.png</file>
+        <file alias="vlc128-aprilfools.png">../../../share/icons/128x128/vlc.png</file>
+        <file alias="vlc48-aprilfools.png">../../../extras/package/macosx/asset_sources/redesign/png/cone_96.png</file>
+        <file alias="vlc128-kb.png">../../../share/icons/128x128/vlc.png</file>
     </qresource>
     <qresource prefix="/icons">
         <file alias="atob.svg">pixmaps/icons/atob.svg</file>
