@@ -28,6 +28,7 @@ Widgets.IconToolButton {
 
     enabled: Player.hasVideoOutput
     text: Player.fullscreen ? VLCIcons.defullscreen :VLCIcons.fullscreen
+    iconName: Player.fullscreen ? "fullscreen-active" : "fullscreen"
     onClicked: Player.fullscreen = !Player.fullscreen
     description: qsTr("fullscreen")
 

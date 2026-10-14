@@ -27,6 +27,8 @@ import VLC.Player
 import VLC.Playlist
 import VLC.Util
 
+// Accent play/pause pill of the control bar (Figma 848:1711): 54x28, radius 6,
+// accent fill (ButtonAccent colour set), 24px glyph in FG/B1.
 T.Control {
     id: root
 
@@ -37,27 +39,42 @@ T.Control {
     readonly property ColorContext colorContext: ColorContext {
         id: theme
 
-        colorSet: ColorContext.ToolButton
+        colorSet: ColorContext.ButtonAccent
 
         enabled: root.enabled || root.paintOnly
         focused: root.activeFocus
         hovered: root.cursorInside
-        pressed: mouseArea.containsPress
+        pressed: mouseArea.containsPress || root._keyOkPressed
     }
 
     property bool _keyOkPressed: false
 
     // Aliases
 
-    property alias cursorInside: mouseArea.cursorInside
+    property alias cursorInside: mouseArea.containsMouse
 
     // Settings
 
-    implicitWidth: implicitBackgroundWidth + leftInset + rightInset
-    implicitHeight: implicitBackgroundHeight + topInset + bottomInset
+    implicitWidth: VLCStyle.playButton_w
+    implicitHeight: VLCStyle.playButton_h
 
-    scale: (_keyOkPressed || (mouseArea.pressed && cursorInside)) ? 0.95
+    scale: (_keyOkPressed || (mouseArea.pressed && cursorInside)) ? 0.96
                                                                   : 1.00
+
+    Behavior on scale {
+        NumberAnimation {
+            duration: VLCStyle.duration_veryShort
+            easing.type: Easing.OutSine
+        }
+    }
+
+    readonly property bool _playing: {
+        const state = Player.playingState
+
+        return !paintOnly
+                && state !== Player.PLAYING_STATE_PAUSED
+                && state !== Player.PLAYING_STATE_STOPPED
+    }
 
     Accessible.role: Accessible.Button
     Accessible.name: qsTr("Play/Pause")
@@ -70,33 +87,9 @@ T.Control {
 
     // Tooltip
 
-    T.ToolTip.visible: (hovered || visualFocus)
+    T.ToolTip.visible: (cursorInside || visualFocus)
     T.ToolTip.delay: VLCStyle.delayToolTipAppear
     T.ToolTip.text: root.Accessible.name
-
-    // States
-
-    states: [
-        State {
-            name: "hovered"
-            when: cursorInside
-
-            PropertyChanges {
-                target: hoverShadow
-                opacity: 1.0
-            }
-        }
-    ]
-
-    transitions: Transition {
-        from: ""; to: "*"
-        reversible: true
-        NumberAnimation {
-            properties: "opacity"
-            easing.type: Easing.InOutSine
-            duration: VLCStyle.duration_veryShort
-        }
-    }
 
     // Keys
 
@@ -105,7 +98,6 @@ T.Control {
             if (!event.isAutoRepeat) {
                 _keyOkPressed = true
                 keyHoldTimer.restart()
-                innerRectangle.state = "diminished"
             }
             event.accepted = true
         }
@@ -117,7 +109,6 @@ T.Control {
             if (!event.isAutoRepeat) {
                 _keyOkPressed = false
                 keyHoldTimer.stop()
-                innerRectangle.state = ""
                 if (Player.playingState !== Player.PLAYING_STATE_STOPPED)
                     MainPlaylistController.togglePlayPause()
             }
@@ -128,7 +119,6 @@ T.Control {
     // Functions
 
     function _pressAndHoldAction() {
-        innerRectangle.state = ""
         _keyOkPressed = false
         MainPlaylistController.stop()
     }
@@ -152,41 +142,8 @@ T.Control {
 
         hoverEnabled: true
 
-        readonly property bool cursorInside: {
-            if (!containsMouse)
-                return false
-
-            const center = (width / 2)
-            if (Helpers.pointInRadius( center - mouseX,
-                                       center - mouseY,
-                                       center )) {
-                return true
-            } else {
-                return false
-            }
-        }
-
-        onCursorInsideChanged: {
-            if (pressed && !cursorInside) {
-                // Press and hold action can no longer be done,
-                // so reset the state in order to reset the
-                // animation:
-                innerRectangle.state = ""
-            }
-        }
-
         onPressed: (mouse) => {
-            if (!cursorInside) {
-                mouse.accepted = false
-                return
-            }
-
             root.forceActiveFocus(Qt.MouseFocusReason)
-            innerRectangle.state = "diminished"
-        }
-
-        onReleased: {
-            innerRectangle.state = ""
         }
 
         onClicked: (mouse) => {
@@ -195,59 +152,42 @@ T.Control {
         }
 
         onPressAndHold: (mouse) => {
-            if (!cursorInside) {
-                mouse.accepted = false
-                return
-            }
-
             _pressAndHoldAction()
             mouse.accepted = true
         }
     }
 
-    contentItem: T.Label {
-        text: {
-            const state = Player.playingState
+    contentItem: Item {
+        Widgets.SvgIcon {
+            anchors.centerIn: parent
 
-            if (!paintOnly
-                    && state !== Player.PLAYING_STATE_PAUSED
-                    && state !== Player.PLAYING_STATE_STOPPED)
-                return VLCIcons.pause_filled
-            else
-                return VLCIcons.play_filled
-        }
+            name: root._playing ? "pause" : "play"
+            size: VLCStyle.icon_normal
 
-        color: cursorInside ? theme.accent
-                            : "black"  //foreground is always black
+            // glyph colour of the accent button set (FG/B1)
+            color: theme.fg.primary
+            accentColor: theme.fg.primary
 
-        font.pixelSize: Math.round(parent.height / 1.7)
-
-        font.family: VLCIcons.fontFamily
-
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
-
-        Accessible.ignored: true
-
-        DelayedBehavior on color {
-            delayedEnabled: theme.initialized
-
-            ColorAnimation {
-                duration: VLCStyle.duration_veryShort
-                easing.type: Easing.InOutSine
+            Behavior on color {
+                enabled: theme.initialized
+                ColorAnimation {
+                    duration: VLCStyle.duration_veryShort
+                    easing.type: Easing.InOutSine
+                }
             }
         }
     }
 
     background: Item {
-        implicitWidth: height
-        implicitHeight: VLCStyle.icon_medium
+        implicitWidth: VLCStyle.playButton_w
+        implicitHeight: VLCStyle.playButton_h
 
+        // focus ring
         Widgets.AnimatedBackground {
             anchors.fill: parent
-            anchors.margins: -border.width * 4
+            anchors.margins: -VLCStyle.focus_border * 2
 
-            radius: width / 2
+            radius: VLCStyle.radius_m + VLCStyle.focus_border * 2
             border.pixelAligned: false
 
             enabled: theme.initialized
@@ -258,67 +198,15 @@ T.Control {
         Rectangle {
             anchors.fill: parent
 
-            radius: width / 2
+            radius: VLCStyle.radius_m
 
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "#e25b01" }
-                GradientStop { position: 1.0; color: "#f89a06" }
-            }
+            color: theme.bg.primary
 
-            Widgets.RoundedRectangleShadow {
-                id: hoverShadow
-
-                visible: opacity > 0
-                opacity: 0
-
-                blurRadius: VLCStyle.dp(9, VLCStyle.scale)
-                yOffset: VLCStyle.dp(4, VLCStyle.scale)
-
-                color: theme.accent.alpha(0.29)
-            }
-
-            Rectangle {
-                id: innerRectangle
-
-                color: "white"
-
-                anchors.fill: parent
-                anchors.margins: _diminished ? (parent.width / 2)
-                                             : VLCStyle.dp(2, VLCStyle.scale)
-
-                radius: width / 2
-
-                property bool _diminished: false
-
-                onStateChanged: {
-                    if (state === "diminished") {
-                        marginBehavior.enabled = true
-                        bindingTimer.start()
-                    } else {
-                        bindingTimer.stop()
-                        marginBehavior.enabled = false
-                        _diminished = false
-                    }
-                }
-
-                Timer {
-                    // Do not immediately start the animation.
-                    // Give some time if the intention is not
-                    // to hold the button.
-                    id: bindingTimer
-                    interval: mouseArea.pressAndHoldInterval / 3
-                    onTriggered: innerRectangle._diminished = true
-                }
-
-                Behavior on anchors.margins {
-                    id: marginBehavior
-                    NumberAnimation {
-                        // Press and hold action must be triggered
-                        // as soon as the inner rectangle diminishes.
-                        // Subtract the interval here so that we satisfy
-                        // that condition.
-                        duration: mouseArea.pressAndHoldInterval - bindingTimer.interval
-                    }
+            Behavior on color {
+                enabled: theme.initialized
+                ColorAnimation {
+                    duration: VLCStyle.duration_veryShort
+                    easing.type: Easing.InOutSine
                 }
             }
         }

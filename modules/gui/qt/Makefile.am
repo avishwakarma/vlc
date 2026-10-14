@@ -1352,6 +1352,9 @@ libqml_module_widgets_a_QML = \
 	widgets/qml/HorizontalResizeHandle.qml \
 	widgets/qml/IconLabel.qml \
 	widgets/qml/SvgIcon.qml \
+	widgets/qml/SlimTitleBar.qml \
+	widgets/qml/TimeChip.qml \
+	widgets/qml/ValueBubble.qml \
 	widgets/qml/SegmentedControl.qml \
 	widgets/qml/Dropdown.qml \
 	widgets/qml/DialogButton.qml \

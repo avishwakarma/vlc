@@ -15,6 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
+
 import QtQuick
 import QtQuick.Templates as T
 import QtQuick.Layouts
@@ -23,65 +24,61 @@ import VLC.Widgets as Widgets
 import VLC.MainInterface
 import VLC.Style
 
-
+// Window button of the slim title bar (Figma: 36x28 cell, 24px SVG icon, radius 6)
 T.Button {
     id: control
 
     property color color
     property color hoverColor
-    property string iconTxt: ""
+    property color hoverIconColor: control.color
+    property string iconName: ""
     property bool showHovered: false
-    property bool isThemeDark: false
     property bool externalPressed: false
+
+    // kept for API compatibility with the previous glyph based button
+    property string iconTxt: ""
+    property bool isThemeDark: false
 
     readonly property bool _paintHovered: control.hovered || showHovered
 
     padding: 0
-    width: VLCStyle.dp(40, VLCStyle.scale)
+    width: VLCStyle.windowButton_w
+    height: VLCStyle.windowButton_h
 
-    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                             implicitContentHeight + topPadding + bottomPadding)
+    implicitWidth: VLCStyle.windowButton_w
+    implicitHeight: VLCStyle.windowButton_h
 
     focusPolicy: Qt.NoFocus
 
+    Accessible.name: iconName
+
     background: Rectangle {
-        height: control.height
-        width: control.width
+        radius: VLCStyle.radius_m
+
         color: {
             if (control.pressed || (control.externalPressed && control._paintHovered))
-                return control.isThemeDark ? Qt.lighter(control.hoverColor, 1.2)
-                                           : Qt.darker(control.hoverColor, 1.2)
+                return Qt.darker(control.hoverColor, 1.2)
 
             if (control._paintHovered)
                 return control.hoverColor
 
-            return "transparent"
+            return Qt.alpha(control.hoverColor, 0.0)
+        }
+
+        Behavior on color {
+            ColorAnimation {
+                duration: VLCStyle.duration_veryShort
+            }
         }
     }
 
     contentItem: Item {
-        Widgets.IconLabel {
-            id: icon
+        Widgets.SvgIcon {
             anchors.centerIn: parent
-            text: control.iconTxt
 
-            font.family:{
-                if (MainCtx.osName === MainCtx.Windows)
-                {
-                    if(MainCtx.osVersion === 10)
-                        return "Segoe MDL2 Assets"
-
-                    else if(MainCtx.osVersion >= 11)
-                        return "Segoe Fluent Icons"
-                }
-     
-                return VLCIcons.fontFamily
-            }
-
-            font.pixelSize: VLCStyle.icon_CSD
-            color: control.color
+            name: control.iconName
+            size: VLCStyle.icon_normal
+            color: control._paintHovered ? control.hoverIconColor : control.color
         }
     }
 }

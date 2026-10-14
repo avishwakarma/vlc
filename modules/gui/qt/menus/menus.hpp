@@ -77,6 +77,9 @@ public:
     /* All main Menus */
     static void FileMenu( qt_intf_t *, QMenu * );
 
+    /* Content of the "..." menu of the slim title bar */
+    static void MainMenu( qt_intf_t *, QMenu * );
+
     static void ToolsMenu( qt_intf_t *, QMenu * );
 
     static void ViewMenu(qt_intf_t *, QMenu *);

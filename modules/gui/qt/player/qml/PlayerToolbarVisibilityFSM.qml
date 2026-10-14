@@ -38,6 +38,8 @@ import VLC.Util
  *    state NormalHidden {
  *    }
  * }
+ * state HiddenAll {
+ * }
  * @enduml
  *
  */
@@ -54,9 +56,12 @@ FSM {
     signal forceUnlock()
     signal timeout()
     signal updateVideoEmbed()
- 
+    //hide-UI mode: all chrome (title bar, control bar, sidebar) is hidden until toggled again
+    signal toggleHideAll()
+
     //exposed internal states
     property alias isVisible: fsmVisible.active
+    property alias isHiddenAll: fsmHiddenAll.active
 
     property int lockCount: 0 // Track the number of locks
     property int timeoutDuration: MainCtx.mouseHideTimeout
@@ -72,6 +77,17 @@ FSM {
         timeout: fsm.timeout,
         unlock: fsm.unlock,
         updateVideoEmbed: fsm.updateVideoEmbed,
+        toggleHideAll: fsm.toggleHideAll,
+    })
+
+    // evaluated when no sub state handles the signal
+    transitions: ({
+        toggleHideAll: [{
+            guard: () => fsmHiddenAll.active,
+            target: fsmVisible
+        }, {
+            target: fsmHiddenAll
+        }]
     })
  
     FSMState {
@@ -198,6 +214,18 @@ FSM {
         })
     }
  
+    FSMState {
+        id: fsmHiddenAll
+
+        function enter() {
+            fsm.lockCount = 0;
+            fsm.forceUnlock();
+        }
+
+        // mouse and keyboard activity is ignored: the UI stays hidden until toggled
+        transitions: ({})
+    }
+
     Timer {
         id: timeout
         interval: fsm.timeoutDuration

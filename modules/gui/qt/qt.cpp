@@ -425,8 +425,8 @@ vlc_module_begin ()
 #endif
 
     add_bool( "qt-titlebar",
-#ifdef _WIN32
-              false                              /* use CSD by default on windows */,
+#if defined(_WIN32) || defined(__APPLE__)
+              false                              /* use CSD by default on windows and macOS (slim title bar) */,
 #else
               true                               /* but not on linux */,
 #endif

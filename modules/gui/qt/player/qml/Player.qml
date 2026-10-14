@@ -19,6 +19,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQml.Models
 import QtQuick.Window
+import QtQuick.Shapes
 import QtQuick.Templates as T
 
 import VLC.MainInterface
@@ -28,6 +29,7 @@ import VLC.Playlist
 import VLC.Player
 import VLC.PlayerControls
 import VLC.Dialogs
+import VLC.Menus as Menus
 import VLC.Util
 
 FocusScope {
@@ -51,14 +53,34 @@ FocusScope {
     }
 
     // Only applicable in video mode:
-    property bool displayFadeRectangles: !_controlsUnderVideo && (height > (implicitFadeRectangleHeight * 3))
+    // (the redesigned chrome uses opaque/translucent bars instead of gradient scrims)
+    property bool displayFadeRectangles: false
     property real implicitFadeRectangleHeight: VLCStyle.dp(206, VLCStyle.scale)
+
+    // Hide-UI mode (Ctrl+\): title bar, control bar and sidebar are hidden until toggled again
+    readonly property bool hideUI: playerToolbarVisibilityFSM.isHiddenAll
+
+    // Library sidebar (Figma 187:328): the layout slot is reserved here, W7 provides the content
+    property bool sidebarVisible: false
+    readonly property real sidebarWidth: Math.max(0, sidebarLoader.x + sidebarLoader.width)
 
     // Private
 
-    property bool _controlsUnderVideo: (MainCtx.pinVideoControls
-                                        &&
-                                        (MainCtx.intfMainWindow.visibility !== Window.FullScreen))
+    readonly property bool _fullscreen: (MainCtx.intfMainWindow.visibility === Window.FullScreen)
+
+    // The chrome (title bar, control bar) takes room around the video, like the Figma layout.
+    // In fullscreen the bars float over the video and auto-hide on mouse idle.
+    property bool _controlsUnderVideo: !_fullscreen && !hideUI
+
+    // 10px rim around the video, with rounded corners (windowed, video only)
+    readonly property bool _showRim: !_fullscreen && MainCtx.hasEmbededVideo
+    readonly property real _rim: _showRim ? VLCStyle.viewport_inset : 0
+
+    // video viewport insets
+    readonly property real _videoLeftInset: Math.max(_rim, sidebarWidth)
+    readonly property real _videoRightInset: _rim
+    readonly property real _videoTopInset: _controlsUnderVideo ? topBar.height : _rim
+    readonly property real _videoBottomInset: _controlsUnderVideo ? controlBar.height : _rim
 
     property bool _keyPressed: false
 
@@ -125,7 +147,8 @@ FocusScope {
         id: windowTheme
 
         // NOTE: We force the night theme when playing a video.
-        palette: (MainCtx.hasEmbededVideo && MainCtx.pinVideoControls === false)
+        // NOTE: the video overlay (fullscreen) forces the night theme; docked chrome follows the user theme.
+        palette: (MainCtx.hasEmbededVideo && !_controlsUnderVideo && !hideUI)
                  ? VLCStyle.darkPalette
                  : VLCStyle.palette
 
@@ -180,11 +203,49 @@ FocusScope {
 
         objectName: "playerSpecializationLoader"
 
+        // Video: inset rectangle between the bars (10px rim, rounded corners). Audio: full bleed.
         anchors {
             left: parent.left
             right: parent.right
-            top: (MainCtx.hasEmbededVideo && rootPlayer._controlsUnderVideo) ? topBar.bottom : parent.top
-            bottom: (MainCtx.hasEmbededVideo && rootPlayer._controlsUnderVideo) ? controlBar.top : parent.bottom
+            top: parent.top
+            bottom: parent.bottom
+
+            leftMargin: MainCtx.hasEmbededVideo ? rootPlayer._videoLeftInset : rootPlayer.sidebarWidth
+            rightMargin: MainCtx.hasEmbededVideo ? rootPlayer._videoRightInset : 0
+            topMargin: MainCtx.hasEmbededVideo ? rootPlayer._videoTopInset : 0
+            bottomMargin: MainCtx.hasEmbededVideo ? rootPlayer._videoBottomInset : 0
+        }
+
+        Behavior on anchors.leftMargin {
+            enabled: playerToolbarVisibilityFSM.started
+            NumberAnimation {
+                duration: VLCStyle.duration_long
+                easing.type: Easing.InOutSine
+            }
+        }
+
+        Behavior on anchors.rightMargin {
+            enabled: playerToolbarVisibilityFSM.started
+            NumberAnimation {
+                duration: VLCStyle.duration_long
+                easing.type: Easing.InOutSine
+            }
+        }
+
+        Behavior on anchors.topMargin {
+            enabled: playerToolbarVisibilityFSM.started
+            NumberAnimation {
+                duration: VLCStyle.duration_long
+                easing.type: Easing.InOutSine
+            }
+        }
+
+        Behavior on anchors.bottomMargin {
+            enabled: playerToolbarVisibilityFSM.started
+            NumberAnimation {
+                duration: VLCStyle.duration_long
+                easing.type: Easing.InOutSine
+            }
         }
 
         sourceComponent: MainCtx.hasEmbededVideo ? videoComponent : audioComponent
@@ -192,8 +253,8 @@ FocusScope {
         property int cursorShape
 
         // Have padding here, so that the content (unlike background) does not go behind the top bar or the control bar:
-        property real topPadding: (anchors.top === parent.top) ? topBar.height : 0
-        property real bottomPadding: (anchors.bottom === parent.bottom) ? controlBar.height : 0
+        property real topPadding: (MainCtx.hasEmbededVideo || rootPlayer.hideUI) ? 0 : topBar.height
+        property real bottomPadding: (MainCtx.hasEmbededVideo || rootPlayer.hideUI) ? 0 : controlBar.height
 
         component TouchDragHandler : DragHandler {
             id: touchDragHandler
@@ -320,7 +381,7 @@ FocusScope {
                     anchors.right: parent.right
 
                     opacity: topBar.opacity
-                    visible: rootPlayer.displayFadeRectangles && !topBarAcrylicBg.visible
+                    visible: rootPlayer.displayFadeRectangles
 
                     gradient: Gradient {
                         GradientStop { position: 0; color: Qt.rgba(0, 0, 0, .8) }
@@ -929,6 +990,120 @@ FocusScope {
         }
     }
 
+    // Rounded corners of the video viewport (Figma: 10px visible radius). The area outside of the
+    // rounded rectangle is painted with the window colour, over the video.
+    Item {
+        id: viewportFrame
+
+        anchors.fill: playerSpecializationLoader
+        anchors.leftMargin: -1
+        anchors.rightMargin: -1
+        anchors.topMargin: -1
+        anchors.bottomMargin: -1
+
+        visible: rootPlayer._showRim && MainCtx.hasEmbededVideo
+
+        // radius of the left corners shrinks to 0 while the sidebar docks against the video
+        readonly property real _leftRadius: Math.max(0, VLCStyle.viewport_radius - Math.max(0, rootPlayer.sidebarWidth - VLCStyle.viewport_inset))
+        readonly property real _rightRadius: VLCStyle.viewport_radius
+        readonly property real _bottomRadius: VLCStyle.viewport_radius
+
+        function _path(w, h, tl, tr, br, bl) {
+            // outer rectangle, then the rounded rectangle: odd-even fill leaves the corners
+            return "M0 0H" + w + "V" + h + "H0Z"
+                 + "M" + (tl + 1) + " 1"
+                 + "H" + (w - 1 - tr)
+                 + "A" + tr + " " + tr + " 0 0 1 " + (w - 1) + " " + (1 + tr)
+                 + "V" + (h - 1 - br)
+                 + "A" + br + " " + br + " 0 0 1 " + (w - 1 - br) + " " + (h - 1)
+                 + "H" + (bl + 1)
+                 + "A" + bl + " " + bl + " 0 0 1 1 " + (h - 1 - bl)
+                 + "V" + (1 + tl)
+                 + "A" + tl + " " + tl + " 0 0 1 " + (tl + 1) + " 1Z"
+        }
+
+        Shape {
+            anchors.fill: parent
+
+            preferredRendererType: Shape.CurveRenderer
+
+            ShapePath {
+                strokeColor: "transparent"
+                fillColor: windowTheme.bg.primary
+                fillRule: ShapePath.OddEvenFill
+
+                PathSvg {
+                    path: viewportFrame._path(viewportFrame.width, viewportFrame.height,
+                                              viewportFrame._leftRadius,
+                                              viewportFrame._rightRadius,
+                                              viewportFrame._bottomRadius,
+                                              viewportFrame._leftRadius)
+                }
+            }
+        }
+    }
+
+    // Sidebar slot (Figma 187:328): rail (50) + panel (377), docked against the video.
+    // The content is provided by the library sidebar (W7), this is only the layout area.
+    Loader {
+        id: sidebarLoader
+
+        x: (rootPlayer.sidebarVisible && rootPlayer._controlsUnderVideo) ? 0 : -width
+        y: topBar.height
+        width: VLCStyle.sidebarRail_w + VLCStyle.sidebarPanel_w
+        height: controlBar.y - y
+
+        // keep the item while it slides out
+        active: rootPlayer.sidebarVisible || (x + width > 0)
+        visible: x + width > 0
+
+        sourceComponent: sidebarPlaceholder
+
+        Behavior on x {
+            enabled: playerToolbarVisibilityFSM.started
+            NumberAnimation {
+                duration: VLCStyle.duration_long
+                easing.type: Easing.InOutSine
+            }
+        }
+    }
+
+    Component {
+        id: sidebarPlaceholder
+
+        Item {
+            ColorContext {
+                id: railTheme
+                colorSet: ColorContext.Window
+            }
+
+            ColorContext {
+                id: panelTheme
+                colorSet: ColorContext.Pane
+            }
+
+            Rectangle {
+                id: rail
+
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+
+                width: VLCStyle.sidebarRail_w
+                color: railTheme.bg.secondary
+            }
+
+            Rectangle {
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.left: rail.right
+                anchors.right: parent.right
+
+                color: panelTheme.bg.primary
+            }
+        }
+    }
+
     TopBar {
         id: topBar
 
@@ -941,26 +1116,18 @@ FocusScope {
         topMargin: VLCStyle.applicationVerticalMargin
         sideMargin: VLCStyle.applicationHorizontalMargin
 
-        textWidth: playlistVisibility.isPlaylistVisible
-                 ? rootPlayer.width - playlistpopup.width
-                 : rootPlayer.width
-
-        // NOTE: With pinned controls, the top controls are hidden when switching to
-        //       fullScreen. Except when resume is visible
-        visible: (MainCtx.pinVideoControls === false
-                  ||
-                  MainCtx.intfMainWindow.visibility !== Window.FullScreen
-                  ||
-                  resumeVisible)
-
         focus: true
-        title: Player.title
+        title: Player.title !== "" ? Player.title : qsTr("VLC Media Player")
 
-        pinControls: MainCtx.pinVideoControls
+        pinControls: false
 
-        showCSD: MainCtx.clientSideDecoration && (MainCtx.intfMainWindow.visibility !== Window.FullScreen)
-        showToolbar: MainCtx.hasToolbarMenu && (MainCtx.intfMainWindow.visibility !== Window.FullScreen)
+        showCSD: MainCtx.clientSideDecoration
+        showToolbar: MainCtx.hasToolbarMenu && !rootPlayer._fullscreen
         playlistVisible: playlistVisibility.isPlaylistVisible
+        sidebarVisible: rootPlayer.sidebarVisible
+
+        // translucent over the video in fullscreen, opaque otherwise
+        backgroundOpacity: (rootPlayer._fullscreen && MainCtx.hasEmbededVideo) ? MainCtx.pinOpacity : 1.0
 
         plListView: {
             if (playlistpopup.active)
@@ -985,10 +1152,10 @@ FocusScope {
         //initial state value is "", using a binding avoid animation on startup
         Binding on state {
             when: playerToolbarVisibilityFSM.started
-            value: (playerToolbarVisibilityFSM.isVisible || rootPlayer._controlsUnderVideo) ? "visible" : "hidden"
+            value: (!rootPlayer.hideUI && (playerToolbarVisibilityFSM.isVisible || rootPlayer._controlsUnderVideo)) ? "visible" : "hidden"
         }
 
-        onTogglePlaylistVisibility: playlistVisibility.togglePlaylistVisibility()
+        onSidebarToggleRequested: rootPlayer.sidebarVisible = !rootPlayer.sidebarVisible
 
         onRequestLockUnlockAutoHide: (lock) => {
             rootPlayer.lockUnlockAutoHide(lock)
@@ -1003,29 +1170,6 @@ FocusScope {
 
         FadeControllerStateGroup {
             target: topBar
-        }
-
-        // TODO: Make TopBar a Control and use background
-        Widgets.AcrylicBackground {
-            id: topBarAcrylicBg
-
-            z: -1
-
-            anchors.fill: parent
-
-            opacity: {
-                if (MainCtx.hasEmbededVideo && !MainCtx.pinVideoControls && !rootPlayer.displayFadeRectangles) {
-                    return 0.6
-                } else if (MainCtx.intfMainWindow.visibility === Window.FullScreen && MainCtx.hasEmbededVideo) {
-                    return MainCtx.pinOpacity
-                } else {
-                    return 1.0
-                }
-            }
-
-            tintColor: windowTheme.bg.primary
-
-            visible: MainCtx.pinVideoControls || (MainCtx.hasEmbededVideo && !rootPlayer.displayFadeRectangles)
         }
     }
 
@@ -1248,7 +1392,7 @@ FocusScope {
         id: toggleControlBarButton
         visible: Player.isInteractive
                  && MainCtx.hasEmbededVideo
-                 && !(MainCtx.pinVideoControls && !Player.fullscreen)
+                 && !rootPlayer._controlsUnderVideo
                  && (interactiveAutoHideTimer.running === true
                      || controlBar.state !== "hidden" || toggleControlBarButton.hovered)
         focus: true
@@ -1292,17 +1436,15 @@ FocusScope {
 
         focus: true
 
-        rightPadding: VLCStyle.applicationHorizontalMargin
-        leftPadding: VLCStyle.applicationHorizontalMargin
-        bottomPadding: VLCStyle.applicationVerticalMargin + VLCStyle.margin_xsmall
+        sideMargin: VLCStyle.applicationHorizontalMargin
+        bottomMargin: VLCStyle.applicationVerticalMargin
 
-        textPosition: (MainCtx.pinVideoControls)
-                      ? ControlBar.TimeTextPosition.LeftRightSlider
-                      : ControlBar.TimeTextPosition.AboveSlider
+        // docked: opaque bar below the video; fullscreen: translucent bar over the video
+        overlay: !rootPlayer._controlsUnderVideo
+        backgroundOpacity: (rootPlayer._fullscreen && MainCtx.hasEmbededVideo) ? MainCtx.pinOpacity : 1.0
 
-        // hide right text so that it won't overlap with play queue
-        showRemainingTime: (textPosition !== ControlBar.TimeTextPosition.AboveSlider)
-                           || !playlistVisibility.isPlaylistVisible
+        playlistVisible: playlistVisibility.isPlaylistVisible
+        plListView: topBar.plListView
 
         onStateChanged: {
             if (state === "visible")
@@ -1323,39 +1465,28 @@ FocusScope {
         //initial state value is "", using a binding avoid animation on startup
         Binding on state {
             when: playerToolbarVisibilityFSM.started
-            value: (playerToolbarVisibilityFSM.isVisible || rootPlayer._controlsUnderVideo) ? "visible" : "hidden"
+            value: (!rootPlayer.hideUI && (playerToolbarVisibilityFSM.isVisible || rootPlayer._controlsUnderVideo)) ? "visible" : "hidden"
         }
 
         onRequestLockUnlockAutoHide: (lock) => rootPlayer.lockUnlockAutoHide(lock)
+
+        onTogglePlaylistVisibility: playlistVisibility.togglePlaylistVisibility()
 
         identifier: (Player.hasVideoOutput) ? PlayerControlbarModel.Videoplayer
                                             : PlayerControlbarModel.Audioplayer
 
         onHoveredChanged: rootPlayer.lockUnlockAutoHide(hovered)
 
-        background: Rectangle {
-            id: controlBarBackground
-
-            visible: !MainCtx.hasEmbededVideo || MainCtx.pinVideoControls || !rootPlayer.displayFadeRectangles
-
-            opacity: {
-                if (MainCtx.hasEmbededVideo && !MainCtx.pinVideoControls && !rootPlayer.displayFadeRectangles) {
-                    return 0.6
-                } else if ((Window.visibility === Window.FullScreen) && MainCtx.hasEmbededVideo) {
-                    return MainCtx.pinOpacity
-                } else if (AcrylicController.enabled || !MainCtx.hasEmbededVideo) {
-                    return 0.7
-                } else {
-                    return 1.0
-                }
-            }
-
-            color: windowTheme.bg.primary
-        }
-
         FadeControllerStateGroup {
             target: controlBar
         }
+    }
+
+    // Hide-UI mode: hides the title bar, the control bar and the sidebar until toggled again
+    Menus.ShortcutExt {
+        context: Qt.WindowShortcut
+        sequence: "Ctrl+\\"
+        onActivated: playerToolbarVisibilityFSM.toggleHideAll()
     }
 
     QmlAudioContextMenu {
