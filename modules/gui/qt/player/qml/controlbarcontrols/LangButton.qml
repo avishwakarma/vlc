@@ -45,6 +45,13 @@ Widgets.IconToolButton {
 
     text: VLCIcons.audiosub
 
+    // Redesign: the control bar instantiates one button for audio ("audio") and one
+    // for subtitles ("subtitles"); the legacy combined button keeps the glyph.
+    iconName: ""
+    iconNameChecked: iconName !== "" ? (iconName + "-active") : ""
+
+    checked: menuLoader.item?.visible ?? false
+
     enabled: menuLoader.status === Loader.Ready
 
     description: qsTr("Languages and tracks")
