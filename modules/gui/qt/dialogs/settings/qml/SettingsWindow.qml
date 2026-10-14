@@ -43,19 +43,19 @@ Window {
     // icon/iconActive: SvgIcon names. heading: window header title.
     // component: the page (a SettingsPage). Add a line here to add a page.
     readonly property var pages: [
-        { group: 0, name: qsTr("General"),     heading: qsTr("Global Settings"),                  icon: "preferences", iconActive: "preferences-active", component: generalPage },
-        { group: 0, name: qsTr("Interface"),   heading: qsTr("Interface Settings"),               icon: "interface",   iconActive: "interface-active",   component: interfacePage },
-        { group: 0, name: qsTr("Privacy"),     heading: qsTr("Privacy Settings"),                 icon: "privacy",     iconActive: "privacy-active",     component: privacyPage },
+        { group: 0, name: qsTr("General"),     heading: qsTr("Global Settings"), icon: "preferences", iconActive: "preferences-active", component: generalPage },
+        { group: 0, name: qsTr("Interface"),   heading: qsTr("Interface Settings"), icon: "interface",   iconActive: "interface-active",   component: interfacePage },
+        { group: 0, name: qsTr("Privacy"),     heading: qsTr("Privacy Settings"), icon: "privacy",     iconActive: "privacy-active",     component: privacyPage },
         { group: 0, name: qsTr("Controls"),    heading: qsTr("Mouse, Keyboard & Remote Controls"), icon: "hotkeys",     iconActive: "hotkeys-active",     component: controlsPage },
-        { group: 1, name: qsTr("Playback"),    heading: qsTr("Playback Settings"),                icon: "play",        iconActive: "playback-active",    component: playbackPage },
-        { group: 1, name: qsTr("Video"),       heading: qsTr("Video Settings"),                   icon: "video",       iconActive: "video-active",       component: videoPage },
-        { group: 1, name: qsTr("Audio"),       heading: qsTr("Audio Settings"),                   icon: "audio",       iconActive: "audio-active",       component: audioPage },
-        { group: 1, name: qsTr("Subtitles"),   heading: qsTr("Subtitle Settings"),                icon: "subtitles",   iconActive: "subtitles-active",   component: subtitlesPage },
-        { group: 1, name: qsTr("Library"),     heading: qsTr("Library Settings"),                 icon: "folder",      iconActive: "folder-active",      component: libraryPage },
-        { group: 2, name: qsTr("Network"),     heading: qsTr("Network Settings"),                 icon: "streaming",   iconActive: "streaming-active",   component: networkPage },
-        { group: 2, name: qsTr("Performance"), heading: qsTr("Performance Settings"),             icon: "preferences", iconActive: "preferences-active", component: performancePage },
-        { group: 2, name: qsTr("Recording"),   heading: qsTr("Recording Settings"),               icon: "record",      iconActive: "record-active",      component: recordingPage },
-        { group: 2, name: qsTr("Extensions"),  heading: qsTr("Extensions"),                       icon: "plugins",     iconActive: "plugins-active",     component: extensionsPage },
+        { group: 1, name: qsTr("Playback"),    heading: qsTr("Playback Preferences"), icon: "play",        iconActive: "playback-active",    component: playbackPage },
+        { group: 1, name: qsTr("Video"),       heading: qsTr("Video Defaults"), icon: "video",       iconActive: "video-active",       component: videoPage },
+        { group: 1, name: qsTr("Audio"),       heading: qsTr("Audio Defaults"), icon: "audio",       iconActive: "audio-active",       component: audioPage },
+        { group: 1, name: qsTr("Subtitles"),   heading: qsTr("Subtitle Defaults"), icon: "subtitles",   iconActive: "subtitles-active",   component: subtitlesPage },
+        { group: 1, name: qsTr("Library"),     heading: qsTr("Playlists, Folders & Files"), icon: "folder",      iconActive: "folder-active",      component: libraryPage },
+        { group: 2, name: qsTr("Network"),     heading: qsTr("Network Connections & Security"), icon: "streaming",   iconActive: "streaming-active",   component: networkPage },
+        { group: 2, name: qsTr("Performance"), heading: qsTr("Performance Settings"), icon: "preferences", iconActive: "preferences-active", component: performancePage },
+        { group: 2, name: qsTr("Recording"),   heading: qsTr("Recording, Casting & Streaming Out"), icon: "record",      iconActive: "record-active",      component: recordingPage },
+        { group: 2, name: qsTr("Extensions"),  heading: qsTr("Add-ons & Scripts"), icon: "plugins",     iconActive: "plugins-active",     component: extensionsPage },
     ]
 
     readonly property var groupNames: [qsTr("App"), qsTr("Media"), qsTr("System")]
