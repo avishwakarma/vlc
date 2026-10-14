@@ -295,6 +295,10 @@ libqt_plugin_la_SOURCES = \
 	player/control_list_model.cpp player/control_list_model.hpp \
 	player/control_list_filter.cpp \
 	player/control_list_filter.hpp \
+	player/waveform/waveform_analyzer.c \
+	player/waveform/waveform_analyzer.h \
+	player/waveform/waveform_service.cpp \
+	player/waveform/waveform_service.hpp \
 	playlist/media.hpp \
 	playlist/playlist_common.hpp \
 	playlist/playlist_controller.cpp \
@@ -499,6 +503,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	player/player_controlbar_model.moc.cpp \
 	player/control_list_model.moc.cpp \
 	player/control_list_filter.moc.cpp \
+	player/waveform/waveform_service.moc.cpp \
 	playlist/playlist_controller.moc.cpp \
 	playlist/playlist_item.moc.cpp \
 	playlist/playlist_model.moc.cpp \
