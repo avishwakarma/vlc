@@ -126,6 +126,15 @@ public:
     }
 };
 
+/* QSettings organisation. On macOS the fork uses its own domain so its
+ * preferences (~/Library/Preferences/<org>.vlc-qt-interface.plist) never mix
+ * with an installed VLC 3's. */
+#ifdef __APPLE__
+# define QT_SETTINGS_ORG "io.github.avishwakarma.vlc-redesign"
+#else
+# define QT_SETTINGS_ORG "vlc"
+#endif
+
 #define THEDP DialogsProvider::getInstance()
 #define THEMIM p_intf->p_mainPlayerController
 #define THEMPL p_intf->p_mainPlaylistController

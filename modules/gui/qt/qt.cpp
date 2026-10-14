@@ -1000,6 +1000,37 @@ static void *Thread( void *obj )
     };
     QuitSpy quitSpy(&app, p_intf);
 
+#ifdef Q_OS_MACOS
+    /* Finder "Open With", double-click and `open -a` deliver files to a running
+     * (or launching) app as an Apple Event, which Qt turns into a QFileOpenEvent.
+     * Enqueue those files in the main playlist and start playing them. */
+    class FileOpenSpy : public QObject
+    {
+        qt_intf_t *m_intf;
+    public:
+        FileOpenSpy(QObject *parent, qt_intf_t *intf)
+            : QObject(parent), m_intf(intf)
+        {
+            qGuiApp->installEventFilter(this);
+        }
+        bool eventFilter(QObject *, QEvent *e) override
+        {
+            if (e->type() != QEvent::FileOpen)
+                return false;
+            const QUrl url = static_cast<QFileOpenEvent *>(e)->url();
+            if (!m_intf->p_mainPlaylistController || url.isEmpty())
+                return true;
+            const QString mrl = url.isLocalFile() ? QUrl::fromLocalFile(url.toLocalFile()).toString(QUrl::FullyEncoded)
+                                                  : url.toString(QUrl::FullyEncoded);
+            QVector<vlc::playlist::Media> medias;
+            medias.push_back(vlc::playlist::Media{mrl, QString {}});
+            m_intf->p_mainPlaylistController->append(medias, true);
+            return true;
+        }
+    };
+    FileOpenSpy fileOpenSpy(&app, p_intf);
+#endif
+
     registerMetaTypes();
 
     //app.setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
@@ -1027,7 +1058,7 @@ static void *Thread( void *obj )
 #else
             QSettings::NativeFormat,
 #endif
-            QSettings::UserScope, "vlc", "vlc-qt-interface" );
+            QSettings::UserScope, QT_SETTINGS_ORG, "vlc-qt-interface" );
 
     // It is guaranteed that the returned format is supported, if a format is returned.
     static const auto createCompatibleOpenGLFormat = []() -> std::optional<QSurfaceFormat> {
@@ -1324,7 +1355,11 @@ static void *Thread( void *obj )
     }
 #endif
 
+    #ifdef __APPLE__
+    app.setApplicationDisplayName( QStringLiteral("VLC Redesign (unofficial)") );
+#else
     app.setApplicationDisplayName( qtr("VLC media player") );
+#endif
     app.setApplicationVersion( QString::fromUtf8(VERSION_MESSAGE) );
 
     if( QDate::currentDate().dayOfYear() >= QT_XMAS_JOKE_DAY && var_InheritBool( p_intf, "qt-icon-change" ) )
