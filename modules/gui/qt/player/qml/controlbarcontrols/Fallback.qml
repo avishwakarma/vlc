@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (C) 2021 VLC authors and VideoLAN
+ * Copyright (C) 2026 VLC authors and VideoLAN
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,34 +17,36 @@
  *****************************************************************************/
 
 import QtQuick
-import QtQuick.Layouts
 
 import VLC.MainInterface
 import VLC.Widgets as Widgets
 import VLC.Util
 import VLC.Style
 
-Control {
-    padding: VLCStyle.focus_border
-
-    Keys.priority: Keys.AfterItem
-    Keys.onPressed: (event) => Navigation.defaultKeyAction(event)
+// Stands for an item that this version does not know (a profile saved by another version):
+// nothing is drawn in the player, the customize mode shows a placeholder so that it can be removed.
+Item {
+    id: root
 
     property bool paintOnly: false
+
+    property int focusReason: Qt.OtherFocusReason
+
+    implicitWidth: paintOnly ? VLCStyle.windowButton_h : 0
+    implicitHeight: VLCStyle.windowButton_h
+
+    enabled: false
 
     readonly property ColorContext colorContext: ColorContext {
         id: theme
         colorSet: ColorContext.View
     }
 
-    background: Widgets.AnimatedBackground {
-        enabled: theme.initialized
-        border.color: visualFocus ? theme.visualFocus : Qt.alpha(theme.visualFocus, 0.0)
-    }
-
-    contentItem: Widgets.MenuLabel {
-        text: qsTr("WIDGET\nNOT\nFOUND")
-        horizontalAlignment: Text.AlignHCenter
-        color: theme.fg.primary
+    Text {
+        anchors.centerIn: parent
+        visible: root.paintOnly
+        text: "?"
+        color: theme.fg.secondary
+        font.pixelSize: VLCStyle.text_body
     }
 }

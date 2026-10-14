@@ -28,6 +28,7 @@ Widgets.IconToolButton {
 
     checked: MainPlaylistController.random
     text: VLCIcons.shuffle
+    iconName: "shuffle-right"
     onClicked: MainPlaylistController.toggleRandom()
     description: qsTr("Random")
 

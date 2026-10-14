@@ -28,6 +28,7 @@ Widgets.IconToolButton {
 
     enabled: Player.isStarted
     text: VLCIcons.snapshot
+    iconName: "snapshot"
     onClicked: Player.snapshot()
     description: qsTr("Snapshot")
 
