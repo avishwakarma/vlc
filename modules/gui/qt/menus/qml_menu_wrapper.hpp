@@ -89,6 +89,9 @@ class StringListMenu : public BasicMenuContainer
 {
     Q_OBJECT
 
+    // draw check marks at the right edge (Figma view options menu)
+    SIMPLE_MENU_PROPERTY(bool, rightCheck, false)
+
 public:
     using BasicMenuContainer::BasicMenuContainer;
 

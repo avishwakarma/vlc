@@ -567,6 +567,7 @@ signals:
     void setInterfaceFullScreen( bool );
     void toggleWindowVisibility(bool requestActivate = false);
     void askToQuit();
+    void toggleHideUIRequested();
     void askShow();
     void askBoss();
     void askRaise();

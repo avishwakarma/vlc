@@ -20,6 +20,8 @@
 
 #include "colorizedsvgicon.hpp"
 
+#include <QAction>
+#include <QActionEvent>
 #include <QApplication>
 #include <QDir>
 #include <QEvent>
@@ -40,7 +42,12 @@ namespace
 
         bool eventFilter(QObject *watched, QEvent *event) override
         {
-            if (event->type() == QEvent::Polish)
+            if (event->type() == QEvent::ActionAdded && qobject_cast<QMenu *>(watched))
+            {
+                // macOS hides action shortcuts in context menus by default, the Figma menus show them
+                static_cast<QActionEvent *>(event)->action()->setShortcutVisibleInContextMenu(true);
+            }
+            else if (event->type() == QEvent::Polish)
             {
                 if (auto menu = qobject_cast<QMenu *>(watched))
                 {
@@ -90,15 +97,15 @@ namespace VLCMenuStyle
 QString styleSheet(const Colors& c, const QString& checkImage, const QString& arrowImage)
 {
     QString s;
-    s += QStringLiteral("QMenu { background-color: %1; border: 1px solid %2; border-radius: 10px; padding: 4px; font-size: 14px; }\n")
+    s += QStringLiteral("QMenu { background-color: %1; border: 1px solid %2; border-radius: 10px; padding: 4px; font-size: 14px; icon-size: 24px; }\n")
             .arg(css(c.surface), css(c.separator));
     s += QStringLiteral("QMenu::item { background: transparent; color: %1; min-height: 48px; max-height: 48px;"
-                        " padding: 0px 24px 0px 14px; margin: 0px; min-width: 180px; border-radius: 6px; }\n")
+                        " padding: 0px 24px 0px 19px; margin: 0px; min-width: 180px; border-radius: 6px; }\n")
             .arg(css(c.text));
     s += QStringLiteral("QMenu::item:selected { background-color: %1; color: %2; }\n")
             .arg(css(c.hover), css(c.textHover));
     s += QStringLiteral("QMenu::item:disabled { color: %1; background: transparent; }\n").arg(css(c.textDisabled));
-    s += QStringLiteral("QMenu::icon { padding-left: 10px; }\n");
+    s += QStringLiteral("QMenu::icon { padding-left: 28px; width: 24px; height: 24px; }\n");
     s += QStringLiteral("QMenu::separator { height: 1px; background-color: %1; margin: 2px 0px 4px 0px; }\n")
             .arg(css(c.separator));
     s += QStringLiteral("QMenu::indicator { width: 24px; height: 24px; left: 10px; }\n");
@@ -126,7 +133,30 @@ void setColors(const Colors& colors)
     const QString check = writeColorizedSvg(QStringLiteral("check-active"), colors.text, colors.accent);
     const QString arrow = writeColorizedSvg(QStringLiteral("chevron-right"), colors.textSecondary, colors.accent);
 
-    qApp->setStyleSheet(styleSheet(colors, check, arrow));
+    QString sheet = styleSheet(colors, check, arrow);
+    qApp->setStyleSheet(sheet);
+}
+
+QString iconImagePath(const QString& name)
+{
+    const QColor accent = s_colors.accent.isValid() ? s_colors.accent : QColor(QStringLiteral("#D37918"));
+    const QColor color1 = s_colors.text.isValid() ? s_colors.text : QColor(QStringLiteral("#8F8F8F"));
+    return writeColorizedSvg(name, color1, accent);
+}
+
+QString rightCheckStyleSheet(bool descending)
+{
+    // Sorting / view options: the check mark (or an arrow for descending order) sits at the right
+    // edge. Applied on the menu itself; includes the application rules since a widget style
+    // sheet replaces them for the subcontrols it overrides.
+    const QString image = writeColorizedSvg(descending ? QStringLiteral("arrow-down") : QStringLiteral("check-active"),
+                                            s_colors.text, s_colors.accent);
+    return qApp->styleSheet() + QStringLiteral(
+        "QMenu::indicator { subcontrol-origin: padding; subcontrol-position: right center;"
+        " left: 0px; right: 10px; width: 24px; height: 24px; }\n"
+        "QMenu::item { padding-left: -10px; }\n"
+        "QMenu::item:checked { background-color: %2; }\n"
+        "QMenu::indicator:non-exclusive:checked, QMenu::indicator:exclusive:checked { image: url(%1); }\n").arg(image, css(s_colors.hover));
 }
 
 QIcon icon(const QString& name)

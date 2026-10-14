@@ -53,66 +53,48 @@ NativeMenu {
 
     // Settings
 
+    // Figma file context menu (2404:13340). Entries without a backing feature in VLC are omitted:
+    // Stream, Convert (no per-item flow), Go to Source, Add Subtitle/Audio Tracks (no per-item storage).
     actions: [{
             "text": qsTr("Play"),
+            "icon": "playback-twotone",
             "action": addAndPlay
         }, {
-            "text": qsTr("Play as audio"),
-            "action": playAsAudio,
-            "visible": root.showPlayAsAudioAction
-        }, {
-            "text": qsTr("Play as album"),
-            "action": playAsAlbum,
-            "visible": root.showPlayAsAlbumAction &&
-                       (root.model instanceof MLAudioModel)
-        }, {
-            "text": qsTr("Enqueue"),
-            "action": enqueue
-        }, {
-            "text": qsTr("Enqueue as album"),
-            "action": enqueueAsAlbum,
-            "visible": root.showPlayAsAlbumAction &&
-                       (root.model instanceof MLAudioModel)
-        }, {
-            "text": qsTr("Add to favorites"),
-            "action": addFavorite,
-            "visible": _showAddFavorite
-        }, {
-            "text": qsTr("Remove from favorites"),
-            "action": removeFavorite,
-            "visible": _showRemoveFavorite
-        }, {
-            "text": (root.showPlayAsAudioAction ? qsTr("Add to a video-only playlist") : qsTr("Add to an audio-only playlist")),
-            "action": (root.showPlayAsAudioAction ? root.addToVideoOnlyPlaylist : root.addToAudioOnlyPlaylist)
-        }, {
-            "text": qsTr("Add to a playlist"),
-            "action": addToAPlaylist
-        }, {
-            "text": qsTr("Mark as seen"),
-            "action": markSeen,
-            "visible": _showSeen
-        }, {
-            "text": qsTr("Mark as unseen"),
+            "text": qsTr("Mark as Unwatched"),
+            "icon": "check-selected-twotone",
             "action": markUnseen,
             "visible": _showUnseen
         }, {
-            "text": qsTr("Open Containing Folder"),
+            "text": qsTr("Mark as Watched"),
+            "icon": "check-selected-twotone",
+            "action": markSeen,
+            "visible": _showSeen
+        }, {
+            "text": qsTr("Favorite"),
+            "icon": "favorite-twotone",
+            "action": addFavorite,
+            "visible": _showAddFavorite
+        }, {
+            "text": qsTr("Unfavorite"),
+            "icon": "favorite-twotone",
+            "action": removeFavorite,
+            "visible": _showRemoveFavorite
+        }, {
+            "text": qsTr("Add to Queue"),
+            "icon": "queue-twotone",
+            "action": enqueue
+        }, {
+            "text": qsTr("Add to Playlist"),
+            "icon": "playlist-twotone",
+            "action": addToAPlaylist
+        }, {
+            "text": qsTr("Show in File Explorer"),
+            "icon": "folder-twotone",
             "action": openContainingFolder,
             "visible": _openContainingFolder
         }, {
-            "text": qsTr("Delete"),
-            "action": deleteStream,
-            "visible": _deleteStream
-        }, {
-            "text": qsTr("Information"),
-            "action": _signalShowInformation,
-            "visible": showInformationAvailable
-        },{
-            "text": qsTr("Delete File From System"),
-            "action": deleteFileFromSource,
-            "visible": _deleteFileFromSource
-        },{
-            "text": qsTr("Media Information"),
+            "text": qsTr("Properties & Metadata"),
+            "icon": "info-twotone",
             "action": function(dataList, options, indexes) {
                 DialogsProvider.mediaInfoDialog(dataList[0][idDataRole])
             },
@@ -120,6 +102,45 @@ NativeMenu {
                 return (dataList.length === 1)
                         && !(dataList[0][idDataRole].hasParent())
             }
+        }, {
+            // VLC specific entries that are not part of the Figma menu
+            "separator": true
+        }, {
+            "text": qsTr("Play as audio"),
+            "icon": "audio-twotone",
+            "action": playAsAudio,
+            "visible": root.showPlayAsAudioAction
+        }, {
+            "text": qsTr("Play as album"),
+            "icon": "songs-active",
+            "action": playAsAlbum,
+            "visible": root.showPlayAsAlbumAction &&
+                       (root.model instanceof MLAudioModel)
+        }, {
+            "text": qsTr("Enqueue as album"),
+            "icon": "songs-active",
+            "action": enqueueAsAlbum,
+            "visible": root.showPlayAsAlbumAction &&
+                       (root.model instanceof MLAudioModel)
+        }, {
+            "text": (root.showPlayAsAudioAction ? qsTr("Add to a video-only playlist") : qsTr("Add to an audio-only playlist")),
+            "icon": "playlist-twotone",
+            "action": (root.showPlayAsAudioAction ? root.addToVideoOnlyPlaylist : root.addToAudioOnlyPlaylist)
+        }, {
+            "text": qsTr("Delete"),
+            "icon": "remove",
+            "action": deleteStream,
+            "visible": _deleteStream
+        }, {
+            "text": qsTr("Information"),
+            "icon": "info-twotone",
+            "action": _signalShowInformation,
+            "visible": showInformationAvailable
+        }, {
+            "text": qsTr("Delete File From System"),
+            "icon": "remove",
+            "action": deleteFileFromSource,
+            "visible": _deleteFileFromSource
         }
     ]
 

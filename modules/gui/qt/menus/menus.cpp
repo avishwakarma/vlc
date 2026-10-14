@@ -786,130 +786,121 @@ QMenu* VLCMenuBar::MiscPopupMenu( qt_intf_t *p_intf, bool show )
     return menu;
 }
 
-/* Main Menu that sticks everything together  */
+/* Figma right-click menu */
 QMenu* VLCMenuBar::PopupMenu( qt_intf_t *p_intf, bool show )
 {
-    /* */
+    /* Figma right-click menu (6065:13616): playback entries, hide UI, track
+     * submenus, then settings / playlist / open / quit. */
     QMenu* menu = new VLCMenu(p_intf);
-    input_item_t* p_input = THEMIM->getInput();
+    menu->setMinimumWidth( 292 ); // Figma 6065:13616
+    MainCtx *mi = p_intf->p_mi;
+    const bool hasInput = THEMIM->hasInput();
+
+    auto add = [=](const char *svg, const QString& text, const char *shortcut, auto &&slot) {
+        QAction *action = menu->addAction( VLCMenuStyle::icon( svg ), text );
+        if( !EMPTY_STR( shortcut ) )
+            action->setShortcut( qfut( shortcut ) );
+        QObject::connect( action, &QAction::triggered, menu, slot );
+        return action;
+    };
+    auto addSub = [menu](const char *svg, const QString& text) {
+        QMenu *submenu = new QMenu( text, menu );
+        submenu->setIcon( VLCMenuStyle::icon( svg ) );
+        return submenu;
+    };
+
     QAction *action;
-    bool b_isFullscreen = false;
 
-    PopupMenuPlaylistEntries( menu, p_intf );
-    menu->addSeparator();
-
-    if( p_input )
-    {
-        QMenu *submenu;
-        SharedVOutThread p_vout = THEMIM->getVout();
-
-        /* Add a fullscreen switch button, since it is the most used function */
-        if( p_vout )
-        {
-            menu->addAction(new BooleanPropertyAction(qtr( "&Fullscreen" ), THEMIM, "fullscreen", menu) );
-            menu->addSeparator();
-        }
-
-        /* Input menu */
-
-        /* Audio menu */
-        submenu = new QMenu( menu );
-        AudioMenu( p_intf, submenu );
-        action = menu->addMenu( submenu );
-        action->setText( qtr( "&Audio" ) );
-        if( action->menu()->isEmpty() )
-            action->setEnabled( false );
-
-        /* Video menu */
-        submenu = new QMenu( menu );
-        VideoMenu( p_intf, submenu );
-        action = menu->addMenu( submenu );
-        action->setText( qtr( "&Video" ) );
-        if( action->menu()->isEmpty() )
-            action->setEnabled( false );
-
-        /* Subtitles menu */
-        submenu = new QMenu( menu );
-        SubtitleMenu( p_intf, submenu, true );
-        action = menu->addMenu( submenu );
-        action->setText( qtr( "Subti&tle") );
-
-        /* Playback menu for chapters */
-        submenu = new QMenu( menu );
-        NavigMenu( p_intf, submenu );
-        action = menu->addMenu( submenu );
-        action->setText( qtr( "&Playback" ) );
-        if( action->menu()->isEmpty() )
-            action->setEnabled( false );
-    }
-
-    menu->addSeparator();
-
-    /* Add some special entries for windowed mode: Interface Menu */
-    if( !b_isFullscreen )
-    {
-        if( p_intf->b_isDialogProvider )
-        {
-            // same as Tool menu but with extra entries
-            QMenu* submenu = new QMenu( qtr( "Interface" ), menu );
-            ToolsMenu( p_intf, submenu );
-            submenu->addSeparator();
-
-            vlc_object_t* p_object = vlc_object_parent(p_intf->intf);
-
-            /* Open skin dialog box */
-            if (var_Type(p_object, "intf-skins-interactive") & VLC_VAR_ISCOMMAND)
-            {
-                QAction* openSkinAction = new QAction(qtr("Open skin..."), menu);
-                openSkinAction->setShortcut( QKeySequence( "Ctrl+Shift+S" ));
-                connect(openSkinAction, &QAction::triggered, [=]() {
-                    var_TriggerCallback(p_object, "intf-skins-interactive");
-                });
-                submenu->addAction(openSkinAction);
-            }
-
-            VLCVarChoiceModel* skinmodel = new VLCVarChoiceModel(p_object, "intf-skins", submenu);
-            CheckableListMenu* skinsubmenu = new CheckableListMenu(qtr("Interface"), skinmodel, QActionGroup::ExclusionPolicy::ExclusiveOptional, submenu);
-            submenu->addMenu(skinsubmenu);
-
-            submenu->addSeparator();
-
-            /* list of extensions */
-            ExtensionsMenu( p_intf, submenu );
-
-            menu->addMenu( submenu );
-        }
-        else
-        {
-            QMenu* toolsMenu = new QMenu( qtr( "Tool&s" ), menu );
-            ToolsMenu( p_intf, toolsMenu );
-            menu->addMenu( toolsMenu );
-
-            QMenu* viewMenu = new QMenu( qtr( "V&iew" ), menu );
-            ViewMenu( p_intf, viewMenu );
-            menu->addMenu( viewMenu );
-        }
-    }
-
-    /* Static entries for ending, like open */
-    if( p_intf->b_isDialogProvider )
-    {
-
-        QMenu* openmenu = new QMenu( qtr( "Open Media" ), menu );
-        FileMenu( p_intf, openmenu );
-        menu->addMenu( openmenu );
-
-        menu->addSeparator();
-
-        QMenu* helpmenu = new QMenu( qtr( "Help" ), menu );
-        HelpMenu( p_intf, helpmenu );
-        menu->addMenu( helpmenu );
-
-        addDPStaticEntry( menu, qtr( "Quit" ), ":/menu/exit.svg",
-                          &DialogsProvider::quit, "Ctrl+Q", QAction::QuitRole );
-    }
+    if( !hasInput || THEMIM->getPlayingState() != PlayerController::PLAYING_STATE_PLAYING )
+        add( "playback-twotone", qtr( "Play" ), "Space", [p_intf]() {
+            if ( THEMPL->isEmpty() )
+                THEDP->openFileDialog();
+            else
+                THEMPL->togglePlayPause();
+        } );
     else
-        PopupMenuStaticEntries( menu );
+        add( "pause", qtr( "Pause" ), "Space", [=]() { THEMPL->togglePlayPause(); } );
+
+    action = add( "stop-twotone", qtr( "Stop" ), "S", [=]() { THEMPL->stop(); } );
+    action->setEnabled( hasInput );
+
+    const bool playlistEmpty = THEMPL->isEmpty();
+    action = add( "previous-twotone", qtr( "Previous Item" ), "P", [=]() { THEMPL->prev(); } );
+    action->setEnabled( !playlistEmpty );
+    action = add( "next-twotone", qtr( "Next Item" ), "N", [=]() { THEMPL->next(); } );
+    action->setEnabled( !playlistEmpty );
+    action = add( "record-twotone", qtr( "Record" ), "R", [=]() { THEMIM->toggleRecord(); } );
+    action->setEnabled( hasInput );
+
+    menu->addSeparator();
+
+    if( mi )
+        add( "window-twotone", qtr( "Hide UI" ), "Ctrl+\\", [mi]() { emit mi->toggleHideUIRequested(); } );
+
+    menu->addSeparator();
+
+    QMenu *submenu = addSub( "playback-twotone", qtr( "Playback" ) );
+    NavigMenu( p_intf, submenu );
+    menu->addMenu( submenu )->setEnabled( hasInput && !submenu->isEmpty() );
+
+    submenu = addSub( "video-twotone", qtr( "Video" ) );
+    VideoMenu( p_intf, submenu );
+    menu->addMenu( submenu )->setEnabled( hasInput && !submenu->isEmpty() );
+
+    submenu = addSub( "audio-twotone", qtr( "Audio" ) );
+    AudioMenu( p_intf, submenu );
+    menu->addMenu( submenu )->setEnabled( hasInput && !submenu->isEmpty() );
+
+    submenu = addSub( "subtitles-twotone", qtr( "Subtitle" ) );
+    SubtitleMenu( p_intf, submenu, true );
+    menu->addMenu( submenu )->setEnabled( hasInput );
+
+    menu->addSeparator();
+
+    {
+        submenu = addSub( "settings-twotone", qtr( "More Settings" ) );
+        ToolsMenu( p_intf, submenu );
+        submenu->addSeparator();
+        QMenu *viewmenu = new QMenu( qtr( "View" ), submenu );
+        ViewMenu( p_intf, viewmenu );
+        submenu->addMenu( viewmenu );
+        menu->addMenu( submenu );
+
+        submenu = addSub( "queue-twotone", qtr( "Playlist" ) );
+        action = submenu->addAction( VLCMenuStyle::icon( "shuffle-right-twotone" ), qtr( "Shuffle" ),
+                                     [=](bool checked) { THEMPL->setRandom( checked ); } );
+        action->setCheckable( true );
+        action->setChecked( THEMPL->isRandom() );
+        QActionGroup *repeatGroup = new QActionGroup( submenu );
+        const struct { const char *title; PlaylistController::PlaybackRepeat mode; } repeats[] = {
+            { N_("Repeat Off"), PlaylistController::PLAYBACK_REPEAT_NONE },
+            { N_("Repeat One"), PlaylistController::PLAYBACK_REPEAT_CURRENT },
+            { N_("Repeat All"), PlaylistController::PLAYBACK_REPEAT_ALL } };
+        submenu->addSeparator();
+        for( const auto& r : repeats )
+        {
+            action = submenu->addAction( VLCMenuStyle::icon( "repeat-right-twotone" ), qtr( r.title ),
+                                         [=, mode = r.mode]() { THEMPL->setRepeatMode( mode ); } );
+            action->setCheckable( true );
+            action->setActionGroup( repeatGroup );
+            action->setChecked( THEMPL->getRepeatMode() == r.mode );
+        }
+        submenu->addSeparator();
+        submenu->addAction( VLCMenuStyle::icon( "save-twotone" ), qtr( "Save Playlist..." ),
+                            [=]() { THEDP->savePlayingToPlaylist(); } );
+        menu->addMenu( submenu );
+
+        submenu = addSub( "file-twotone", qtr( "Open Media" ) );
+        submenu->addAction( VLCMenuStyle::icon( "file-twotone" ), qtr( "Open File(s)" ), [=]() { THEDP->openFileDialog(); } );
+        submenu->addAction( VLCMenuStyle::icon( "folder-twotone" ), qtr( "Open Folder" ), [=]() { THEDP->PLOpenDir(); } );
+        submenu->addAction( VLCMenuStyle::icon( "disc-twotone" ), qtr( "Open Disc" ), [=]() { THEDP->openDiscDialog(); } );
+        submenu->addAction( VLCMenuStyle::icon( "streaming-twotone" ), qtr( "Open Network Stream" ), [=]() { THEDP->openNetDialog(); } );
+        submenu->addAction( VLCMenuStyle::icon( "capture-device-twotone" ), qtr( "Open Capture Device" ), [=]() { THEDP->openCaptureDialog(); } );
+        menu->addMenu( submenu );
+    }
+
+    menu->addSeparator();
+    add( "quit-twotone", qtr( "Quit VLC" ), "Ctrl+Q", [=]() { THEDP->quit(); } )->setMenuRole( QAction::QuitRole );
 
     if( show )
         menu->popup( QCursor::pos() );

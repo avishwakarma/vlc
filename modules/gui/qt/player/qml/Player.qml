@@ -1489,6 +1489,16 @@ FocusScope {
         onActivated: playerToolbarVisibilityFSM.toggleHideAll()
     }
 
+    // right-click menu "Hide UI" entry
+    Connections {
+        target: MainCtx
+
+        function onToggleHideUIRequested() {
+            playerToolbarVisibilityFSM.toggleHideAll()
+        }
+    }
+
+
     QmlAudioContextMenu {
         id: audioContextMenu
 

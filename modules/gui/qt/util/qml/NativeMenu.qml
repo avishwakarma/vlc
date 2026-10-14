@@ -38,6 +38,12 @@ QtObject {
         "visible" - (Boolean or function(dataList,options, indexes) -> Boolean) (optional) a boolean value or function which
                     controls whether the action is shown in the menu following 'popup' call
 
+        "icon" - (string) (optional) name of an SVG icon (pixmaps/svg_icons, without extension)
+
+        "shortcut" - (string) (optional) shortcut text shown at the right, e.g. "Ctrl+O"
+
+        "separator" - (Boolean) (optional) if true the entry is a separator line (no text/action)
+
        e.g see MLContextMenu.qml
     **/
 
@@ -91,7 +97,22 @@ QtObject {
                     || (typeof action.visible === "boolean" && action.visible)
                     || (typeof action.visible === "function" && action.visible(_dataList, _options, _indexes))) {
                 _effectiveActions.push(action)
-                textStrings.push(action.text)
+                if (action.separator === true || action.icon || action.shortcut)
+                    textStrings.push({ "text": action.text, "icon": action.icon, "shortcut": action.shortcut,
+                                       "separator": action.separator === true })
+                else
+                    textStrings.push(action.text)
+            }
+        }
+
+        // drop leading, trailing and duplicated separators left over by hidden actions
+        for (let i = _effectiveActions.length - 1; i >= 0; --i) {
+            if (_effectiveActions[i].separator !== true)
+                continue
+
+            if (i === 0 || i === _effectiveActions.length - 1 || _effectiveActions[i - 1].separator === true) {
+                _effectiveActions.splice(i, 1)
+                textStrings.splice(i, 1)
             }
         }
 

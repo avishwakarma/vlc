@@ -28,6 +28,7 @@
 #include "playlist/playlist_model.hpp"
 #include "dialogs/dialogs_provider.hpp"
 #include "util/colorizedsvgicon.hpp"
+#include "util/vlc_menu_style.hpp"
 #include "maininterface/navigationmodel.hpp"
 
 // Qt includes
@@ -37,51 +38,54 @@
 #include <QActionGroup>
 #include <QAbstractProxyModel>
 
-namespace
-{
-    QIcon sortIcon(QWidget *widget, int order)
-    {
-        assert(order == Qt::AscendingOrder || order == Qt::DescendingOrder);
-
-        QStyleOptionHeader headerOption;
-        headerOption.initFrom(widget);
-        headerOption.sortIndicator = (order == Qt::AscendingOrder)
-                ? QStyleOptionHeader::SortDown
-                : QStyleOptionHeader::SortUp;
-
-        QStyle *style = qApp->style();
-        int arrowsize = style->pixelMetric(QStyle::PM_HeaderMarkSize, &headerOption, widget);
-        if (arrowsize <= 0)
-            arrowsize = 32;
-
-        qreal dpr = widget ? widget->devicePixelRatioF() : 1.0;
-        headerOption.rect = QRect(0, 0, arrowsize, arrowsize);
-
-        QPixmap arrow(arrowsize * dpr, arrowsize * dpr);
-        arrow.setDevicePixelRatio(dpr);
-        arrow.fill(Qt::transparent);
-
-        {
-            QPainter arrowPainter(&arrow);
-            style->drawPrimitive(QStyle::PE_IndicatorHeaderArrow, &headerOption, &arrowPainter, widget);
-        }
-
-        return QIcon(arrow);
-    }
-}
-
 void StringListMenu::popup(const QPoint &point, const QVariantList &stringList)
 {
     assert(m_ctx);
     QMenu *m = newMenu();
+    m->setMinimumWidth(265); // Figma context menus
+    if (m_rightCheck)
+        m->setStyleSheet(VLCMenuStyle::rightCheckStyleSheet(false));
 
+    // entries are either plain strings or maps:
+    // {text, icon (svg icon name), shortcut (text), checked, enabled, separator}
     for (int i = 0; i != stringList.size(); ++i)
     {
-        const auto str = stringList[i].toString();
-        m->addAction(str, this, [this, i, str]()
+        const QVariant& entry = stringList[i];
+        if (entry.typeId() == QMetaType::QVariantMap)
         {
-            emit selected(i, str);
-        });
+            const QVariantMap map = entry.toMap();
+            if (map.value(QStringLiteral("separator")).toBool())
+            {
+                m->addSeparator();
+                continue;
+            }
+            const QString str = map.value(QStringLiteral("text")).toString();
+            QAction *action = m->addAction(str);
+            const QString icon = map.value(QStringLiteral("icon")).toString();
+            if (!icon.isEmpty())
+                action->setIcon(VLCMenuStyle::icon(icon));
+            const QString shortcut = map.value(QStringLiteral("shortcut")).toString();
+            if (!shortcut.isEmpty())
+                action->setText(str + QLatin1Char('\t') + shortcut);
+            if (map.contains(QStringLiteral("checked")) || m_rightCheck)
+            {
+                action->setCheckable(true);
+                action->setChecked(map.value(QStringLiteral("checked")).toBool());
+            }
+            action->setEnabled(map.value(QStringLiteral("enabled"), true).toBool());
+            connect(action, &QAction::triggered, this, [this, i, str]()
+            {
+                emit selected(i, str);
+            });
+        }
+        else
+        {
+            const auto str = entry.toString();
+            m->addAction(str, this, [this, i, str]()
+            {
+                emit selected(i, str);
+            });
+        }
     }
 
     m->popup(point);
@@ -117,6 +121,7 @@ void SortMenu::popup(const QPoint &point, const bool popupAbovePoint, const QVar
 {
     assert(m_ctx);
     m_menu = std::make_unique<VLCMenu>(m_ctx->getIntf());
+    m_menu->setMinimumWidth(265); // Figma 856:2215
 
     connect( m_menu.get(), &QMenu::aboutToShow, this, [this]() {
         m_shown = true;
@@ -143,7 +148,11 @@ void SortMenu::popup(const QPoint &point, const bool popupAbovePoint, const QVar
         action->setChecked(checked);
 
         if (checked)
-            action->setIcon(sortIcon(m_menu.get(), obj.value("order").toInt()));
+        {
+            // Figma sorting options: accent check at the right edge, arrow for descending order
+            const bool descending = (obj.value("order").toInt() == Qt::DescendingOrder);
+            m_menu->setStyleSheet(VLCMenuStyle::rightCheckStyleSheet(descending));
+        }
 
         connect(action, &QAction::triggered, this, [this, i]()
         {

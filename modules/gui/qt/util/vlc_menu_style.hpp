@@ -50,6 +50,9 @@ namespace VLCMenuStyle
     // The style sheet generated for `colors`.
     QString styleSheet(const Colors& colors, const QString& checkImage, const QString& arrowImage);
 
+    // Menu-local style sheet for menus whose check marks are drawn at the right edge.
+    QString rightCheckStyleSheet(bool descending);
+
     // Menu icon from pixmaps/svg_icons (`name` without extension, e.g. "home"),
     // recoloured with the current menu colors. Use with QAction::setIcon().
     QIcon icon(const QString& name);
