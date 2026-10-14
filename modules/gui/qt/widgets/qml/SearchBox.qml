@@ -162,6 +162,9 @@ FocusScope {
 
                 colorContext.palette: theme.palette
 
+                // BG/A5 field
+                backgroundColor: colorContext.bg.primary
+
                 implicitWidth: VLCStyle.widthSearchInput
 
                 padding: VLCStyle.dp(6, VLCStyle.scale)

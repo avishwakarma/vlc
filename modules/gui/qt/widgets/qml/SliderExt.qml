@@ -40,12 +40,20 @@ T.Slider {
     }
 
     // colors based on different parts and states
+    // played fill (accent bright), track (well) and thumb (accent)
     property color color: theme.fg.primary
     property color bgColor: theme.bg.primary
+    property color handleColor: theme.accent
 
+    // Figma: 8 px wide thumb pill, taller than the track
     property real handleWidth: VLCStyle.icon_xsmall
+    property real handleHeight: VLCStyle.heightBar_small + VLCStyle.spacing_4
+    property real trackHeight: VLCStyle.heightBar_small
 
-    property real radius: VLCStyle.dp(3, VLCStyle.scale)
+    // inset of the played fill inside the track
+    property real fillInset: VLCStyle.spacing_2
+
+    property real radius: VLCStyle.radius_m
 
     // when set the tooltip will follow the mouse when control is hoverred
     // else tooltip will always be shown at current value.
@@ -83,6 +91,8 @@ T.Slider {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitHandleHeight + topPadding + bottomPadding)
 
+    opacity: enabled ? 1.0 : 0.3
+
     handle: Rectangle {
         x: control.leftPadding + (control.horizontal
                                   ? control.visualPosition * (control.availableWidth - width)
@@ -92,23 +102,29 @@ T.Slider {
                                  ? (control.availableHeight - height) / 2
                                  : control.visualPosition * (control.availableHeight - height))
 
-        implicitWidth: control.handleWidth
-        implicitHeight: implicitWidth
+        implicitWidth: control.horizontal ? control.handleWidth : control.handleHeight
+        implicitHeight: control.horizontal ? control.handleHeight : control.handleWidth
 
-        width: control.handleWidth
-        height: width
-        radius: width / 2
+        radius: VLCStyle.radius_s
 
-        color: control.color
-        visible: (control.visualFocus || control.pressed) && control.enabled
+        color: control.pressed ? Qt.darker(control.handleColor, 1.2)
+                               : (control.hovered || control.visualFocus ? Qt.lighter(control.handleColor, 1.15)
+                                                                          : control.handleColor)
+
+        border.width: control.visualFocus ? VLCStyle.dp(1, VLCStyle.scale) : 0
+        border.color: theme.visualFocus
+
+        Behavior on color {
+            ColorAnimation { duration: VLCStyle.duration_short }
+        }
     }
 
     background: Rectangle {
         x: control.leftPadding + (control.horizontal ? 0 : (control.availableWidth - width) / 2)
         y: control.topPadding + (control.horizontal ? (control.availableHeight - height) / 2 : 0)
 
-        implicitWidth: control.horizontal ? VLCStyle.heightBar_xlarge : VLCStyle.heightBar_xxsmall
-        implicitHeight: control.horizontal ? VLCStyle.heightBar_xxsmall : VLCStyle.heightBar_xlarge
+        implicitWidth: control.horizontal ? VLCStyle.heightBar_xlarge : control.trackHeight
+        implicitHeight: control.horizontal ? control.trackHeight : VLCStyle.heightBar_xlarge
 
         width: control.horizontal ? control.availableWidth : implicitWidth
         height: control.horizontal ? implicitHeight : control.availableHeight
@@ -119,11 +135,17 @@ T.Slider {
         scale: control.horizontal && control.mirrored ? -1 : 1
 
         Rectangle {
-            y: control.horizontal ? 0 : control.visualPosition * parent.height
-            width: control.horizontal ? control.position * parent.width : parent.height
-            height: control.horizontal ? parent.height : control.position * parent.height
+            x: control.horizontal ? control.fillInset : control.fillInset
+            y: control.horizontal ? control.fillInset
+                                  : control.visualPosition * parent.height + control.fillInset
 
-            radius: control.radius
+            width: control.horizontal ? Math.max(0, control.position * (parent.width - control.handleWidth)
+                                                    + control.handleWidth / 2 - control.fillInset)
+                                      : parent.width - 2 * control.fillInset
+            height: control.horizontal ? parent.height - 2 * control.fillInset
+                                       : Math.max(0, control.position * parent.height - control.fillInset)
+
+            radius: VLCStyle.radius_s
             color: control.color
         }
     }

@@ -1335,6 +1335,10 @@ libqml_module_widgets_a_QML = \
 	widgets/qml/HorizontalResizeHandle.qml \
 	widgets/qml/IconLabel.qml \
 	widgets/qml/SvgIcon.qml \
+	widgets/qml/SegmentedControl.qml \
+	widgets/qml/Dropdown.qml \
+	widgets/qml/DialogButton.qml \
+	widgets/qml/SettingButton.qml \
 	widgets/qml/IconButton.qml \
 	widgets/qml/IconToolButton.qml \
 	widgets/qml/IconTrackButton.qml \

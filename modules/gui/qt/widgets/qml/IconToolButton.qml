@@ -34,9 +34,21 @@ T.ToolButton {
 
     required property string description
 
+    // Opt-in SVG icon (name of a file in pixmaps/svg_icons, e.g. "home").
+    // When empty the font glyph `text` is used. For toggle buttons use the
+    // plain name for the unchecked state and `iconNameChecked` (e.g.
+    // "home-active") for the checked one; if the latter is empty the same
+    // icon is used and recoloured with the accent color.
+    property string iconName: ""
+    property string iconNameChecked: ""
+    property real iconSize: VLCStyle.icon_normal
+
+    readonly property bool _svg: (iconName !== "")
+
     property color color: (control.checked) ? theme.accent : theme.fg.primary
 
-    property color backgroundColor: theme.bg.primary
+    property color backgroundColor: (_svg && (control.hovered || control.down)) ? hoverTheme.bg.primary
+                                                                                : theme.bg.primary
 
     property real radius: VLCStyle.button_radius
 
@@ -105,7 +117,21 @@ T.ToolButton {
         radius: control.radius
     }
 
-    contentItem: Widgets.IconLabel {
+    readonly property ColorContext hoverColorContext: ColorContext {
+        id: hoverTheme
+        colorSet: ColorContext.Item
+
+        hovered: control.hovered
+        pressed: control.down
+    }
+
+    contentItem: control._svg ? svgIcon : glyphLabel
+
+    Widgets.IconLabel {
+        id: glyphLabel
+
+        visible: !control._svg
+
         text: control.text
 
         color: control.color
@@ -119,5 +145,18 @@ T.ToolButton {
         }
 
         font: control.font
+    }
+
+    Widgets.SvgIcon {
+        id: svgIcon
+
+        visible: control._svg
+
+        name: (control.checked && control.iconNameChecked !== "") ? control.iconNameChecked : control.iconName
+        size: control.iconSize
+
+        // hover/pressed/focus/disabled variants come from the ToolButton color set
+        color: (control.checked && control.iconNameChecked !== "") ? theme.fg.primary : control.color
+        accentColor: theme.accent
     }
 }
