@@ -6,6 +6,9 @@
 > **Design credit:** the redesign, including the layout, color system and icon set, is by
 > **[Juxtopposed](https://juxtopposed.com)**, from the Figma Community file "VLC Redesign (Community)".
 > All credit for the design goes to them; any implementation mistakes are ours.
+>
+> This fork was inspired by Juxtopposed's video about the redesign:
+> https://www.youtube.com/watch?v=ERFeOgqk324
 
 **VLC** is a libre and open source **media player** and **multimedia engine**,
 focused on **playing everything**, and **running everywhere**.
