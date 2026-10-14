@@ -1,11 +1,12 @@
-PLACEHOLDER - LICENSE NOT YET CONFIRMED
+Icon set: VLC Redesign
 
-Source: Figma Community file "VLC Redesign (Community)".
+Designed by Juxtopposed (https://juxtopposed.com), from the Figma Community
+file "VLC Redesign (Community)". See also the designer's video about the
+redesign: https://www.youtube.com/watch?v=ERFeOgqk324
 
-The license of these icons and the designer attribution have NOT been
-verified. They must be confirmed on the Figma Community page (and, for
-upstreaming, in writing with the designer and the VideoLAN design team)
-before these files are distributed or merged upstream. Record the final
-license text and author credit here and in THANKS/AUTHORS.
+All credit for the icon designs goes to the designer. The SVGs in this
+directory are generated from the Figma source by normalize.py (viewBox
+normalization and recoloring to VLC's SVGColorImage placeholder colors);
+the shapes are unchanged.
 
-Do not assume any license from this file.
+The license terms of the Figma Community file apply to these icons.
