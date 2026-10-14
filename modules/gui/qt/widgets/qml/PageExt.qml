@@ -149,13 +149,17 @@ T.Page {
         readonly property var crumbs: {
             const out = []
             for (let i = 0; i < pagePrefix.length; ++i) {
+                // only the entries that have a label are crumbs ("browse", "all", ... are not)
                 if (i > 0 && pagePrefix[i] === "home")
+                    continue
+                if (crumbLabel(pagePrefix[i]) === pagePrefix[i])
                     continue
                 out.push(crumbLabel(pagePrefix[i]))
             }
 
             // the network root page is titled "Browse", the Figma title is "Network"
-            if (!(pagePrefix[0] === "network" && text === qsTr("Browse") && out.length === 1) && text !== "")
+            if (!(pagePrefix[0] === "network" && text === qsTr("Browse") && out.length === 1) && text !== ""
+                    && out[out.length - 1] !== text)
                 out.push(text)
             return out
         }

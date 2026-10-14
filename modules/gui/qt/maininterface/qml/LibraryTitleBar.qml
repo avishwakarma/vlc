@@ -91,12 +91,13 @@ FocusScope {
     Text {
         id: titleText
 
-        readonly property real _limit: Math.max(menuButton.x + menuButton.width,
-                                                windowButtons.active ? (root.width - windowButtons.width) : 0)
-                                       + VLCStyle.spacing_16
+        // room left free by the buttons on both sides, the title stays centred on the window
+        readonly property real _left: menuButton.x + menuButton.width + VLCStyle.spacing_16
+        readonly property real _right: (windowButtons.active ? windowButtons.x : root.width) - VLCStyle.spacing_16
+        readonly property real _half: Math.min(root.width / 2 - _left, _right - root.width / 2)
 
         height: parent.height
-        width: Math.min(implicitWidth, Math.max(0, root.width - 2 * _limit))
+        width: Math.min(implicitWidth, Math.max(0, 2 * _half))
         x: (root.width - width) / 2
 
         text: root.title
