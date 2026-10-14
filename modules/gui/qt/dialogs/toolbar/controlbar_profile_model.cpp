@@ -102,22 +102,19 @@ decltype (ControlbarProfileModel::m_defaults)
                         {
                             {
                                 {
-                                    ControlListModel::LANG_BUTTON,
-                                    ControlListModel::BOOKMARK_BUTTON,
-                                    ControlListModel::EXTENDED_BUTTON,
-                                    ControlListModel::NAVIGATION_BUTTONS
-                                },
-                                {
-                                    ControlListModel::SKIP_BACK_BUTTON,
                                     ControlListModel::PREVIOUS_BUTTON,
                                     ControlListModel::PLAY_BUTTON,
-                                    ControlListModel::NEXT_BUTTON,
-                                    ControlListModel::SKIP_FW_BUTTON
+                                    ControlListModel::NEXT_BUTTON
+                                },
+                                {
+                                    ControlListModel::TIMELINE
                                 },
                                 {
                                     ControlListModel::VOLUME,
-                                    ControlListModel::RENDERER_BUTTON,
-                                    ControlListModel::FULLSCREEN_BUTTON
+                                    ControlListModel::AUDIO_TRACKS_BUTTON,
+                                    ControlListModel::SUBTITLE_TRACKS_BUTTON,
+                                    ControlListModel::EXTENDED_BUTTON,
+                                    ControlListModel::PLAYLIST_BUTTON
                                 }
                             }
                         }
@@ -127,21 +124,19 @@ decltype (ControlbarProfileModel::m_defaults)
                         {
                             {
                                 {
-                                    ControlListModel::LANG_BUTTON,
-                                    ControlListModel::BOOKMARK_BUTTON,
-                                    ControlListModel::EXTENDED_BUTTON
+                                    ControlListModel::PREVIOUS_BUTTON,
+                                    ControlListModel::JUMP_15_BACK_BUTTON,
+                                    ControlListModel::PLAY_BUTTON,
+                                    ControlListModel::JUMP_15_FWD_BUTTON,
+                                    ControlListModel::NEXT_BUTTON
                                 },
                                 {
-                                    ControlListModel::RANDOM_BUTTON,
-                                    ControlListModel::PREVIOUS_BUTTON,
-                                    ControlListModel::PLAY_BUTTON,
-                                    ControlListModel::NEXT_BUTTON,
-                                    ControlListModel::LOOP_BUTTON
+                                    ControlListModel::TIMELINE
                                 },
                                 {
                                     ControlListModel::VOLUME,
-                                    ControlListModel::RENDERER_BUTTON,
-                                    ControlListModel::FULLSCREEN_BUTTON
+                                    ControlListModel::AUDIO_TRACKS_BUTTON,
+                                    ControlListModel::PLAYLIST_BUTTON
                                 }
                             }
                         }
@@ -820,7 +815,11 @@ bool ControlbarProfileModel::reload()
                                                      split(alignments[2]),
                                                      split(alignments[3]) };
 
-            ptrNewProfile->setModelData(identifier, data);
+            // profiles that still hold the pre-redesign default are upgraded to the new default
+            if (ControlbarProfile::isLegacyDefault(identifier, data))
+                ptrNewProfile->setModelData(identifier, ControlbarProfile::builtinLayout(identifier));
+            else
+                ptrNewProfile->setModelData(identifier, data);
             ptrNewProfile->resetDirty(); // Newly loaded model can not be dirty
         }
 

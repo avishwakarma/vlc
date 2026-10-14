@@ -51,7 +51,8 @@ public:
     enum PlayerIdentifier {
         Videoplayer = 0,
         Audioplayer,
-        Miniplayer
+        Miniplayer,
+        Topbar // window title bar items (appended, saved profiles do not have it)
     };
     Q_ENUM(PlayerIdentifier)
     // This enum is iterated through QMetaEnum, and

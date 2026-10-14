@@ -63,6 +63,75 @@ PlayerControlbarModel *ControlbarProfile::getModel(int identifier) const
     }
 }
 
+PlayerControlbarModel *ControlbarProfile::ensureModel(int identifier)
+{
+    if (auto model = getModel(identifier))
+        return model;
+
+    m_pauseControlListGeneration = true;
+    const auto model = newModel(identifier);
+    if (model)
+    {
+        model->loadModels(builtinLayout(identifier));
+        model->setDirty(false);
+    }
+    m_pauseControlListGeneration = false;
+
+    return model;
+}
+
+std::array<QVector<int>, 3> ControlbarProfile::builtinLayout(int identifier)
+{
+    using C = ControlListModel;
+    switch (identifier)
+    {
+    case PlayerControlbarModel::Audioplayer:
+        // Figma 4767:23726 (music): +-15 s around play, the seek bar is replaced by the
+        // waveform later, the audio button stands for the visualization toggle until then
+        return {
+            QVector<int>{ C::PREVIOUS_BUTTON, C::JUMP_15_BACK_BUTTON, C::PLAY_BUTTON,
+                          C::JUMP_15_FWD_BUTTON, C::NEXT_BUTTON },
+            QVector<int>{ C::TIMELINE },
+            QVector<int>{ C::VOLUME, C::AUDIO_TRACKS_BUTTON, C::PLAYLIST_BUTTON }
+        };
+    case PlayerControlbarModel::Videoplayer:
+        // Figma 247:445: transport, seek bar (inline), volume, tracks, settings, queue
+        return {
+            QVector<int>{ C::PREVIOUS_BUTTON, C::PLAY_BUTTON, C::NEXT_BUTTON },
+            QVector<int>{ C::TIMELINE },
+            QVector<int>{ C::VOLUME, C::AUDIO_TRACKS_BUTTON, C::SUBTITLE_TRACKS_BUTTON,
+                          C::EXTENDED_BUTTON, C::PLAYLIST_BUTTON }
+        };
+    case PlayerControlbarModel::Topbar:
+        // Figma 247:447 (the cone is not an item)
+        return {
+            QVector<int>{ C::TITLE_MENU_BUTTON, C::TITLE_SIDEBAR_BUTTON, C::DIVIDER_WIDGET,
+                          C::TITLE_BREADCRUMB_BUTTON },
+            QVector<int>{ C::TITLE_TEXT_WIDGET },
+            QVector<int>{ C::WINDOW_MINIMIZE_BUTTON, C::WINDOW_MAXIMIZE_BUTTON,
+                          C::FULLSCREEN_BUTTON, C::WINDOW_CLOSE_BUTTON }
+        };
+    default:
+        return {};
+    }
+}
+
+bool ControlbarProfile::isLegacyDefault(int identifier, const std::array<QVector<int>, 3> &data)
+{
+    using C = ControlListModel;
+    if (identifier == PlayerControlbarModel::Videoplayer)
+        return data == std::array<QVector<int>, 3> {
+            QVector<int>{ C::LANG_BUTTON, C::BOOKMARK_BUTTON, C::EXTENDED_BUTTON, C::NAVIGATION_BUTTONS },
+            QVector<int>{ C::SKIP_BACK_BUTTON, C::PREVIOUS_BUTTON, C::PLAY_BUTTON, C::NEXT_BUTTON, C::SKIP_FW_BUTTON },
+            QVector<int>{ C::VOLUME, C::RENDERER_BUTTON, C::FULLSCREEN_BUTTON } };
+    if (identifier == PlayerControlbarModel::Audioplayer)
+        return data == std::array<QVector<int>, 3> {
+            QVector<int>{ C::LANG_BUTTON, C::BOOKMARK_BUTTON, C::EXTENDED_BUTTON },
+            QVector<int>{ C::RANDOM_BUTTON, C::PREVIOUS_BUTTON, C::PLAY_BUTTON, C::NEXT_BUTTON, C::LOOP_BUTTON },
+            QVector<int>{ C::VOLUME, C::RENDERER_BUTTON, C::FULLSCREEN_BUTTON } };
+    return false;
+}
+
 void ControlbarProfile::setModelData(int identifier, const std::array<QVector<int>, 3> &data)
 {
     auto ptrModel = getModel(identifier);
