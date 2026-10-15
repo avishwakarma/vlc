@@ -863,9 +863,23 @@ API_AVAILABLE(tvos(17.0), visionos(1.0))
     + (instancetype)new NS_UNAVAILABLE;
     - (instancetype)initWithVoutDisplay:(vout_display_t *)vd;
     - (void)placeVideo:(vout_display_place_t)newPlace;
+    - (void)setPaddedBufferSize:(CGSize)bufferSize visibleRect:(CGRect)visible;
+    - (BOOL)notePaddedBufferSize:(CGSize)bufferSize visibleRect:(CGRect)visible;
 @end
 
 @implementation VLCSampleBufferDisplay
+{
+    /* Hardware decoders output buffers padded to the macroblock size (1920x1024 for a
+     * 1920x1012 picture) and the display layer shows the whole buffer, aspect fitted
+     * in its view: the picture ends up smaller than its place, with a band of padding.
+     * The view is enlarged to show the padding outside of the place, where it is masked. */
+    CGSize _bufferSize;
+    CGRect _visibleRect;
+    vout_display_place_t _lastPlace;
+    BOOL _hasPlace;
+    CGSize _pendingBufferSize;  /* last values seen by the rendering thread */
+    CGRect _pendingVisibleRect;
+}
 
 - (id<VLCPixelBufferRotationContext>)rotationContext
 {
@@ -936,6 +950,16 @@ API_AVAILABLE(tvos(17.0), visionos(1.0))
     const CGFloat sx = fabs(unit.width), sy = fabs(unit.height);
     frame = CGRectMake(place->x * sx, place->y * sy,
                        place->width * sx, place->height * sy);
+
+    /* grow the frame to the padded buffer (see the ivars), the visible part stays in the place */
+    if (_bufferSize.width > 0 && _visibleRect.size.width > 0 && _visibleRect.size.height > 0
+     && (_bufferSize.width > _visibleRect.size.width || _bufferSize.height > _visibleRect.size.height)) {
+        const CGFloat ppx = frame.size.width / _visibleRect.size.width;
+        const CGFloat ppy = frame.size.height / _visibleRect.size.height;
+        frame = CGRectMake(frame.origin.x - _visibleRect.origin.x * ppx,
+                           frame.origin.y - _visibleRect.origin.y * ppy,
+                           _bufferSize.width * ppx, _bufferSize.height * ppy);
+    }
     if (!window.isFlipped)
         frame.origin.y = window.bounds.size.height - frame.origin.y - frame.size.height;
 #else
@@ -1029,7 +1053,65 @@ API_AVAILABLE(tvos(17.0), visionos(1.0))
 }
 
 - (void)placeVideo:(vout_display_place_t)newPlace {
+    _lastPlace = newPlace;
+    _hasPlace = YES;
     self.displayView.frame = [self frameForPlace:&newPlace];
+#if TARGET_OS_OSX
+    [self updatePaddingMask:&newPlace];
+#endif
+}
+
+#if TARGET_OS_OSX
+/* hide the padding of the buffer: only the place is visible */
+- (void)updatePaddingMask:(const vout_display_place_t *)place
+{
+    VLCSampleBufferDisplayView *view = self.displayView;
+    const CGRect viewBounds = view.bounds;
+    const BOOL padded = _bufferSize.width > _visibleRect.size.width
+                     || _bufferSize.height > _visibleRect.size.height;
+    if (!padded || _visibleRect.size.width <= 0 || _visibleRect.size.height <= 0) {
+        view.layer.mask = nil;
+        return;
+    }
+    const CGFloat ppx = viewBounds.size.width / _bufferSize.width;
+    const CGFloat ppy = viewBounds.size.height / _bufferSize.height;
+    /* layer coordinates have a bottom-left origin */
+    const CGRect visible = CGRectMake(_visibleRect.origin.x * ppx,
+                                      viewBounds.size.height - (_visibleRect.origin.y + _visibleRect.size.height) * ppy,
+                                      _visibleRect.size.width * ppx, _visibleRect.size.height * ppy);
+    CALayer *mask = view.layer.mask;
+    if (mask == nil) {
+        mask = [CALayer layer];
+        mask.backgroundColor = CGColorGetConstantColor(kCGColorBlack);
+        view.layer.mask = mask;
+    }
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    mask.frame = visible;
+    [CATransaction commit];
+}
+#endif
+
+/* rendering thread: true when the sizes changed since the last frame */
+- (BOOL)notePaddedBufferSize:(CGSize)bufferSize visibleRect:(CGRect)visible
+{
+    if (CGSizeEqualToSize(bufferSize, _pendingBufferSize) && CGRectEqualToRect(visible, _pendingVisibleRect))
+        return NO;
+    _pendingBufferSize = bufferSize;
+    _pendingVisibleRect = visible;
+    return YES;
+}
+
+- (void)setPaddedBufferSize:(CGSize)bufferSize visibleRect:(CGRect)visible
+{
+    if (CGSizeEqualToSize(bufferSize, _bufferSize) && CGRectEqualToRect(visible, _visibleRect))
+        return;
+    _bufferSize = bufferSize;
+    _visibleRect = visible;
+    if (_hasPlace) {
+        const vout_display_place_t place = _lastPlace;
+        [self placeVideo:place];
+    }
 }
 
 - (void)close {
@@ -1142,6 +1224,19 @@ static void RenderPicture(vout_display_t *vd, picture_t *pic, vlc_tick_t date) {
         (__bridge CFDictionaryRef)aspectRatio,
         kCVAttachmentMode_ShouldPropagate
     );
+
+#if TARGET_OS_OSX
+    if (vd->fmt->orientation == ORIENT_NORMAL) {
+        const CGSize bufferSize = CGSizeMake(CVPixelBufferGetWidth(pixelBuffer),
+                                             CVPixelBufferGetHeight(pixelBuffer));
+        const CGRect visible = CGRectMake(vd->source->i_x_offset, vd->source->i_y_offset,
+                                          vd->source->i_visible_width, vd->source->i_visible_height);
+        if ([sys notePaddedBufferSize:bufferSize visibleRect:visible])
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [sys setPaddedBufferSize:bufferSize visibleRect:visible];
+            });
+    }
+#endif
 
     CMSampleBufferRef sampleBuffer = NULL;
     CMVideoFormatDescriptionRef formatDesc = NULL;
