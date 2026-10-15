@@ -124,18 +124,25 @@ static bool restoreWindowPositionImpl(QSettings *settings, QWindow *window)
     window->setPosition(position);
     window->setGeometry(geometry);
 
-    if (maximized || fullscreen)
+    // Never restore a fullscreen window: the interface would cover the whole screen at
+    // launch (and the video autoresize is skipped while fullscreen). A maximized window is
+    // restored, any other window is limited to the visible area of its screen.
+    Q_UNUSED(fullscreen);
+    if (maximized)
     {
-        Qt::WindowStates state = window->windowStates();
-        if (maximized)
-            state |= Qt::WindowMaximized;
-        if (fullscreen)
-            state |= Qt::WindowFullScreen;
-        window->setWindowStates(state);
+        window->setWindowStates(window->windowStates() | Qt::WindowMaximized);
     }
     else
     {
         window->setWindowStates(window->windowStates() & ~(Qt::WindowMaximized | Qt::WindowFullScreen));
+        const QRect avail = window->screen()->availableGeometry();
+        QRect g = window->geometry();
+        const QSize limit(avail.width() * 9 / 10, avail.height() * 9 / 10);
+        if (g.width() > limit.width() || g.height() > limit.height())
+        {
+            g.setSize(g.size().boundedTo(limit));
+            window->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, g.size(), avail));
+        }
     }
 
     return true;

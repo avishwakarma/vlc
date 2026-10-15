@@ -124,11 +124,18 @@ void VideoWindowHandler::setVideoSize(unsigned int w, unsigned int h, Qt::Window
                 return;
             const double aspect = double(w) / double(h);
 
-            double viewportW = std::max<double>(m_window->width() - chrome.width(), 64);
+            // Keep the current width. A tiny window gets a sensible default width, and the width
+            // never exceeds 90% of the visible screen area.
+            double windowW = m_window->width();
+            if (windowW < 640)
+                windowW = std::min<double>(960, screen.width() * 0.9);
+            windowW = std::min<double>(windowW, screen.width() * 0.9);
+            double viewportW = std::max<double>(windowW - chrome.width(), 64);
             double windowH = viewportW / aspect + chrome.height();
-            if (windowH > screen.height())
+            const double maxH = screen.height() * 0.9;
+            if (windowH > maxH)
             {
-                windowH = screen.height();
+                windowH = maxH;
                 viewportW = (windowH - chrome.height()) * aspect;
             }
             msg_Dbg( m_intf, "Autoresize interface window to the video aspect %f: viewport %f, chrome %fx%f",
@@ -138,6 +145,12 @@ void VideoWindowHandler::setVideoSize(unsigned int w, unsigned int h, Qt::Window
 
             m_window->resize(std::clamp<int>(w, m_window->minimumWidth(), m_window->maximumWidth()),
                              std::clamp<int>(h, m_window->minimumHeight(), m_window->maximumHeight()));
+
+            // keep the whole window on the screen
+            QRect frame = m_window->geometry();
+            frame.moveLeft(std::clamp(frame.left(), screen.left(), std::max(screen.left(), screen.right() + 1 - frame.width())));
+            frame.moveTop(std::clamp(frame.top(), screen.top(), std::max(screen.top(), screen.bottom() + 1 - frame.height())));
+            m_window->setPosition(frame.topLeft());
         }
     }
 }
