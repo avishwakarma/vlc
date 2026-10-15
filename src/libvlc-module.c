@@ -1702,7 +1702,7 @@ vlc_module_begin ()
     add_integer("disable-screensaver", 1, SS_TEXT, SS_LONGTEXT)
         change_integer_list(screensaver_values, screensaver_texts)
 
-    add_bool( "video-title-show", true, VIDEO_TITLE_SHOW_TEXT,
+    add_bool( "video-title-show", false, VIDEO_TITLE_SHOW_TEXT,
               VIDEO_TITLE_SHOW_LONGTEXT )
         change_safe()
     add_integer ("video-stereo-mode", VIDEO_STEREO_OUTPUT_AUTO, VIDEO_STEREO_FORMAT_TEXT,

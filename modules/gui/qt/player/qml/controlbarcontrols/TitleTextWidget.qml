@@ -54,6 +54,27 @@ Item {
 
         text: (PlayerHost.title !== "" || !root.paintOnly) ? PlayerHost.title : qsTr("Title")
         color: theme.fg.primary
+
+        // briefly highlight the name when a media starts: accent fading to the normal color
+        onTextChanged: {
+            if (root.paintOnly || PlayerHost.title === "")
+                return
+            highlight.restart()
+        }
+
+        SequentialAnimation {
+            id: highlight
+
+            ColorAnimation {
+                target: label
+                property: "color"
+                from: theme.accent
+                to: theme.fg.primary
+                duration: 1800
+                easing.type: Easing.OutCubic
+            }
+        }
+
         font.pixelSize: VLCStyle.text_body
         font.weight: VLCStyle.fontWeight_regular
         elide: Text.ElideRight
