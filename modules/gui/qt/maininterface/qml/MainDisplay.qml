@@ -77,12 +77,9 @@ FocusScope {
     }
 
     Component.onCompleted: {
-        if (MainCtx.canShowVideoPIP) {
-            pipPlayerComponent.createObject(this)
-        } else {
-            if (MainCtx.hasEmbededVideo)
-                MainPlaylistController.stop()
-        }
+        // the video is shown in the miniplayer card; without a way to show it there, stop it
+        if (!MainCtx.canShowVideoPIP && MainCtx.hasEmbededVideo)
+            MainPlaylistController.stop()
 
         if (History.previousEmpty) {
             History.update(["home"])
@@ -984,55 +981,6 @@ FocusScope {
         }
     }
 
-    Component {
-        id: pipPlayerComponent
-
-        PIPPlayer {
-            id: playerPip
-            anchors {
-                bottom: loaderUpdatePane.top
-                left: parent.left
-                bottomMargin: VLCStyle.margin_normal
-                leftMargin: VLCStyle.margin_normal + VLCStyle.applicationHorizontalMargin
-            }
-
-            width: VLCStyle.dp(320, VLCStyle.scale)
-            height: VLCStyle.dp(180, VLCStyle.scale)
-            z: 4
-            visible: g_mainDisplay._showMiniPlayer && MainCtx.hasEmbededVideo
-            enabled: g_mainDisplay._showMiniPlayer && MainCtx.hasEmbededVideo
-
-            Binding on visible {
-                id: visibleBinding
-                when: false
-                delayed: true
-                value: g_mainDisplay._showMiniPlayer && MainCtx.hasEmbededVideo
-            }
-
-            Component.onCompleted: {
-                Qt.callLater(() => { visibleBinding.when = true })
-            }
-
-            dragXMin: VLCStyle.applicationHorizontalMargin
-            dragXMax: g_mainDisplay.width - playerPip.width - VLCStyle.applicationHorizontalMargin
-            dragYMin: localTopbar.y + localTopbar.height
-            dragYMax: loaderUpdatePane.y - playerPip.height
-
-            //keep the player visible on resize
-            Connections {
-                target: g_mainDisplay
-                function onWidthChanged() {
-                    if (playerPip.x > playerPip.dragXMax)
-                        playerPip.x = playerPip.dragXMax
-                }
-                function onHeightChanged() {
-                    if (playerPip.y > playerPip.dragYMax)
-                        playerPip.y = playerPip.dragYMax
-                }
-            }
-        }
-    }
-
     Dialogs {
         z: 10
         bgContent: g_mainDisplay
@@ -1067,6 +1015,8 @@ FocusScope {
 
         horizontalPadding: VLCStyle.applicationHorizontalMargin
         bottomPadding: VLCStyle.applicationVerticalMargin + VLCStyle.margin_xsmall
+
+        videoPreview: MainCtx.canShowVideoPIP && g_mainDisplay._showMiniPlayer && MainCtx.hasEmbededVideo
 
         background.visible: !stackViewParent.layer.enabled
 

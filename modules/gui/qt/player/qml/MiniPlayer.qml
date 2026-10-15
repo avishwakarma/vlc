@@ -17,6 +17,7 @@
  *****************************************************************************/
 import QtQuick
 import QtQuick.Window
+import QtQuick.Shapes
 import QtQuick.Templates as T
 
 import VLC.MainInterface
@@ -56,6 +57,12 @@ FocusScope {
     property bool dockLeft: false
 
     property bool queueVisible: false
+
+    // true: the preview shows the live video (MainDisplay sets it when the embedded video
+    // output can be shown outside of the player view)
+    property bool videoPreview: false
+
+    readonly property bool _isVideo: Player.hasVideoOutput
 
     readonly property bool shown: Player.isStarted
 
@@ -299,7 +306,8 @@ FocusScope {
 
                         radius: VLCStyle.radius_m
                         // audio with a cover: the blurred cover of the card shows on both sides of the square cover
-                        color: (root.coverBackdrop && coverBackdrop.hasCover) ? "transparent"
+                        color: root.videoPreview ? "black"
+                               : (root.coverBackdrop && coverBackdrop.hasCover) ? "transparent"
                                : root.coverSource.toString() !== "" ? itemTheme.bg.secondary : Qt.darker(itemTheme.bg.secondary, 1.5)
                         clip: true
 
@@ -314,6 +322,8 @@ FocusScope {
 
                             anchors.fill: parent
                             anchors.margins: VLCStyle.dp(2, VLCStyle.scale)
+
+                            visible: !root.videoPreview
 
                             property url shownSource: root.coverSource
 
@@ -350,9 +360,63 @@ FocusScope {
                             Widgets.SvgIcon {
                                 anchors.centerIn: parent
                                 visible: !artImage.visible
-                                name: "music"
+                                name: root._isVideo ? "video" : "music"
                                 size: VLCStyle.dp(64, VLCStyle.scale)
                                 color: viewTheme.fg.secondary
+                            }
+                        }
+
+                        // live video: the native video window is placed under this rectangle
+                        // (the surface clears the UI there), the corners are painted in the card colour
+                        Loader {
+                            id: videoPreviewLoader
+
+                            anchors.fill: parent
+
+                            active: root.videoPreview
+                            visible: active
+
+                            sourceComponent: Item {
+                                VideoSurface {
+                                    anchors.fill: parent
+                                    anchors.margins: VLCStyle.dp(2, VLCStyle.scale)
+
+                                    videoSurfaceProvider: MainCtx.videoSurfaceProvider
+
+                                    // the preview handles the clicks (play/pause, double click to expand)
+                                    enabled: false
+                                }
+
+                                Shape {
+                                    id: cornerMask
+
+                                    anchors.fill: parent
+
+                                    readonly property real r: preview.radius
+
+                                    preferredRendererType: Shape.CurveRenderer
+
+                                    ShapePath {
+                                        strokeColor: "transparent"
+                                        fillColor: surface.color
+                                        fillRule: ShapePath.OddEvenFill
+
+                                        PathSvg {
+                                            path: {
+                                                const w = cornerMask.width, h = cornerMask.height, r = cornerMask.r
+                                                return "M0 0H" + w + "V" + h + "H0Z"
+                                                     + "M" + r + " 0H" + (w - r)
+                                                     + "A" + r + " " + r + " 0 0 1 " + w + " " + r
+                                                     + "V" + (h - r)
+                                                     + "A" + r + " " + r + " 0 0 1 " + (w - r) + " " + h
+                                                     + "H" + r
+                                                     + "A" + r + " " + r + " 0 0 1 0 " + (h - r)
+                                                     + "V" + r
+                                                     + "A" + r + " " + r + " 0 0 1 " + r + " 0Z"
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
 
