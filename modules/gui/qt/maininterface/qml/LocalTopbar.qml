@@ -66,7 +66,7 @@ T.ToolBar {
 
         showCSD: root._showCSD
 
-        title: (Player.title !== "") ? Player.title : qsTr("VLC Media Player")
+        title: (Player.displayTitle !== "") ? Player.displayTitle : qsTr("VLC Media Player")
 
         Navigation.parentItem: root
         Navigation.upItem: root.Navigation.upItem

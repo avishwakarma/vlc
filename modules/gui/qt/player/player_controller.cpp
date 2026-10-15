@@ -35,6 +35,7 @@
 #include <vlc_preparser.h>
 
 #include <QFile>
+#include <QFileInfo>
 #include <QDir>
 #include <QSignalMapper>
 #include <QThreadPool>
@@ -125,6 +126,7 @@ void PlayerControllerPrivate::UpdateName(input_item_t* media)
     {
         emit q->nameChanged( name );
         m_name = std::move(name);
+        emit q->displayTitleChanged();
     }
 }
 
@@ -225,6 +227,7 @@ void PlayerControllerPrivate::UpdateMeta( input_item_t *p_item )
     }
 
     emit q->currentMetaChanged( p_item  );
+    emit q->displayTitleChanged();
 }
 
 QList<TimedText>
@@ -432,6 +435,7 @@ static void on_player_state_changed(vlc_player_t *, enum vlc_player_state state,
             emit q->rateChanged( 1.0f );
             that->m_name = "";
             emit q->nameChanged( "" );
+            emit q->displayTitleChanged();
             that->m_hasChapters = false;
             emit q->hasChaptersChanged( false );
             that->m_hasTitles = false;
@@ -2326,6 +2330,24 @@ PRIMITIVETYPE_GETTER(bool, isTeletextAvailable, m_teletextAvailable)
 PRIMITIVETYPE_GETTER(int, getTeletextPage, m_teletextPage)
 PRIMITIVETYPE_GETTER(bool, getTeletextTransparency, m_teletextTransparent)
 PRIMITIVETYPE_GETTER(QString, getTitle, m_title)
+QString PlayerController::getDisplayTitle() const
+{
+    Q_D(const PlayerController);
+    if (!d->m_title.simplified().isEmpty())
+        return d->m_title;
+
+    /* no title tag: use the name, without the extension for local files */
+    QString name = d->m_name;
+    if (d->m_url.isLocalFile())
+    {
+        const QFileInfo info(name);
+        const QString suffix = info.suffix();
+        if (!suffix.isEmpty() && suffix.size() <= 5 && !suffix.contains(' '))
+            name = info.completeBaseName();
+    }
+    return name;
+}
+
 PRIMITIVETYPE_GETTER(QString, getArtist, m_artist)
 PRIMITIVETYPE_GETTER(QString, getAlbum, m_album)
 PRIMITIVETYPE_GETTER(QUrl, getArtwork, m_artwork)

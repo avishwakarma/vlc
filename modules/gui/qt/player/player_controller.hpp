@@ -154,6 +154,7 @@ public:
 
     // meta
     Q_PROPERTY(QString title READ getTitle NOTIFY currentMetaChanged FINAL)
+    Q_PROPERTY(QString displayTitle READ getDisplayTitle NOTIFY displayTitleChanged FINAL)
     Q_PROPERTY(QString artist READ getArtist NOTIFY currentMetaChanged FINAL)
     Q_PROPERTY(QString album READ getAlbum NOTIFY currentMetaChanged FINAL)
     Q_PROPERTY(QUrl artwork READ getArtwork NOTIFY currentMetaChanged FINAL)
@@ -431,6 +432,8 @@ public slots:
 
     // meta
     QString getTitle() const;
+    /* the title tag, or else the name of the media (file name without extension) */
+    QString getDisplayTitle() const;
     QString getArtist() const;
     QString getAlbum() const;
     QUrl getArtwork() const;
@@ -517,6 +520,7 @@ signals:
     void statisticsUpdated( const input_stats_t& stats );
     void infoChanged( input_item_t* );
     void currentMetaChanged( input_item_t* );
+    void displayTitleChanged();
     void currentLyricChanged();
     void hasLyricsChanged( bool );
     void syltLyricsChanged();

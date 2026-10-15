@@ -561,7 +561,7 @@ FocusScope {
         sideMargin: VLCStyle.applicationHorizontalMargin
 
         focus: true
-        title: Player.title !== "" ? Player.title : qsTr("VLC Media Player")
+        title: Player.displayTitle !== "" ? Player.displayTitle : qsTr("VLC Media Player")
 
         pinControls: false
 
