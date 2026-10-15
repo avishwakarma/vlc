@@ -360,6 +360,11 @@ public:
         return window->format().depthBufferSize() > 0;
     }
 
+    // space the player page keeps around the video viewport in windowed mode (rim, title bar,
+    // control bar), used to size the window after the aspect ratio of the video
+    Q_INVOKABLE void setVideoChromeInsets(qreal width, qreal height) { m_videoChromeInsets = QSizeF(width, height); }
+    QSizeF videoChromeInsets() const { return m_videoChromeInsets; }
+
     // TODO: This functions is akin to Window Web API's `setTimeout()`. Get rid of this once
     //       once Qt implements it.
     Q_INVOKABLE static void setTimeout(const QJSValue& func, const int delay, const QJSValueList& params = {}, const QObject* context = nullptr)
@@ -638,6 +643,7 @@ signals:
     void usingTouchChanged();
 
 private:
+    QSizeF m_videoChromeInsets {20, 94};
     void loadPrefs(bool callSignals);
     void loadFromSettingsImpl(bool callSignals);
 };

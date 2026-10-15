@@ -98,6 +98,9 @@ T.Pane {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
 
+    // height once the timeline row has finished its show/hide animation
+    readonly property real settledHeight: implicitHeight - timelineRow.height + (timelineRow.shown ? VLCStyle.iconButton_h : 0)
+
     leftPadding: VLCStyle.spacing_20 + sideMargin
     rightPadding: VLCStyle.spacing_20 + sideMargin
     topPadding: VLCStyle.dp(11, VLCStyle.scale)

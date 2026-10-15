@@ -84,6 +84,13 @@ FocusScope {
 
     property bool _keyPressed: false
 
+    // Space kept around the video viewport in windowed mode. The window handler uses it to
+    // size the window to the aspect ratio of a video that starts (qt-video-autoresize).
+    readonly property real _chromeWidth: Math.max(VLCStyle.viewport_inset, sidebarWidth) + VLCStyle.viewport_inset
+    readonly property real _chromeHeight: topBar.height + controlBar.settledHeight
+    on_ChromeWidthChanged: MainCtx.setVideoChromeInsets(_chromeWidth, _chromeHeight)
+    on_ChromeHeightChanged: MainCtx.setVideoChromeInsets(_chromeWidth, _chromeHeight)
+
     // Settings
 
     Accessible.role: Accessible.Client
@@ -120,6 +127,10 @@ FocusScope {
 
     on_ControlsUnderVideoChanged: {
         lockUnlockAutoHide(_controlsUnderVideo)
+
+        // the bars overlay the video from now on: restart the idle timer so that they auto-hide
+        if (!_controlsUnderVideo && !hideUI && MainCtx.hasEmbededVideo)
+            playerToolbarVisibilityFSM.mouseMove()
     }
 
     // Functions
