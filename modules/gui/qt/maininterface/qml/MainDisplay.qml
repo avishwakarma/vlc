@@ -322,9 +322,11 @@ FocusScope {
 
             color: paneTheme.bg.primary
 
+            // The miniplayer card draws its own opaque surface (it has no height in the layout, so
+            // the frosted strip would be empty); the effect is only kept for the update pane.
             layer.enabled: MainCtx.backdropBlurRequested() &&
                            (GraphicsInfo.shaderType === GraphicsInfo.RhiShader) &&
-                           (miniPlayer.visible || !!loaderUpdatePane.item?.visible)
+                           !!loaderUpdatePane.item?.visible
 
             // Blurring requires to access neighbour pixels, thus the source texture should be bigger than
             // the effect so that the effect have access to the neighbor pixels for the pixels near the
