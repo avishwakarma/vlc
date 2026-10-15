@@ -458,36 +458,41 @@ FocusScope {
         }
     }
 
-    // Rounded corners of the video viewport (Figma: 10px visible radius). The area outside of the
-    // rounded rectangle is painted with the window colour, over the video.
+    // Rim and rounded corners of the video viewport (Figma: 10px inset, 10px visible radius).
+    // The video is a native surface below this (transparent) window: everything around the
+    // rounded viewport is painted with the window colour, over the video. With client side
+    // decoration the native window has no background of its own, so the rim must be painted
+    // here, otherwise the desktop shows through.
     Item {
         id: viewportFrame
 
-        anchors.fill: playerSpecializationLoader
-        anchors.leftMargin: -1
-        anchors.rightMargin: -1
-        anchors.topMargin: -1
-        anchors.bottomMargin: -1
+        anchors.fill: parent
 
         visible: rootPlayer._showRim && MainCtx.hasEmbededVideo
+
+        // viewport rectangle, slightly enlarged so that its edges stay under the window colour
+        readonly property real _vx: playerSpecializationLoader.x - 1
+        readonly property real _vy: playerSpecializationLoader.y - 1
+        readonly property real _vw: playerSpecializationLoader.width + 2
+        readonly property real _vh: playerSpecializationLoader.height + 2
 
         // radius of the left corners shrinks to 0 while the sidebar docks against the video
         readonly property real _leftRadius: Math.max(0, VLCStyle.viewport_radius - Math.max(0, rootPlayer.sidebarWidth - VLCStyle.viewport_inset))
         readonly property real _rightRadius: VLCStyle.viewport_radius
         readonly property real _bottomRadius: VLCStyle.viewport_radius
 
-        function _path(w, h, tl, tr, br, bl) {
-            // outer rectangle, then the rounded rectangle: odd-even fill leaves the corners
-            return "M0 0H" + w + "V" + h + "H0Z"
-                 + "M" + (tl + 1) + " 1"
-                 + "H" + (w - 1 - tr)
-                 + "A" + tr + " " + tr + " 0 0 1 " + (w - 1) + " " + (1 + tr)
-                 + "V" + (h - 1 - br)
-                 + "A" + br + " " + br + " 0 0 1 " + (w - 1 - br) + " " + (h - 1)
-                 + "H" + (bl + 1)
-                 + "A" + bl + " " + bl + " 0 0 1 1 " + (h - 1 - bl)
-                 + "V" + (1 + tl)
-                 + "A" + tl + " " + tl + " 0 0 1 " + (tl + 1) + " 1Z"
+        function _path(W, H, x, y, w, h, tl, tr, br, bl) {
+            // outer rectangle, then the rounded viewport: odd-even fill leaves the viewport out
+            return "M0 0H" + W + "V" + H + "H0Z"
+                 + "M" + (x + tl + 1) + " " + (y + 1)
+                 + "H" + (x + w - 1 - tr)
+                 + "A" + tr + " " + tr + " 0 0 1 " + (x + w - 1) + " " + (y + 1 + tr)
+                 + "V" + (y + h - 1 - br)
+                 + "A" + br + " " + br + " 0 0 1 " + (x + w - 1 - br) + " " + (y + h - 1)
+                 + "H" + (x + bl + 1)
+                 + "A" + bl + " " + bl + " 0 0 1 " + (x + 1) + " " + (y + h - 1 - bl)
+                 + "V" + (y + 1 + tl)
+                 + "A" + tl + " " + tl + " 0 0 1 " + (x + tl + 1) + " " + (y + 1) + "Z"
         }
 
         Shape {
@@ -502,6 +507,8 @@ FocusScope {
 
                 PathSvg {
                     path: viewportFrame._path(viewportFrame.width, viewportFrame.height,
+                                              viewportFrame._vx, viewportFrame._vy,
+                                              viewportFrame._vw, viewportFrame._vh,
                                               viewportFrame._leftRadius,
                                               viewportFrame._rightRadius,
                                               viewportFrame._bottomRadius,
