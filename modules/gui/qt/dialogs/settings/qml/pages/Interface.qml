@@ -135,6 +135,11 @@ SettingsPage {
             label: qsTr("Show controls in fullscreen")
             option: SettingsModel.option("qt-fs-controller")
         }
+
+        SettingRow {
+            label: qsTr("Show waveform in the music seek bar")
+            option: SettingsModel.option("qt-music-waveform")
+        }
     }
 
     SettingSection {

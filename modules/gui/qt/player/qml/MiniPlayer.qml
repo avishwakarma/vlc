@@ -63,6 +63,7 @@ FocusScope {
 
     // Settings
 
+
     height: 0
     visible: shown || card.opacity > 0.0
 
@@ -99,6 +100,9 @@ FocusScope {
     }
 
     readonly property url coverSource: (Player.artwork && Player.artwork.toString() !== "") ? Player.artwork : ""
+
+    // audio with a cover: the card background is the blurred cover (as in the music player)
+    readonly property bool coverBackdrop: !Player.hasVideoOutput && coverSource.toString() !== ""
 
     readonly property bool _ended: Player.playingState === Player.PLAYING_STATE_STOPPED
 
@@ -183,6 +187,56 @@ FocusScope {
                 blurRadius: VLCStyle.dp(5.9, VLCStyle.scale)
             }
 
+            // blurred cover, shared with the music player. It is rendered once per cover into a
+            // texture (live only briefly after a change) and shown with the card's rounded corners
+            MusicBackdrop {
+                id: coverBackdrop
+
+                width: surface.width
+                height: surface.height
+
+                cover: root.coverSource
+
+            }
+
+            ShaderEffectSource {
+                id: coverBackdropTexture
+
+                sourceItem: coverBackdrop
+                hideSource: true
+                live: coverBackdropLive.running
+                width: surface.width
+                height: surface.height
+                // an invisible source is not rendered; this one is only a texture for the rounded
+                // image below (its own, square, rendering is practically transparent)
+                opacity: 0.002
+
+                Timer {
+                    id: coverBackdropLive
+
+                    interval: VLCStyle.duration_veryLong * 2
+                    running: true
+                    repeat: false
+                }
+
+                Connections {
+                    target: root
+                    function onCoverSourceChanged() { coverBackdropLive.restart() }
+                }
+
+                onWidthChanged: coverBackdropLive.restart()
+                onHeightChanged: coverBackdropLive.restart()
+            }
+
+            Widgets.EnhancedImageExt {
+                anchors.fill: parent
+
+                visible: root.coverBackdrop && coverBackdrop.hasCover
+                fillMode: Image.Stretch
+                radius: surface.radius
+                targetTextureProvider: coverBackdropTexture
+            }
+
             Column {
                 id: content
 
@@ -244,7 +298,9 @@ FocusScope {
                         height: Math.round(width * 9 / 16)
 
                         radius: VLCStyle.radius_m
-                        color: root.coverSource.toString() !== "" ? itemTheme.bg.secondary : Qt.darker(itemTheme.bg.secondary, 1.5)
+                        // audio with a cover: the blurred cover of the card shows on both sides of the square cover
+                        color: (root.coverBackdrop && coverBackdrop.hasCover) ? "transparent"
+                               : root.coverSource.toString() !== "" ? itemTheme.bg.secondary : Qt.darker(itemTheme.bg.secondary, 1.5)
                         clip: true
 
                         // double click to maximise
@@ -545,7 +601,7 @@ FocusScope {
                         width: parent.width - VLCStyle.dp(16, VLCStyle.scale)
 
                         elide: Text.ElideRight
-                        text: Player.title
+                        text: Player.displayTitle
                         font.pixelSize: VLCStyle.dp(16, VLCStyle.scale)
                         font.weight: VLCStyle.fontWeight_regular
                         color: viewTheme.fg.primary

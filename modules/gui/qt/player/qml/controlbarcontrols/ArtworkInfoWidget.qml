@@ -234,10 +234,8 @@ T.AbstractButton {
                 text: {
                     if (paintOnly)
                         return qsTr("Title")
-                    else if (Player.title.length > 0)
-                        return Player.title
                     else
-                        return Player.name
+                        return Player.displayTitle
                 }
                 color: theme.fg.primary
             }

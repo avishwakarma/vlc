@@ -277,10 +277,12 @@ void WaveformItem::updateTargets(bool animate)
         const QVector<float>& bins = m_data->bins();
         const int binCount = bins.size();
 
-        float maxPeak = 0.f;
-        for (float v : bins)
-            maxPeak = std::max(maxPeak, v);
-
+        // bins are RMS levels, mapped in dB on a fixed scale (not relative to
+        // the track), so that bars never change when more data arrives and the
+        // dynamics of loud, compressed masters stay visible. A plain
+        // peak/max ratio makes them look flat.
+        constexpr float silence = 1e-4f;
+        constexpr float dbFloor = -19.f, dbCeil = -9.f;
         const qreal pitch = m_barWidth + m_barSpacing;
         for (int k = 0; k < count; k++)
         {
@@ -293,15 +295,22 @@ void WaveformItem::updateTargets(bool animate)
             b0 = std::clamp(b0, 0, binCount - 1);
             b1 = std::clamp(b1, b0 + 1, binCount);
 
-            float peak = -1.f;
+            float peak = 0.f;
+            bool pending = false;
             for (int b = b0; b < b1; b++)
-                peak = std::max(peak, bins[b]);
-            if (peak < 0.f)
-                continue; // not analysed yet
+            {
+                if (bins[b] < 0.f)
+                    pending = true;
+                else
+                    peak += bins[b] * bins[b];
+            }
+            peak = std::sqrt(peak / (b1 - b0)); // RMS of the span covered by the bar
+            if (pending)
+                continue; // not (fully) analysed yet: the bar appears once final
 
             float level = 0.f;
-            if (maxPeak > 0.f)
-                level = std::clamp(peak / maxPeak, 0.f, 1.f);
+            if (peak > silence)
+                level = std::clamp((20.f * std::log10(peak) - dbFloor) / (dbCeil - dbFloor), 0.f, 1.f);
             targets[k] = level;
         }
     }
@@ -350,7 +359,7 @@ void WaveformItem::setPosition(qreal position)
     if (qFuzzyCompare(m_position, position))
         return;
 
-    // the bars only change when the playhead crosses one of them
+    // the bars are static: only the played/remaining split moves with the playhead
     const bool barsChange = barSignature(position) != barSignature(m_position);
 
     m_position = position;
@@ -461,16 +470,12 @@ QSGNode* WaveformItem::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
         const Rgba behindPreview = premultiplied(mix(m_playedColor, m_remainingColor, .5f));
 
         const float t = float(m_animT);
-        const qreal clearLeft = phX - m_playheadGap;
-        const qreal clearRight = phX + m_playheadWidth + m_playheadGap;
 
+        // bars sit on a fixed grid and never move or hide: the playhead is
+        // drawn on top of them
         for (int k = 0; k < count; k++)
         {
             const qreal x = snap(m_leftPadding + k * pitch);
-
-            // keep the playhead clear
-            if (x + m_barWidth > clearLeft && x < clearRight)
-                continue;
 
             const float a = std::max(m_from[k], 0.f), b = std::max(m_to[k], 0.f);
             const float level = a + (b - a) * t;

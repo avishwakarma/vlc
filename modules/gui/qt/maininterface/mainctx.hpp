@@ -291,6 +291,8 @@ public:
 
     Q_INVOKABLE bool backdropBlurRequested() const { return var_InheritBool(p_intf, "qt-backdrop-blur"); }
 
+    Q_INVOKABLE bool musicWaveformRequested() const { return var_InheritBool(p_intf, "qt-music-waveform"); }
+
     Q_INVOKABLE static inline void setCursor(Qt::CursorShape cursor) { QApplication::setOverrideCursor(QCursor(cursor)); }
     Q_INVOKABLE static inline void restoreCursor(void) { QApplication::restoreOverrideCursor(); }
 

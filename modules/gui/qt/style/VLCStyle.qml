@@ -368,6 +368,7 @@ QtObject {
     readonly property real waveform_barMinHeight: MainCtx.dp(2, scale)
     readonly property real waveform_barMaxHeight: MainCtx.dp(14, scale)
     readonly property real waveform_padding: MainCtx.dp(6, scale)
+    readonly property real waveform_paddingRight: MainCtx.dp(13, scale)
     readonly property real waveform_playheadWidth: MainCtx.dp(4, scale)
     readonly property real waveform_playheadGap: MainCtx.dp(3, scale)
     readonly property real timeChip_w: MainCtx.dp(76, scale)

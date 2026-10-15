@@ -392,7 +392,7 @@ T.ProgressBar {
             anchors.fill: parent
 
             slider: control
-            source: control.waveformEnabled ? Player.url : ""
+            source: (control.waveformEnabled && MainCtx.musicWaveformRequested()) ? Player.url : ""
             pointerX: (hoverHandler.hovered || dragHandler.active) ? control._pointerX : -1
         }
 

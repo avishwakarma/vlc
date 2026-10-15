@@ -44,7 +44,7 @@ constexpr vlc_tick_t MAX_LENGTH = VLC_TICK_FROM_SEC(3 * 3600);
 constexpr int CACHE_MAX_ENTRIES = 2000;
 constexpr qint64 CACHE_MAX_BYTES = 8 * 1024 * 1024;
 constexpr char CACHE_MAGIC[4] = { 'V', 'L', 'W', 'F' };
-constexpr quint8 CACHE_VERSION = 1;
+constexpr quint8 CACHE_VERSION = 2;
 constexpr quint8 CACHE_STATUS_OK = 0;
 constexpr quint8 CACHE_STATUS_UNAVAILABLE = 1;
 
@@ -338,10 +338,10 @@ WaveformDataPtr WaveformService::request(const QUrl& mrl)
 
     const QString mrlString = mrl.toString(QUrl::FullyEncoded);
     const QString key = QString::fromLatin1(QCryptographicHash::hash(
-        QStringLiteral("%1|%2|%3|%4").arg(mrlString)
+        QStringLiteral("%1|%2|%3|%4|v%5").arg(mrlString)
                                       .arg(info.size())
                                       .arg(info.lastModified().toMSecsSinceEpoch())
-                                      .arg(BIN_COUNT).toUtf8(),
+                                      .arg(BIN_COUNT).arg(CACHE_VERSION).toUtf8(),
         QCryptographicHash::Sha1).toHex());
 
     for (auto it = m_active.begin(); it != m_active.end();)
