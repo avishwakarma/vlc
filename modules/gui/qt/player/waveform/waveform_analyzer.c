@@ -95,7 +95,8 @@ struct vlc_waveform_analyzer
     vlc_tick_t length;
     vlc_tick_t next_pts;
     vlc_tick_t reached;     /* end of the analysed range, relative to origin */
-    float *fine;
+    double *fine;           /* sum of the frame powers per fine bin */
+    uint32_t *fine_n;       /* frames per fine bin */
     size_t fine_count;
     double fine_dt;         /* ticks per fine bin */
     uint64_t frames;
@@ -113,10 +114,11 @@ static bool IsCancelled(vlc_waveform_analyzer *a)
  * Peaks
  *****************************************************************************/
 
-static float FramePeak(const audio_format_t *fmt, const uint8_t *p,
-                       unsigned channels)
+/* Mean power (mean of the squared samples over all channels) of one frame */
+static double FramePower(const audio_format_t *fmt, const uint8_t *p,
+                         unsigned channels)
 {
-    float peak = 0.f;
+    double sum = 0.;
 
     switch (fmt->i_format)
     {
@@ -124,22 +126,16 @@ static float FramePeak(const audio_format_t *fmt, const uint8_t *p,
         {
             const float *s = (const float *)p;
             for (unsigned c = 0; c < channels; c++)
-            {
-                const float v = fabsf(s[c]);
-                if (v > peak && isfinite(v))
-                    peak = v;
-            }
+                if (isfinite(s[c]))
+                    sum += (double)s[c] * s[c];
             break;
         }
         case VLC_CODEC_FL64:
         {
             const double *s = (const double *)p;
             for (unsigned c = 0; c < channels; c++)
-            {
-                const float v = (float)fabs(s[c]);
-                if (v > peak && isfinite(v))
-                    peak = v;
-            }
+                if (isfinite(s[c]))
+                    sum += s[c] * s[c];
             break;
         }
         case VLC_CODEC_S16N:
@@ -147,9 +143,8 @@ static float FramePeak(const audio_format_t *fmt, const uint8_t *p,
             const int16_t *s = (const int16_t *)p;
             for (unsigned c = 0; c < channels; c++)
             {
-                const float v = fabsf(s[c] / 32768.f);
-                if (v > peak)
-                    peak = v;
+                const double v = s[c] / 32768.;
+                sum += v * v;
             }
             break;
         }
@@ -158,22 +153,20 @@ static float FramePeak(const audio_format_t *fmt, const uint8_t *p,
             const int32_t *s = (const int32_t *)p;
             for (unsigned c = 0; c < channels; c++)
             {
-                const float v = fabsf(s[c] / 2147483648.f);
-                if (v > peak)
-                    peak = v;
+                const double v = s[c] / 2147483648.;
+                sum += v * v;
             }
             break;
         }
         case VLC_CODEC_U8:
             for (unsigned c = 0; c < channels; c++)
             {
-                const float v = fabsf((p[c] - 128) / 128.f);
-                if (v > peak)
-                    peak = v;
+                const double v = (p[c] - 128) / 128.;
+                sum += v * v;
             }
             break;
     }
-    return peak > 1.f ? 1.f : peak;
+    return sum / channels;
 }
 
 static bool IsSupportedFormat(vlc_fourcc_t fourcc)
@@ -197,10 +190,11 @@ static void GrowFine(vlc_waveform_analyzer *a)
     const size_t half = a->fine_count / 2;
     for (size_t i = 0; i < half; i++)
     {
-        const float l = a->fine[2 * i], r = a->fine[2 * i + 1];
-        a->fine[i] = l > r ? l : r;
+        a->fine[i] = a->fine[2 * i] + a->fine[2 * i + 1];
+        a->fine_n[i] = a->fine_n[2 * i] + a->fine_n[2 * i + 1];
     }
     memset(&a->fine[half], 0, (a->fine_count - half) * sizeof (*a->fine));
+    memset(&a->fine_n[half], 0, (a->fine_count - half) * sizeof (*a->fine_n));
     a->fine_dt *= 2.;
 }
 
@@ -253,9 +247,8 @@ static void Accumulate(vlc_waveform_analyzer *a, const audio_format_t *fmt,
         if (idx >= a->fine_count)
             idx = a->fine_count - 1;
 
-        const float peak = FramePeak(fmt, p, channels);
-        if (peak > a->fine[idx])
-            a->fine[idx] = peak;
+        a->fine[idx] += FramePower(fmt, p, channels);
+        a->fine_n[idx]++;
     }
 
     a->frames += frames;
@@ -293,11 +286,17 @@ static double ComputeBins(vlc_waveform_analyzer *a, bool final)
         if (f1 > a->fine_count)
             f1 = a->fine_count;
 
-        float peak = 0.f;
+        /* RMS of the bin: loud masters hit full scale in every bin, so
+         * peaks would draw a flat waveform */
+        double sum = 0.;
+        uint64_t n = 0;
         for (size_t f = f0; f < f1; f++)
-            if (a->fine[f] > peak)
-                peak = a->fine[f];
-        a->out_bins[i] = peak;
+        {
+            sum += a->fine[f];
+            n += a->fine_n[f];
+        }
+        float rms = n > 0 ? (float)sqrt(sum / n) : 0.f;
+        a->out_bins[i] = rms > 1.f ? 1.f : rms;
     }
 
     double progress = (double)a->reached / length;
@@ -674,11 +673,12 @@ vlc_waveform_analyzer_New(vlc_object_t *parent, const char *mrl,
     a->mrl = strdup(mrl);
     a->fine_count = (size_t)bin_count * FINE_FACTOR;
     a->fine = calloc(a->fine_count, sizeof (*a->fine));
+    a->fine_n = calloc(a->fine_count, sizeof (*a->fine_n));
     a->out_bins = calloc(bin_count, sizeof (*a->out_bins));
     a->interrupt = vlc_interrupt_create();
     a->obj = vlc_object_create(parent, sizeof (*a->obj));
 
-    if (a->mrl == NULL || a->fine == NULL || a->out_bins == NULL
+    if (a->mrl == NULL || a->fine == NULL || a->fine_n == NULL || a->out_bins == NULL
      || a->interrupt == NULL || a->obj == NULL)
     {
         vlc_waveform_analyzer_Delete(a);
@@ -822,6 +822,7 @@ void vlc_waveform_analyzer_Delete(vlc_waveform_analyzer *a)
         vlc_interrupt_destroy(a->interrupt);
     free(a->out_bins);
     free(a->fine);
+    free(a->fine_n);
     free(a->mrl);
     free(a);
 }

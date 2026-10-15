@@ -80,7 +80,7 @@ Item {
         barMinHeight: VLCStyle.waveform_barMinHeight
         barMaxHeight: VLCStyle.waveform_barMaxHeight
         leftPadding: VLCStyle.waveform_padding
-        rightPadding: VLCStyle.waveform_padding
+        rightPadding: VLCStyle.waveform_paddingRight
         playheadWidth: VLCStyle.waveform_playheadWidth
         playheadInset: VLCStyle.spacing_2
         playheadGap: VLCStyle.waveform_playheadGap
