@@ -32,6 +32,8 @@ Widgets.PopupIconToolButton {
     id: root
 
     property alias model: list.model
+    // optional item shown above the entries
+    property alias header: list.header
     property string emptyText: ""
 
     // called with the index of the clicked entry
@@ -44,7 +46,7 @@ Widgets.PopupIconToolButton {
     popup.contentItem: ListView {
         id: list
 
-        implicitHeight: Math.min(contentHeight, root._rowHeight * 8)
+        implicitHeight: Math.min(contentHeight, root._rowHeight * 9)
 
         clip: true
         focus: true
