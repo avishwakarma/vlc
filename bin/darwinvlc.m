@@ -202,6 +202,13 @@ int main(int i_argc, const char *ppsz_argv[])
     /* Restore SIGCHLD in case our parent process ignores it. */
     signal(SIGCHLD, SIG_DFL);
 
+    /* AppKit turns command line arguments that name an existing file (such as
+     * the value of --config) into open-document events, which the Qt interface
+     * would then play instead of the requested media. Files really opened from
+     * Finder arrive as Apple Events and are collected below. */
+    [[NSUserDefaults standardUserDefaults] registerDefaults:
+        @{ @"NSTreatUnknownArgumentsAsOpen": @"NO" }];
+
 #ifndef NDEBUG
     /* Activate malloc checking routines to detect heap corruptions. */
     setenv("MALLOC_CHECK_", "2", 1);
