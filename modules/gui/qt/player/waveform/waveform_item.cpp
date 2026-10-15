@@ -282,7 +282,7 @@ void WaveformItem::updateTargets(bool animate)
         // dynamics of loud, compressed masters stay visible. A plain
         // peak/max ratio makes them look flat.
         constexpr float silence = 1e-4f;
-        constexpr float dbFloor = -30.f, dbCeil = -5.f;
+        constexpr float dbFloor = -19.f, dbCeil = -9.f;
         const qreal pitch = m_barWidth + m_barSpacing;
         for (int k = 0; k < count; k++)
         {
@@ -301,8 +301,10 @@ void WaveformItem::updateTargets(bool animate)
             {
                 if (bins[b] < 0.f)
                     pending = true;
-                peak = std::max(peak, bins[b]);
+                else
+                    peak += bins[b] * bins[b];
             }
+            peak = std::sqrt(peak / (b1 - b0)); // RMS of the span covered by the bar
             if (pending)
                 continue; // not (fully) analysed yet: the bar appears once final
 
