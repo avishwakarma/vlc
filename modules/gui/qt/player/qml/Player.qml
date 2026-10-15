@@ -874,6 +874,30 @@ FocusScope {
         }
     }
 
+    // "Resume where you left off?" pill, above the control bar
+    ResumeDialog {
+        id: resumeDialog
+
+        z: 2
+
+        anchors {
+            bottom: controlBar.top
+            bottomMargin: VLCStyle.spacing_12
+            horizontalCenter: parent.horizontalCenter
+        }
+
+        maxWidth: rootPlayer.width - VLCStyle.margin_large * 2
+
+        colorContext.palette: topBar.colorContext.palette
+
+        onHidden: {
+            if (activeFocus)
+                controlBar.forceActiveFocus()
+        }
+
+        onShownChanged: rootPlayer.lockUnlockAutoHide(shown)
+    }
+
     Widgets.FloatingNotification {
         id: notif
 

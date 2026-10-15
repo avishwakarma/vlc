@@ -94,8 +94,6 @@ FocusScope {
 
     // Aliases
 
-    property alias resumeVisible: resumeDialog.visible
-
     property bool playlistVisible: false
 
     // Signals
@@ -174,53 +172,5 @@ FocusScope {
         onSidebarToggleRequested: root.sidebarToggleRequested()
         onBreadcrumbClicked: root.backRequested()
         onRequestLockUnlockAutoHide: (lock) => root.requestLockUnlockAutoHide(lock)
-    }
-
-    // Resume dialog: floats below the title bar
-    Item {
-        id: resumeSurface
-
-        anchors.top: titleBar.bottom
-        anchors.topMargin: VLCStyle.spacing_8
-        anchors.left: parent.left
-        anchors.leftMargin: VLCStyle.viewport_inset + root.sideMargin + VLCStyle.spacing_10
-
-        width: resumeDialog.implicitWidth + VLCStyle.spacing_20
-        height: resumeDialog.implicitHeight + VLCStyle.spacing_8
-
-        readonly property ColorContext menuColorContext: ColorContext {
-            id: menuTheme
-            colorSet: ColorContext.Menu
-        }
-
-        Rectangle {
-            anchors.fill: parent
-
-            visible: resumeDialog.visible
-            radius: VLCStyle.radius_l
-            color: menuTheme.bg.primary
-        }
-
-        ResumeDialog {
-            id: resumeDialog
-
-            x: VLCStyle.spacing_10
-            y: -VLCStyle.spacing_8 / 2
-
-            maxWidth: root.width - VLCStyle.viewport_inset * 2 - root.sideMargin * 2 - VLCStyle.spacing_20 * 2
-
-            colorContext.palette: theme.palette
-
-            Navigation.parentItem: root.parent
-
-            onHidden: {
-                if (activeFocus)
-                    titleBar.forceActiveFocus()
-            }
-
-            onVisibleChanged: {
-                root.requestLockUnlockAutoHide(visible)
-            }
-        }
     }
 }
