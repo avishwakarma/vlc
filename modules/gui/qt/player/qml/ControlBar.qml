@@ -60,6 +60,9 @@ T.Pane {
     // music player: translucent tinted surface over the cover backdrop
     property bool frosted: false
 
+    // translucency of the frosted surface (same in every colour scheme)
+    readonly property real frostedAlpha: 0.36
+
     property bool playlistVisible: false
 
 
@@ -155,7 +158,7 @@ T.Pane {
     }
 
     background: Rectangle {
-        color: root.frosted ? Qt.alpha(theme.bg.primary, theme.palette.isDark ? 0.30 : 0.42)
+        color: root.frosted ? Qt.alpha(theme.bg.primary, root.frostedAlpha)
                             : (root.overlay ? theme.bg.secondary : theme.bg.primary)
         opacity: (root.overlay && !root.frosted) ? root.backgroundOpacity * 0.95 : root.backgroundOpacity
 

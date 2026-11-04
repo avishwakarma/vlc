@@ -208,7 +208,7 @@ SettingsTabBase {
         Layout.rightMargin: VLCStyle.spacing_20
         Layout.bottomMargin: VLCStyle.spacing_10
 
-        handleColor: Qt.darker(colorContext.accent, 1.23)
+        handleColor: colorContext.accentDim
         handleHeight: VLCStyle.dp(24, VLCStyle.scale)
         from: 10
         to: 500

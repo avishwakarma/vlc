@@ -61,6 +61,9 @@ FocusScope {
     // music player: translucent tinted surface over the blurred cover backdrop
     property bool frosted: false
 
+    // translucency of the frosted surface (same in every colour scheme)
+    readonly property real frostedAlpha: 0.36
+
     readonly property var model: {
         const profile = MainCtx.controlbarProfileModel.currentModel
         return profile ? profile.ensureModel(PlayerControlbarModel.Topbar) : null
@@ -118,7 +121,7 @@ FocusScope {
 
         visible: root.showBackground
 
-        color: root.frosted ? Qt.alpha(theme.bg.primary, theme.palette.isDark ? 0.30 : 0.42)
+        color: root.frosted ? Qt.alpha(theme.bg.primary, root.frostedAlpha)
                             : theme.bg.primary
 
         Behavior on color { ColorAnimation { duration: VLCStyle.duration_short } }

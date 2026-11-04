@@ -24,13 +24,11 @@ import VLC.Style
 import VLC.Util
 import VLC.Widgets as Widgets
 
-// Figma "Dropdown" for the panels: ComboBoxExt with an optional icon per
+// Figma "Dropdown" for the panels: the canonical Dropdown with an optional icon per
 // option (equalizer presets, audio visualizer) and a list that can open
 // upwards (the preset selector pinned at the bottom of the settings panel).
-Widgets.ComboBoxExt {
+Widgets.Dropdown {
     id: control
-
-    compact: false
 
     // name of the role holding an SvgIcon name for each option
     property string iconRole: ""
@@ -166,7 +164,7 @@ Widgets.ComboBoxExt {
             Widgets.RoundedRectangleShadow {
                 blurRadius: VLCStyle.shadow_popup.blur
                 yOffset: VLCStyle.shadow_popup.y
-                color: Qt.rgba(0, 0, 0, VLCStyle.shadow_popup.alpha)
+                color: VLCStyle.shadowColor(VLCStyle.shadow_popup.alpha)
             }
         }
     }

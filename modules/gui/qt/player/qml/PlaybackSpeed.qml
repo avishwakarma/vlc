@@ -52,7 +52,7 @@ ColumnLayout {
 
     property real _threshold: 0.03
 
-    property color _color: (slider.visualFocus || slider.pressed) ? theme.accent
+    property color _color: (slider.visualFocus || slider.pressed) ? theme.accentText
                                                                   : theme.fg.primary
 
     // Settings
@@ -166,7 +166,7 @@ ColumnLayout {
 
             color: theme.fg.primary
 
-            font.pixelSize: VLCStyle.fontSize_normal
+            font.pixelSize: VLCStyle.text_body
         }
 
         Widgets.CaptionLabel {
@@ -178,7 +178,7 @@ ColumnLayout {
 
             color: theme.fg.primary
 
-            font.pixelSize: VLCStyle.fontSize_normal
+            font.pixelSize: VLCStyle.text_body
         }
     }
 

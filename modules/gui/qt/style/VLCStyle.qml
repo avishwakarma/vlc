@@ -408,10 +408,6 @@ QtObject {
     readonly property color windowButton_closeHover: "#E15032"           // Figma "red" accent, used as the close hover fill
 
     // Volume wedge gradient (Figma 244:184), absolute, not accent themed: green -> yellow -> orange -> red
-    readonly property color volumeGradient_0: "#95D318"
-    readonly property color volumeGradient_1: "#B2A918"
-    readonly property color volumeGradient_2: "#D37918"
-    readonly property color volumeGradient_3: "#FF3737"
 
     // Type
     readonly property string fontFamily: Qt.application.font.family

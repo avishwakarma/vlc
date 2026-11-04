@@ -71,16 +71,15 @@ T.Control {
         columnSpacing: VLCStyle.margin_xxsmall
         rowSpacing: VLCStyle.margin_xxsmall
 
-        Widgets.ActionButtonOverlay {
+        Widgets.IconToolButton {
             id: closeButton
-            color: theme.fg.secondary
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
             Layout.column: 2
             Layout.row: 0
-            iconTxt: VLCIcons.window_close
+            iconName: "close"
             iconSize: VLCStyle.icon_normal
 
-            Accessible.name: qsTr("Close navigation")
+            description: qsTr("Close navigation")
             AccessibleCompat.id: "navCloseButton"
 
             onClicked: {
@@ -88,72 +87,66 @@ T.Control {
             }
         }
 
-        Widgets.ActionButtonOverlay {
+        Widgets.IconToolButton {
             id: upButton
-            color: theme.fg.secondary
             Layout.column: 1
             Layout.row: 0
-            iconTxt: VLCIcons.ic_fluent_chevron_up_24
+            iconName: "chevron-up"
             iconSize: VLCStyle.icon_large
 
-            Accessible.name: qsTr("Navigate up")
+            description: qsTr("Navigate up")
             AccessibleCompat.id: "navUpButton"
 
             onClicked: Player.navigateUp()
         }
 
-        Widgets.ActionButtonOverlay {
+        Widgets.IconToolButton {
             id: leftButton
-            color: theme.fg.secondary
             Layout.column: 0
             Layout.row: 1
-            iconTxt: VLCIcons.ic_fluent_chevron_left_24
+            iconName: "chevron-left"
             iconSize: VLCStyle.icon_large
 
-            Accessible.name: qsTr("Navigate left")
+            description: qsTr("Navigate left")
             AccessibleCompat.id: "navLeftButton"
 
             onClicked: Player.navigateLeft()
         }
 
-        Widgets.ActionButtonOverlay {
+        Widgets.IconToolButton {
             id: selectButton
-            color: theme.fg.secondary
             Layout.column: 1
             Layout.row: 1
-            iconTxt: VLCIcons.ok
-            font.pixelSize: VLCStyle.fontSize_large
+            iconName: "check-active"
             iconSize: VLCStyle.icon_normal
 
-            Accessible.name: qsTr("Select")
+            description: qsTr("Select")
             AccessibleCompat.id: "navOkButton"
 
             onClicked: Player.navigateActivate()
         }
 
-        Widgets.ActionButtonOverlay {
+        Widgets.IconToolButton {
             id: rightButton
-            color: theme.fg.secondary
             Layout.column: 2
             Layout.row: 1
-            iconTxt: VLCIcons.ic_fluent_chevron_right_24
+            iconName: "chevron-right"
             iconSize: VLCStyle.icon_large
 
-            Accessible.name: qsTr("Navigate right")
+            description: qsTr("Navigate right")
             AccessibleCompat.id: "navRightButton"
 
             onClicked: Player.navigateRight()
         }
 
-        Widgets.ActionButtonOverlay {
+        Widgets.IconToolButton {
             id: downButton
-            color: theme.fg.secondary
             Layout.column: 1
             Layout.row: 2
-            iconTxt: VLCIcons.ic_fluent_chevron_down_24
+            iconName: "chevron-down"
             iconSize: VLCStyle.icon_large
 
-            Accessible.name: qsTr("Navigate down")
+            description: qsTr("Navigate down")
             AccessibleCompat.id: "navDownButton"
 
             onClicked: Player.navigateDown()
@@ -162,10 +155,9 @@ T.Control {
 
     background: Rectangle {
         id: navBoxBackgound
-        color: "black"
-        opacity: 0.4
+        color: theme.scrim
         radius: VLCStyle.navBoxButton_radius
-        border.color: theme.bg.secondary
+        border.color: theme.border
         border.width: VLCStyle.border
         border.pixelAligned: (radius < Number.EPSILON)
 
