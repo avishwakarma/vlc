@@ -60,16 +60,6 @@ Dialog {
     }
 
     T.Overlay.modal: Item {
-        Rectangle {
-            anchors.fill: blur
-
-            visible: !blur.visible
-
-            color: theme.bg.primary
-
-            opacity: 0.6
-        }
-
         Widgets.DualKawaseBlur {
             id: blur
 
@@ -88,11 +78,21 @@ Dialog {
 
             radius: 2
         }
+
+        // dimming scrim above the (optional) blur so bright content never glows around the card
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: MainCtx.windowExtendedMargin
+
+            color: theme.bg.primary
+
+            opacity: blur.visible ? 0.75 : 0.6
+        }
     }
 
     background: Rectangle {
         radius: VLCStyle.radius_xl
-        color: Qt.alpha(theme.bg.primary, 0.95)
+        color: theme.bg.primary
 
         Widgets.RoundedRectangleShadow {
             blurRadius: VLCStyle.shadow_floating.blur

@@ -399,7 +399,7 @@ Item {
 
             Widgets.DialogButton {
                 id: loginOk
-                kind: Widgets.DialogButton.Primary
+                kind: Widgets.DialogButton.Accent
                 text: qsTr("Log In")
 
                 Navigation.upItem: savePassword
@@ -527,7 +527,7 @@ Item {
                 id: action1
 
                 visible: action1.text !== ""
-                kind: Widgets.DialogButton.Primary
+                kind: Widgets.DialogButton.Accent
 
                 Navigation.leftItem: cancel
                 Navigation.rightItem: action2
