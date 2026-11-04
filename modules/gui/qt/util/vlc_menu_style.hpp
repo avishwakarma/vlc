@@ -43,6 +43,18 @@ namespace VLCMenuStyle
         QColor textDisabled;  // Menu Fg.Primary@Disabled
         QColor separator;     // Menu Decoration.Separator
         QColor accent;        // Menu Decoration.Accent
+
+        // legacy widget dialogs (QMessageBox / QInputDialog), same look as the QML form dialogs
+        QColor dlgSurface;       // View Bg.Primary
+        QColor dlgHeader;        // View Bg.Secondary
+        QColor dlgText;          // View Fg.Primary
+        QColor dlgTextSecondary; // View Fg.Secondary
+        QColor dlgSeparator;     // View Decoration.Separator
+        QColor dlgButton;        // Window Bg.Primary
+        QColor dlgButtonHover;   // Item Bg.Primary@Hovered
+        QColor dlgPrimary;       // ButtonTonal Bg.Primary
+        QColor dlgPrimaryHover;  // ButtonTonal Bg.Primary@Hovered
+        QColor dlgPrimaryText;   // ButtonTonal Fg.Primary
     };
 
     // Installs the style sheet and the menu polish filter (first call), then updates colors.

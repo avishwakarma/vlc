@@ -114,6 +114,29 @@ QString styleSheet(const Colors& c, const QString& checkImage, const QString& ar
                             " { image: url(%1); }\n").arg(checkImage);
     if (!arrowImage.isEmpty())
         s += QStringLiteral("QMenu::right-arrow { image: url(%1); width: 24px; height: 24px; margin-right: 12px; }\n").arg(arrowImage);
+    if (c.dlgSurface.isValid())
+    {
+        // QMessageBox / QInputDialog only: the big tool dialogs (Messages, Media Information, ...)
+        // keep the platform style until they are rebuilt in QML.
+        const QString dlg = QStringLiteral("QMessageBox, QInputDialog");
+        s += QStringLiteral("%1 { background-color: %2; color: %3; font-size: 14px; }\n")
+                .arg(dlg, css(c.dlgSurface), css(c.dlgText));
+        s += QStringLiteral("QMessageBox QLabel, QInputDialog QLabel { color: %1; background: transparent; font-size: 14px; }\n")
+                .arg(css(c.dlgText));
+        s += QStringLiteral("QMessageBox QPushButton, QInputDialog QPushButton { background-color: %1; color: %2;"
+                            " border: none; border-radius: 6px; min-width: 100px; min-height: 32px; padding: 0px 12px;"
+                            " font-size: 14px; font-weight: 600; }\n").arg(css(c.dlgButton), css(c.dlgText));
+        s += QStringLiteral("QMessageBox QPushButton:hover, QInputDialog QPushButton:hover { background-color: %1; }\n")
+                .arg(css(c.dlgButtonHover));
+        s += QStringLiteral("QMessageBox QPushButton:default, QInputDialog QPushButton:default { background-color: %1; color: %2; }\n")
+                .arg(css(c.dlgPrimary), css(c.dlgPrimaryText));
+        s += QStringLiteral("QMessageBox QPushButton:default:hover, QInputDialog QPushButton:default:hover { background-color: %1; }\n")
+                .arg(css(c.dlgPrimaryHover));
+        s += QStringLiteral("QInputDialog QLineEdit, QInputDialog QPlainTextEdit, QInputDialog QTextEdit {"
+                            " background-color: %1; color: %2; border: 2px solid %3; border-radius: 6px; padding: 8px 12px;"
+                            " font-size: 14px; selection-background-color: %4; }\n")
+                .arg(css(c.dlgHeader), css(c.dlgText), css(c.dlgSeparator), css(c.dlgPrimary));
+    }
     return s;
 }
 

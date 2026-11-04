@@ -1071,6 +1071,7 @@ libqml_module_dialogs_a_QML = \
 	dialogs/dialogs/qml/CustomDialog.qml \
 	dialogs/dialogs/qml/Dialogs.qml \
 	dialogs/dialogs/qml/ModalDialog.qml \
+	dialogs/dialogs/qml/ModalFooter.qml \
 	dialogs/dialogs/qml/WindowDialog.qml \
 	dialogs/onboarding/qml/OnboardingWindow.qml \
 	dialogs/onboarding/qml/WelcomeStep.qml \

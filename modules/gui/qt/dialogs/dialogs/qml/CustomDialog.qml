@@ -66,57 +66,33 @@ ModalDialog {
 
     contentItem: Text {
         focus: false
-        font.pixelSize: VLCStyle.fontSize_normal
+        font.pixelSize: VLCStyle.text_body
         color: root.colorContext.fg.primary
-        wrapMode: Text.WordWrap
+        wrapMode: Text.Wrap
         text: root.text
     }
 
-    footer: FocusScope {
+    footer: ModalFooter {
         focus: true
-        id: questionButtons
-        implicitHeight: VLCStyle.icon_normal
 
-        readonly property ColorContext colorContext: ColorContext {
-            id: footerTheme
-            palette: root.colorContext.palette
-            colorSet: ColorContext.Window
+        Widgets.DialogButton {
+            id: cancelBtn
+            focus: true
+            visible: cancelBtn.text !== ""
+
+            onClicked: root.reject()
+
+            Navigation.rightItem: okBtn
         }
 
-        Rectangle {
-            color: footerTheme.bg.primary
-            anchors.fill: parent
-            anchors.leftMargin: VLCStyle.margin_xxsmall
-            anchors.rightMargin: VLCStyle.margin_xxsmall
+        Widgets.DialogButton {
+            id: okBtn
+            visible: okBtn.text !== ""
+            kind: Widgets.DialogButton.Primary
 
-            RowLayout {
-                anchors.fill: parent
+            onClicked: root.accept()
 
-                Widgets.ButtonExt {
-                    id: cancelBtn
-                    Layout.fillWidth: true
-                    focus: true
-                    visible: cancelBtn.text !== ""
-
-                    onClicked: root.reject()
-
-                    Navigation.rightItem: okBtn
-                    Keys.priority: Keys.AfterItem
-                    Keys.onPressed: (event) => okBtn.Navigation.defaultKeyAction(event)
-                }
-
-                Widgets.ButtonExt {
-                    id: okBtn
-                    Layout.fillWidth: true
-                    visible: okBtn.text !== ""
-
-                    onClicked: root.accept()
-
-                    Navigation.leftItem: cancelBtn
-                    Keys.priority: Keys.AfterItem
-                    Keys.onPressed: (event) => cancelBtn.Navigation.defaultKeyAction(event)
-                }
-            }
+            Navigation.leftItem: cancelBtn
         }
     }
 }

@@ -999,6 +999,13 @@ bool MainCtx::pasteFromClipboard()
             placeholder.chop(1);
         }
 
+        /* the QML Open Network Stream form shows the clipboard URLs (one per line) */
+        if (var_InheritBool(p_intf, "qt-qml-settings"))
+        {
+            THEDP->openNetDialog();
+            return true;
+        }
+
         bool ok = false;
         const QString ret = QInputDialog::getMultiLineText(nullptr,
                                                            qtr("Paste from clipboard"),
