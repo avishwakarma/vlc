@@ -32,6 +32,8 @@
 
 #include "qt.hpp"
 #include "dialogs_provider.hpp"
+#include <QAbstractButton>
+#include "util/vlc_menu_style.hpp"
 #include "player/player_controller.hpp" /* Load Subtitles */
 #include "playlist/playlist_controller.hpp"
 #include "menus/menus.hpp"
@@ -555,7 +557,10 @@ QMessageBox::StandardButton DialogsProvider::messageDialog(const QString &text,
                                                            const QString &title,
                                                            const QMessageBox::StandardButtons buttons,
                                                            const QMessageBox::StandardButton defaultButton,
-                                                           const QMessageBox::Icon icon)
+                                                           const QMessageBox::Icon icon,
+                                                           const QString &svgIcon,
+                                                           const QString &yesText,
+                                                           const QString &noText)
 {
     QMessageBox messageBox;
     messageBox.setOption(QMessageBox::Option::DontUseNativeDialog); // styled by VLCMenuStyle
@@ -565,11 +570,22 @@ QMessageBox::StandardButton DialogsProvider::messageDialog(const QString &text,
     if (!title.isEmpty())
         messageBox.setWindowTitle(title);
 
-    if (icon != QMessageBox::NoIcon)
+    if (!svgIcon.isEmpty())
+    {
+        // recoloured with the theme (the platform question icon is barely visible in dark)
+        const int size = 48;
+        messageBox.setIconPixmap(VLCMenuStyle::icon(svgIcon).pixmap(size, size, QIcon::Normal));
+    }
+    else if (icon != QMessageBox::NoIcon)
         messageBox.setIcon(icon);
 
     if (buttons != QMessageBox::NoButton)
         messageBox.setStandardButtons(buttons);
+
+    if (!yesText.isEmpty() && messageBox.button(QMessageBox::Yes))
+        messageBox.button(QMessageBox::Yes)->setText(yesText);
+    if (!noText.isEmpty() && messageBox.button(QMessageBox::No))
+        messageBox.button(QMessageBox::No)->setText(noText);
 
     if (defaultButton != QMessageBox::NoButton)
         messageBox.setDefaultButton(defaultButton);

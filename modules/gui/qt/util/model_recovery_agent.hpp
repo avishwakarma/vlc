@@ -28,6 +28,7 @@
 #include <QTemporaryFile>
 #include <QAbstractItemModel>
 #include <QLockFile>
+#include <QLocale>
 
 #include <cstdio>
 
@@ -69,12 +70,17 @@ public:
                 const QFileInfo fileInfo(m_recoveryFileName);
                 if (fileInfo.size() > 0)
                 {
-                    if (DialogsProvider::getInstance()->messageDialog(qtr("Do you want to restore the %1 model from %2?").arg(modelIdentifier.toLower(),
-                                                                                                                              fileInfo.lastModified().toString()),
-                                                                      qtr("The application closed abruptly."),
+                    if (DialogsProvider::getInstance()->messageDialog(qtr("VLC didn't close properly last time. Restore the %1 from %2?").arg(
+                                                                          modelIdentifier.compare(QStringLiteral("Playlist"), Qt::CaseInsensitive) == 0
+                                                                              ? qtr("queue") : modelIdentifier.toLower(),
+                                                                          QLocale().toString(fileInfo.lastModified(), QLocale::ShortFormat)),
+                                                                      qtr("Restore"),
                                                                       (QMessageBox::Yes | QMessageBox::No),
                                                                       QMessageBox::Yes,
-                                                                      QMessageBox::Question) == QMessageBox::Yes)
+                                                                      QMessageBox::Question,
+                                                                      QStringLiteral("recent-twotone"),
+                                                                      qtr("Restore"),
+                                                                      qtr("Don't Restore")) == QMessageBox::Yes)
                     {
                         model->append(m_recoveryFileName);
                         m_conditionDismissInitialDirtiness = true;

@@ -215,7 +215,12 @@ public slots:
                                               const QString& title = {},
                                               const QMessageBox::StandardButtons buttons = QMessageBox::NoButton,
                                               const QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
-                                              const QMessageBox::Icon icon = QMessageBox::NoIcon);
+                                              const QMessageBox::Icon icon = QMessageBox::NoIcon,
+                                              // optional: an icon from pixmaps/svg_icons instead of the
+                                              // platform icon, and custom labels for Yes / No
+                                              const QString& svgIcon = {},
+                                              const QString& yesText = {},
+                                              const QString& noText = {});
     void prefsDialog();
     /// QWidget preferences, even when the QML settings window is enabled
     void classicPrefsDialog( bool expert = false );
