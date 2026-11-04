@@ -37,6 +37,19 @@ T.Page {
     //indicates whether the subview support grid/list mode
     property bool hasGridListMode: _firstChild?.hasGridListMode ?? false
 
+    // vertical scroll offset of the page content (0 when at the beginning)
+    readonly property real _scrollOffset: {
+        const c = _firstChild
+        if (!c)
+            return 0
+        const y = c.contentY ?? c.currentView?.contentY ?? c.view?.contentY ?? 0
+        const o = c.originY ?? c.currentView?.originY ?? c.view?.originY ?? 0
+        return y - o
+    }
+
+    // set by a child table view that draws its own divider below its sticky column header
+    property bool headerDividerSuppressed: false
+
     property bool isSearchable: _firstChild?.isSearchable ?? false
 
     property var sortModel: _firstChild?.sortModel ?? null
@@ -206,9 +219,38 @@ T.Page {
             colorSet: ColorContext.View
         }
 
-        // transparent: the library window is drawn on the Pane surface
+        // The header is an opaque surface on the Pane colour (the colour of the library window),
+        // drawn above the page content so that scrolling content never shows through it. A subtle
+        // divider fades in when content is scrolled underneath.
+        z: 10
+
+        readonly property ColorContext paneContext: ColorContext {
+            id: paneTheme
+            colorSet: ColorContext.Pane
+        }
+
+        // true when the page content is scrolled below its beginning, i.e. content is under the header
+        readonly property bool contentUnderHeader: (root._scrollOffset > 1)
+
         background: Rectangle {
-            color: "transparent"
+            // the Pane colour is translucent (a=0.95), the header must be opaque
+            color: Qt.alpha(paneTheme.bg.primary, 1.0)
+
+            Rectangle {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.bottom
+                }
+
+                height: VLCStyle.dp(1, VLCStyle.scale)
+                color: theme.fg.secondary
+                opacity: (defaultPageHeader.contentUnderHeader && !root.headerDividerSuppressed) ? 0.2 : 0
+
+                Behavior on opacity {
+                    NumberAnimation { duration: VLCStyle.duration_short }
+                }
+            }
         }
 
         RowLayout {
