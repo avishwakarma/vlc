@@ -181,8 +181,8 @@ T.ComboBox {
         radius: VLCStyle.radius_m
         color: control.wellColor
 
-        border.width: VLCStyle.dp(1, VLCStyle.scale)
-        border.color: control.visualFocus ? theme.visualFocus : Qt.darker(control.wellColor, 2.0)
+        border.width: VLCStyle.border
+        border.color: control.visualFocus ? theme.visualFocus : theme.border
 
         Rectangle {
             anchors.fill: parent
@@ -193,7 +193,7 @@ T.ComboBox {
             color: (control.hovered || control.pressed || control.popup.visible) ? itemHover.bg.primary
                                                                                  : control.bgColor
 
-            border.width: control.activeFocus ? VLCStyle.dp(1, VLCStyle.scale) : 0
+            border.width: control.activeFocus ? VLCStyle.border : 0
             border.color: theme.border
 
             Behavior on color {
@@ -236,7 +236,7 @@ T.ComboBox {
             Widgets.RoundedRectangleShadow {
                 blurRadius: VLCStyle.shadow_popup.blur
                 yOffset: VLCStyle.shadow_popup.y
-                color: Qt.rgba(0, 0, 0, VLCStyle.shadow_popup.alpha)
+                color: VLCStyle.shadowColor(VLCStyle.shadow_popup.alpha)
             }
         }
     }

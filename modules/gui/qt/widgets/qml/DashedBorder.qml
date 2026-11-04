@@ -19,11 +19,18 @@
 import QtQuick
 import QtQuick.Shapes
 
+import VLC.Style
+
 // 1 px dashed outline (Figma customize mode: drop zones and palette items)
 Item {
     id: root
 
-    property color color: "#6B6B6B"
+    readonly property ColorContext colorContext: ColorContext {
+        id: theme
+        colorSet: ColorContext.View
+    }
+
+    property color color: theme.fg.secondary
     property real radius: 0
     property real lineWidth: 1
     // dash and gap lengths, in line widths

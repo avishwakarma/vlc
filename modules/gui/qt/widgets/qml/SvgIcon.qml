@@ -33,7 +33,7 @@ Item {
 
     property color color: _theme.fg.primary
     property color accentColor: _theme.accent
-    property color accentDimColor: Qt.darker(accentColor, 1.3)
+    property color accentDimColor: _theme.accentDim
 
     readonly property ColorContext _theme: ColorContext {
         colorSet: ColorContext.ToolButton

@@ -35,7 +35,7 @@ T.Button {
 
     property bool variant2: false
 
-    implicitWidth: VLCStyle.dp(360, VLCStyle.scale)
+    implicitWidth: VLCStyle.size_button_w
     implicitHeight: VLCStyle.toggle_h
 
     padding: VLCStyle.spacing_8
@@ -82,7 +82,7 @@ T.Button {
         color: control.variant2 ? ((control.hovered || control.down) ? itemTheme.bg.primary : inset.bg.primary)
                                 : ((control.hovered || control.down) ? inset.bg.primary : theme.bg.secondary)
 
-        border.width: control.visualFocus ? VLCStyle.dp(1, VLCStyle.scale) : 0
+        border.width: control.visualFocus ? VLCStyle.focusRing_width : 0
         border.color: theme.visualFocus
 
         Behavior on color {
@@ -105,7 +105,7 @@ T.Button {
             SvgIcon {
                 visible: control.iconName !== ""
                 name: control.iconName
-                size: VLCStyle.dp(20, VLCStyle.scale)
+                size: VLCStyle.icon_button
                 color: control._fg
             }
 

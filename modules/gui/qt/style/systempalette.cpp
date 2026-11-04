@@ -16,6 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 #include "systempalette.hpp"
+#include <cmath>
+#include <algorithm>
 #include "util/vlc_menu_style.hpp"
 #include <QGuiApplication>
 #include <QStyleHints>
@@ -499,6 +501,24 @@ QColor SystemPalette::getColor(ColorContext::ColorSet colorSet, ColorContext::Co
         //a Heading that isn't defined by the theme (external providers) is a Primary
         if (name == C::Heading)
             return getColor(colorSet, section, C::Primary, state);
+        // roles added by the redesign: derive them when an external provider does not know them
+        switch (name)
+        {
+        case C::AccentText:
+        case C::AccentDim:
+        case C::AccentBright:
+            return getColor(colorSet, section, C::Accent, state);
+        case C::HoverPlate:
+            return getColor(C::Item, C::Bg, C::Primary, C::Hovered);
+        case C::PressedPlate:
+            return getColor(C::Item, C::Bg, C::Primary, C::Pressed);
+        case C::Scrim:
+            return QColor(0, 0, 0, 128);
+        case C::Placeholder:
+            return getColor(colorSet, C::Fg, C::Secondary, C::Normal);
+        default:
+            break;
+        }
         //nothing matches, that's probably an issue, return an ugly color
         if (qEnvironmentVariableIsSet("VLC_MAGENTA_DEBUG"))
             qWarning("MAGENTA palette set=%d section=%d name=%d state=%d", int(colorSet), int(section), int(name), int(state));
@@ -530,6 +550,22 @@ void SystemPalette::updateAccent(bool dark)
             top.blueF() * alpha + bottom.blueF() * (1 - alpha));
     };
 
+    // WCAG relative luminance / contrast, to derive an accent usable as text colour
+    auto lum = [](const QColor& c) {
+        auto ch = [](qreal v) { return v <= 0.03928 ? v / 12.92 : std::pow((v + 0.055) / 1.055, 2.4); };
+        return 0.2126 * ch(c.redF()) + 0.7152 * ch(c.greenF()) + 0.0722 * ch(c.blueF());
+    };
+    auto contrast = [&](const QColor& a, const QColor& b) {
+        qreal la = lum(a), lb = lum(b);
+        return (std::max(la, lb) + 0.05) / (std::min(la, lb) + 0.05);
+    };
+    // the darkest/brightest surface text is drawn on in this theme
+    const QColor surface = dark ? bgA3 : QColor("#C8C8C8");
+    QColor text = base;
+    for (int i = 0; i < 40 && contrast(text, surface) < 4.5; ++i)
+        text = dark ? text.lighter(106) : text.darker(106);
+    accentText = text;
+
     if (dark)
     {
         accentMain = base;
@@ -539,8 +575,8 @@ void SystemPalette::updateAccent(bool dark)
     else
     {
         accentMain = base.lighter(110);
-        accentDim = base.darker(115); // derived, see tokens.md
-        accentBright = blend(base, bgB2, 0.30);
+        accentDim = base.darker(125); // derived: >= 3:1 graphics colour on light surfaces
+        accentBright = blend(base, bgB2, 0.42);
     }
     accentDark = blend(base, bgB2, 0.08);
     orange500 = accentMain;
@@ -557,16 +593,18 @@ void SystemPalette::makeLightPalette()
     bgA3 = QColor("#D5D5D5");
     bgA4 = QColor("#D5D5D5"); // derived
     bgA5 = QColor("#CBCBCB"); // derived (Figma A5 #888888 is not usable as a field background)
-    bgA2 = QColor("#CDCDCD"); // derived
-    bgA1 = QColor("#C6C6C6"); // derived
+    bgA2 = QColor("#C9C9C9"); // derived: hover plate, visible against A3/A4
+    bgA1 = QColor("#BEBEBE"); // derived: pressed/selected plate
     fg1 = QColor("#161616"); // derived
     fg2 = QColor("#262626"); // derived
     fgA2 = QColor("#2E2E2E");
-    fgA3 = QColor("#6B6B6B");
-    fgA4 = QColor("#9B9B9B"); // derived
+    // Figma Light/FG/A3 #6B6B6B is 2.3-4.3:1 on the light surfaces; darkened to >= 4.5:1 on the window chrome
+    fgA3 = QColor("#4D4D4D");
+    // disabled / indicators / OFF thumb: >= 3:1 on wells and panes
+    fgA4 = QColor("#767676");
     fgB1 = QColor("#161616"); // derived
     dividerDim = QColor("#ACACAC");
-    dividerBright = QColor("#9B9B9B");
+    dividerBright = QColor("#8C8C8C"); // Figma #9B9B9B, darkened so input borders reach ~3:1
 
     updateAccent(false);
     fillPalette(false);
@@ -605,9 +643,10 @@ void SystemPalette::fillPalette(bool dark)
 
     // colour overlaid on surfaces for translucent borders/states
     const QColor on = dark ? QColor(Qt::white) : QColor(Qt::black);
-    const QColor windowBg = dark ? bgA3 : QColor("#ABABAA"); // derived (light: sampled window chrome)
-    const QColor paneBg = dark ? bgB1 : QColor("#C1C1C1");   // derived (light: sampled sidebar panel)
-    const QColor menuHighlight = dark ? QColor("#202020") : QColor("#CFCFCF"); // sampled / derived
+    const QColor windowBg = dark ? bgA3 : QColor("#C8C8C8"); // derived (Figma sampled #ABABAA is too dark for >= 4.5:1 secondary text)
+    const QColor paneBg = dark ? bgB1 : QColor("#D2D2D2");   // derived (Figma sampled #C1C1C1, lightened for contrast)
+    const QColor menuHighlight = dark ? QColor("#202020") : QColor("#C4C4C4"); // sampled / derived
+    const QColor accentGfx = dark ? accentMain : accentDim; // non-text accent graphics, >= 3:1 on light
     const qreal shadowAlpha = dark ? 0.46 : 0.25;
 
     //base set
@@ -626,7 +665,7 @@ void SystemPalette::fillPalette(bool dark)
         setColor(CS, C::Fg, C::Negative, C::Normal, Qt::red);
 
         setColor(CS, C::Bg, C::Neutral, C::Normal, dark ? QColor(Qt::darkYellow) : QColor("#e4dab8")); //FIXME
-        setColor(CS, C::Fg, C::Neutral, C::Normal, accentMain);
+        setColor(CS, C::Fg, C::Neutral, C::Normal, accentText);
 
         setColor(CS, C::Bg, C::Positive, C::Normal, dark ? QColor(Qt::darkGreen) : QColor("#dff6dd")); //FIXME
         setColor(CS, C::Fg, C::Positive, C::Normal, Qt::green);
@@ -643,8 +682,17 @@ void SystemPalette::fillPalette(bool dark)
 
         setColor(CS, C::Decoration, C::Separator, C::Normal, dividerDim);
 
-        setColor(CS, C::Decoration, C::Accent, C::Normal, accentMain);
-        setColor(CS, C::Fg, C::Link, C::Normal, accentMain);
+        setColor(CS, C::Decoration, C::Accent, C::Normal, accentGfx);
+        setColor(CS, C::Fg, C::Link, C::Normal, accentText);
+
+        // shared state/accent roles (see ColorContext)
+        setColor(CS, C::Decoration, C::AccentText, C::Normal, accentText);
+        setColor(CS, C::Decoration, C::AccentDim, C::Normal, accentDim);
+        setColor(CS, C::Decoration, C::AccentBright, C::Normal, accentBright);
+        setColor(CS, C::Decoration, C::HoverPlate, C::Normal, dark ? bgA2 : setColorAlpha(Qt::black, 0.08));
+        setColor(CS, C::Decoration, C::PressedPlate, C::Normal, dark ? bgA1 : setColorAlpha(Qt::black, 0.14));
+        setColor(CS, C::Decoration, C::Scrim, C::Normal, setColorAlpha(Qt::black, dark ? 0.6 : 0.4));
+        setColor(CS, C::Decoration, C::Placeholder, C::Normal, dark ? fgA4 : QColor("#666666"));
     }
 
     //window banner & miniplayer
@@ -755,8 +803,8 @@ void SystemPalette::fillPalette(bool dark)
         setColor(CS, C::Bg, C::Primary, C::Pressed, accentBright);
         setColor(CS, C::Bg, C::Primary, C::Disabled, accentBright);
 
-        setColor(CS, C::Fg, C::Primary, C::Normal, accentMain);
-        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(accentMain, 0.5));
+        setColor(CS, C::Fg, C::Primary, C::Normal, accentText);
+        setColor(CS, C::Fg, C::Primary, C::Disabled, setColorAlpha(accentText, 0.6));
 
         setColor(CS, C::Decoration, C::Border, C::Normal, Qt::transparent);
         setColor(CS, C::Decoration, C::Border, C::Focused, Qt::transparent);
@@ -801,7 +849,7 @@ void SystemPalette::fillPalette(bool dark)
         setColor(CS, C::Decoration, C::Separator, C::Normal, dividerDim);
         setColor(CS, C::Decoration, C::Border, C::Normal, dividerDim);
         setColor(CS, C::Decoration, C::Shadow, C::Normal, setColorAlpha(Qt::black, shadowAlpha));
-        setColor(CS, C::Decoration, C::Accent, C::Normal, accentMain);
+        setColor(CS, C::Decoration, C::Accent, C::Normal, accentGfx);
     }
 
     //Pane: sidebar panel, settings window, onboarding window
@@ -820,7 +868,7 @@ void SystemPalette::fillPalette(bool dark)
         setColor(CS, C::Decoration, C::Separator, C::Normal, dividerDim);
         setColor(CS, C::Decoration, C::Border, C::Normal, dividerDim);
         setColor(CS, C::Decoration, C::Shadow, C::Normal, setColorAlpha(Qt::black, shadowAlpha));
-        setColor(CS, C::Decoration, C::Accent, C::Normal, accentMain);
+        setColor(CS, C::Decoration, C::Accent, C::Normal, accentGfx);
     }
 
     //tooltip
@@ -840,7 +888,7 @@ void SystemPalette::fillPalette(bool dark)
         setColor(CS, C::Bg, C::Secondary, C::Normal, bgB2);
 
         setColor(CS, C::Fg, C::Primary, C::Normal, accentBright); // played fill
-        setColor(CS, C::Decoration, C::Accent, C::Normal, accentMain); // thumb
+        setColor(CS, C::Decoration, C::Accent, C::Normal, accentGfx); // thumb
         setColor(CS, C::Fg, C::Secondary, C::Normal, accentDim); // waveform played bars
         setColor(CS, C::Decoration, C::Indicator, C::Normal, fgA4); // waveform remaining bars
         setColor(CS, C::Fg, C::Positive, C::Normal, "#0F7B0F");  //FIXME
@@ -851,6 +899,8 @@ void SystemPalette::fillPalette(bool dark)
     //Combo box
     {
         C::ColorSet CS = C::ComboBox;
+        setColor(CS, C::Decoration, C::Border, C::Normal, dark ? bgA4 : dividerBright);
+        setColor(CS, C::Decoration, C::Border, C::Focused, accentGfx);
         setColor(CS, C::Fg, C::Primary, C::Normal, fgA2);
         setColor(CS, C::Bg, C::Primary, C::Normal, bgA4);
         setColor(CS, C::Bg, C::Secondary, C::Normal, bgB2);
@@ -859,8 +909,8 @@ void SystemPalette::fillPalette(bool dark)
     //TextField
     {
         C::ColorSet CS = C::TextField;
-        setColor(CS, C::Decoration, C::Border, C::Normal, bgA4);
-        setColor(CS, C::Decoration, C::Border, C::Focused, accentMain);
+        setColor(CS, C::Decoration, C::Border, C::Normal, dark ? bgA4 : dividerBright);
+        setColor(CS, C::Decoration, C::Border, C::Focused, accentGfx);
         setColor(CS, C::Decoration, C::Border, C::Hovered, dividerBright);
         setColor(CS, C::Decoration, C::Border, C::Disabled, setColorAlpha(on, 0.0) );
 
@@ -884,8 +934,8 @@ void SystemPalette::fillPalette(bool dark)
     //Spinbox
     {
         C::ColorSet CS = C::SpinBox;
-        setColor(CS, C::Decoration, C::Border, C::Normal, bgA4);
-        setColor(CS, C::Decoration, C::Border, C::Focused, accentMain);
+        setColor(CS, C::Decoration, C::Border, C::Normal, dark ? bgA4 : dividerBright);
+        setColor(CS, C::Decoration, C::Border, C::Focused, accentGfx);
         setColor(CS, C::Decoration, C::Border, C::Hovered, dividerBright);
         setColor(CS, C::Decoration, C::Border, C::Disabled, setColorAlpha(on, 0.0) );
 

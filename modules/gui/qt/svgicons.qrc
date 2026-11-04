@@ -55,6 +55,8 @@
         <file alias="close-low.svg">pixmaps/svg_icons/close-low.svg</file>
         <file alias="close-medium.svg">pixmaps/svg_icons/close-medium.svg</file>
         <file alias="close-none.svg">pixmaps/svg_icons/close-none.svg</file>
+        <file alias="case-sensitive.svg">pixmaps/svg_icons/case-sensitive.svg</file>
+        <file alias="regex.svg">pixmaps/svg_icons/regex.svg</file>
         <file alias="close.svg">pixmaps/svg_icons/close.svg</file>
         <file alias="collapse-sidebar.svg">pixmaps/svg_icons/collapse-sidebar.svg</file>
         <file alias="disc-twotone.svg">pixmaps/svg_icons/disc-twotone.svg</file>

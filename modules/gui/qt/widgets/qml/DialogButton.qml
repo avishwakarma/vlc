@@ -38,7 +38,7 @@ T.Button {
 
     property int kind: DialogButton.Secondary
 
-    implicitWidth: Math.max(VLCStyle.dp(100, VLCStyle.scale),
+    implicitWidth: Math.max(VLCStyle.size_dialogButton_w,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: VLCStyle.toggle_h
 
@@ -91,7 +91,7 @@ T.Button {
         radius: VLCStyle.radius_m
         color: control._bg
 
-        border.width: control.visualFocus ? VLCStyle.dp(1, VLCStyle.scale) : 0
+        border.width: control.visualFocus ? VLCStyle.focusRing_width : 0
         border.color: theme.visualFocus
 
         Behavior on color {

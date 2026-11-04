@@ -51,15 +51,24 @@ namespace
             {
                 if (auto menu = qobject_cast<QMenu *>(watched))
                 {
-                    // rounded translucent surface: frameless, no system shadow
+                    // rounded translucent surface: frameless. The system shadow is kept (macOS/Windows derive
+                    // it from the alpha mask, so it follows the rounded corners; Figma 0 8 15 rgba(0,0,0,.46)).
                     menu->setWindowFlag(Qt::FramelessWindowHint, true);
-                    menu->setWindowFlag(Qt::NoDropShadowWindowHint, true);
                     menu->setAttribute(Qt::WA_TranslucentBackground, true);
                 }
             }
             return false;
         }
     };
+
+    bool appIsLight()
+    {
+        return qApp && qApp->palette().color(QPalette::Window).lightness() > 128;
+    }
+
+    // used until the theme published its colors: follow the application brightness
+    QColor fallbackText() { return QColor(appIsLight() ? QStringLiteral("#2E2E2E") : QStringLiteral("#8F8F8F")); }
+    QColor fallbackAccent() { return QColor(appIsLight() ? QStringLiteral("#B8620F") : QStringLiteral("#D37918")); }
 
     QString css(const QColor& c)
     {
@@ -100,7 +109,7 @@ QString styleSheet(const Colors& c, const QString& checkImage, const QString& ar
     s += QStringLiteral("QMenu { background-color: %1; border: 1px solid %2; border-radius: 10px; padding: 4px; font-size: 14px; icon-size: 24px; }\n")
             .arg(css(c.surface), css(c.separator));
     s += QStringLiteral("QMenu::item { background: transparent; color: %1; min-height: 48px; max-height: 48px;"
-                        " padding: 0px 14px 0px 19px; margin: 0px; min-width: 180px; border-radius: 6px; }\n")
+                        " padding: 0px 14px 0px 20px; margin: 0px; min-width: 180px; border-radius: 6px; }\n")
             .arg(css(c.text));
     s += QStringLiteral("QMenu::item:selected { background-color: %1; color: %2; }\n")
             .arg(css(c.hover), css(c.textHover));
@@ -162,8 +171,8 @@ void setColors(const Colors& colors)
 
 QString iconImagePath(const QString& name)
 {
-    const QColor accent = s_colors.accent.isValid() ? s_colors.accent : QColor(QStringLiteral("#D37918"));
-    const QColor color1 = s_colors.text.isValid() ? s_colors.text : QColor(QStringLiteral("#8F8F8F"));
+    const QColor accent = s_colors.accent.isValid() ? s_colors.accent : fallbackAccent();
+    const QColor color1 = s_colors.text.isValid() ? s_colors.text : fallbackText();
     return writeColorizedSvg(name, color1, accent);
 }
 
@@ -178,8 +187,8 @@ QString rightCheckStyleSheet()
 
 QIcon icon(const QString& name)
 {
-    const QColor accent = s_colors.accent.isValid() ? s_colors.accent : QColor(QStringLiteral("#D37918"));
-    const QColor color1 = s_colors.text.isValid() ? s_colors.text : QColor(QStringLiteral("#8F8F8F"));
+    const QColor accent = s_colors.accent.isValid() ? s_colors.accent : fallbackAccent();
+    const QColor color1 = s_colors.text.isValid() ? s_colors.text : fallbackText();
     return ColorizedSvgIcon(QStringLiteral(":/svgicons/%1.svg").arg(name), color1, accent.darker(125), accent);
 }
 

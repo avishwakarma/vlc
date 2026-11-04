@@ -37,18 +37,11 @@ TextField {
     selectedTextColor : theme.fg.highlight
     selectionColor : theme.bg.highlight
     color : theme.fg.primary
-    placeholderTextColor: placeholderTheme.fg.primary
+    placeholderTextColor: theme.placeholder
 
     font.pixelSize: VLCStyle.text_body
 
     verticalAlignment: Text.AlignVCenter
-
-    // placeholder is FG/A4: View.Fg.Primary in its disabled state
-    readonly property ColorContext placeholderContext: ColorContext {
-        id: placeholderTheme
-        colorSet: ColorContext.View
-        enabled: false
-    }
 
     property real radius: VLCStyle.radius_m
 
@@ -61,9 +54,9 @@ TextField {
     opacity: enabled ? 1.0 : 0.5
 
     background: Rectangle {
-        implicitWidth: 200
+        implicitWidth: VLCStyle.size_input_w
         implicitHeight: VLCStyle.input_h
-        border.width: VLCStyle.dp(2, VLCStyle.scale)
+        border.width: VLCStyle.border_input
         color: control.backgroundColor
         border.color: control.enabled ? theme.border : color
         border.pixelAligned: (radius < Number.EPSILON)

@@ -126,7 +126,15 @@ public:
         Separator = VQTC_NAME_SEPARATOR,
         Indicator = VQTC_NAME_INDICATOR,
 
-        Heading = VQTC_NAME_HEADING
+        Heading = VQTC_NAME_HEADING,
+
+        AccentText = VQTC_NAME_ACCENT_TEXT,
+        AccentDim = VQTC_NAME_ACCENT_DIM,
+        AccentBright = VQTC_NAME_ACCENT_BRIGHT,
+        HoverPlate = VQTC_NAME_HOVER,
+        PressedPlate = VQTC_NAME_PRESSED,
+        Scrim = VQTC_NAME_SCRIM,
+        Placeholder = VQTC_NAME_PLACEHOLDER
     };
 
     Q_PROPERTY(SystemPalette* palette READ palette WRITE setPalette NOTIFY paletteChanged FINAL)
@@ -152,6 +160,14 @@ public:
     Q_PROPERTY(QColor indicator READ indicator NOTIFY colorsChanged FINAL)
     Q_PROPERTY(QColor shadow READ shadow NOTIFY colorsChanged FINAL)
     Q_PROPERTY(QColor accent READ accent NOTIFY colorsChanged FINAL)
+    // state/accent roles shared by every widget (replace ad-hoc Qt.lighter()/darker())
+    Q_PROPERTY(QColor accentText READ accentText NOTIFY colorsChanged FINAL)
+    Q_PROPERTY(QColor accentDim READ accentDim NOTIFY colorsChanged FINAL)
+    Q_PROPERTY(QColor accentBright READ accentBright NOTIFY colorsChanged FINAL)
+    Q_PROPERTY(QColor hoverPlate READ hoverPlate NOTIFY colorsChanged FINAL)
+    Q_PROPERTY(QColor pressedPlate READ pressedPlate NOTIFY colorsChanged FINAL)
+    Q_PROPERTY(QColor scrim READ scrim NOTIFY colorsChanged FINAL)
+    Q_PROPERTY(QColor placeholder READ placeholder NOTIFY colorsChanged FINAL)
 
 
     Q_PROPERTY(bool initialized READ initialized NOTIFY initializedChanged FINAL)
@@ -174,6 +190,13 @@ public:
     QColor indicator() const;
     QColor shadow() const;
     QColor accent() const;
+    QColor accentText() const;
+    QColor accentDim() const;
+    QColor accentBright() const;
+    QColor hoverPlate() const;
+    QColor pressedPlate() const;
+    QColor scrim() const;
+    QColor placeholder() const;
 
     void setPalette(SystemPalette*);
     void setColorSet(ColorSet);

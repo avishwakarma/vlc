@@ -25,7 +25,7 @@ import VLC.Style
 T.ToolButton {
     id: control
 
-    font.pixelSize: VLCStyle.fontSize_normal
+    font.pixelSize: VLCStyle.text_body
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)

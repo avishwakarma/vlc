@@ -455,7 +455,7 @@ Item {
         border.color: theme.border
         border.width: VLCStyle.dp(1, VLCStyle.scale)
         border.pixelAligned: (radius < Number.EPSILON)
-        radius: VLCStyle.dp(6, VLCStyle.scale)
+        radius: VLCStyle.radius_m
 
         Widgets.RoundedRectangleShadow {
             blending: false // offscreen stacked below everything, no need for blending even though it is not opaque
@@ -467,7 +467,7 @@ Item {
 
             yOffset: VLCStyle.dp(4, VLCStyle.scale)
 
-            color: Qt.rgba(0, 0, 0, .2)
+            color: VLCStyle.shadowColor(.2)
 
             compensationFactor: 4.0 // Large compensation factor is to prevent clipping and strong shadow at the same time
         }
@@ -592,7 +592,7 @@ Item {
 
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: VLCStyle.fontSize_small
+            font.pixelSize: VLCStyle.text_caption
 
             color: theme.accent
 

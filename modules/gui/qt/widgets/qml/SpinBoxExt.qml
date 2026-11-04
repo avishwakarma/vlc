@@ -41,7 +41,7 @@ T.SpinBox {
         hovered: control.hovered
     }
 
-    font.pixelSize: VLCStyle.fontSize_large
+    font.pixelSize: VLCStyle.text_body
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                               contentItem.implicitWidth + 2 * padding +
@@ -127,15 +127,11 @@ T.SpinBox {
             focused: false
         }
 
-        Widgets.IconLabel {
-            text: VLCIcons.chevron_up
-            font.pixelSize: control.font.pixelSize * 2
+        Widgets.SvgIcon {
+            anchors.centerIn: parent
+            name: "chevron-up"
+            size: Math.min(parent.height, parent.width)
             color: upTheme.fg.primary
-            font.bold: true
-            anchors.fill: parent
-            fontSizeMode: Text.Fit
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
         }
     }
 
@@ -160,15 +156,11 @@ T.SpinBox {
             focused: false
         }
 
-        Widgets.IconLabel {
-            text: VLCIcons.chevron_down
-            font.pixelSize: control.font.pixelSize * 2
+        Widgets.SvgIcon {
+            anchors.centerIn: parent
+            name: "chevron-down"
+            size: Math.min(parent.height, parent.width)
             color: downTheme.fg.primary
-            font.bold: true
-            anchors.fill: parent
-            fontSizeMode: Text.Fit
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
         }
     }
 }

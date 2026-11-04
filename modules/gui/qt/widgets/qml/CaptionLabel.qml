@@ -20,6 +20,6 @@ import VLC.Style
 
 LabelExt {
     elide: Text.ElideRight
-    font.pixelSize: VLCStyle.fontSize_normal
+    font.pixelSize: VLCStyle.text_caption
     textFormat: Text.PlainText
 }

@@ -25,5 +25,5 @@ import VLC.Style
 ComboBoxExt {
     compact: false
 
-    implicitWidth: VLCStyle.dp(320, VLCStyle.scale)
+    implicitWidth: VLCStyle.size_dropdown_w
 }

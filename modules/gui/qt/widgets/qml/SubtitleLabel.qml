@@ -20,7 +20,7 @@ import VLC.Style
 
 LabelExt {
     elide: Text.ElideRight
-    font.pixelSize: VLCStyle.fontSize_xxxlarge
-    font.weight: Font.Bold
+    font.pixelSize: VLCStyle.text_heading
+    font.weight: VLCStyle.fontWeight_medium
     textFormat: Text.PlainText
 }

@@ -457,3 +457,11 @@ QColor ColorContext::accent() const
 {
     return getColor(Decoration, Accent);
 }
+
+QColor ColorContext::accentText() const { return getColor(Decoration, AccentText); }
+QColor ColorContext::accentDim() const { return getColor(Decoration, AccentDim); }
+QColor ColorContext::accentBright() const { return getColor(Decoration, AccentBright); }
+QColor ColorContext::hoverPlate() const { return getColor(Decoration, HoverPlate); }
+QColor ColorContext::pressedPlate() const { return getColor(Decoration, PressedPlate); }
+QColor ColorContext::scrim() const { return getColor(Decoration, Scrim); }
+QColor ColorContext::placeholder() const { return getColor(Decoration, Placeholder); }
