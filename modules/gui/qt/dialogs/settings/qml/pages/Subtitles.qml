@@ -228,9 +228,8 @@ SettingsPage {
             option: SettingsModel.option("sub-text-scale")
             kind: "dropdown"
             choices: [
-                { value: 50, text: qsTr("Smaller") },
                 { value: 75, text: qsTr("Small") },
-                { value: 100, text: qsTr("Automatic") },
+                { value: 100, text: qsTr("Normal") },
                 { value: 150, text: qsTr("Large") },
                 { value: 200, text: qsTr("Larger") }
             ]

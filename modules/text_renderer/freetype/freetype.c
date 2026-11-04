@@ -173,7 +173,7 @@ vlc_module_begin ()
     add_rgb("freetype-outline-color", 0x00000000, OUTLINE_COLOR_TEXT, NULL)
         change_integer_list( pi_color_values, ppsz_color_descriptions )
         change_safe()
-    add_integer_with_range( "freetype-outline-thickness", 4, 0, 50, OUTLINE_THICKNESS_TEXT,
+    add_integer_with_range( "freetype-outline-thickness", 2, 0, 50, OUTLINE_THICKNESS_TEXT,
              NULL )
         change_integer_list( pi_outline_thickness, ppsz_outline_thickness )
         change_safe()
@@ -718,6 +718,43 @@ static void UpdateDefaultLiveStyles( filter_t *p_filter )
     p_style->i_background_color = var_InheritInteger( p_filter, "freetype-background-color" );
 
     p_sys->i_outline_thickness = var_InheritInteger( p_filter, "freetype-outline-thickness" );
+
+    /* Redesign: the appearance options are re-read on every render so that
+     * the settings page applies them to the subtitle on screen. */
+    p_style->i_font_alpha = var_InheritInteger( p_filter, "freetype-opacity" );
+    p_style->i_outline_alpha = var_InheritInteger( p_filter, "freetype-outline-opacity" );
+    p_style->i_outline_color = var_InheritInteger( p_filter, "freetype-outline-color" );
+    p_style->i_shadow_alpha = var_InheritInteger( p_filter, "freetype-shadow-opacity" );
+    p_style->i_shadow_color = var_InheritInteger( p_filter, "freetype-shadow-color" );
+
+    const bool b_bold = var_InheritBool( p_filter, "freetype-bold" );
+    if( b_bold )
+    {
+        p_sys->p_forced_style->i_style_flags |= STYLE_BOLD;
+        p_style->i_style_flags |= STYLE_BOLD;
+    }
+    else
+    {
+        p_sys->p_forced_style->i_style_flags &= ~STYLE_BOLD;
+        p_style->i_style_flags &= ~STYLE_BOLD;
+    }
+    if( p_sys->p_forced_style->i_style_flags )
+        p_sys->p_forced_style->i_features |= STYLE_HAS_FLAGS;
+    else
+        p_sys->p_forced_style->i_features &= ~STYLE_HAS_FLAGS;
+
+#ifdef HAVE_GET_FONT_BY_FAMILY_NAME
+    char *psz_font = var_InheritString( p_filter, "freetype-font" );
+    if( psz_font && *psz_font &&
+        ( !p_style->psz_fontname || strcmp( psz_font, p_style->psz_fontname ) ) )
+    {
+        free( p_style->psz_fontname );
+        p_style->psz_fontname = psz_font;
+        psz_font = NULL;
+        p_sys->p_faceid = NULL; /* reload the default face in Render() */
+    }
+    free( psz_font );
+#endif
 }
 
 static void FillDefaultStyles( filter_t *p_filter )
@@ -1076,6 +1113,8 @@ static subpicture_region_t *Render( filter_t *p_filter,
         i_max_width = p_region_in->i_max_width;
     else if( p_region_in->i_x > 0 && (unsigned)p_region_in->i_x < i_max_width )
         i_max_width -= p_region_in->i_x;
+    else if( !b_grid && p_region_in->i_max_width == 0 && p_region_in->i_x == 0 )
+        i_max_width = i_max_width * 78 / 100; /* redesign: wrap before the frame edges */
 
     unsigned i_max_height = p_filter->fmt_out.video.i_visible_height;
     if( p_region_in->i_max_height > 0 && (unsigned) p_region_in->i_max_height < i_max_height )

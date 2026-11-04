@@ -65,7 +65,10 @@ extern "C" {
 #ifdef __APPLE__
 # define SYSTEM_FONT_PATH                   "/System/Library/Fonts"
 # define SYSTEM_DEFAULT_FONT_FILE           "HelveticaNeue.dfont"
-# define SYSTEM_DEFAULT_FAMILY              "Helvetica Neue"
+/* Redesign: the system UI face is the default subtitle font. If it is not installed
+ * the lookup falls back to SYSTEM_FALLBACK_FAMILY (Helvetica Neue ships with macOS). */
+# define SYSTEM_DEFAULT_FAMILY              "SF Pro Text"
+# define SYSTEM_FALLBACK_FAMILY             "Helvetica Neue"
 # define SYSTEM_DEFAULT_MONOSPACE_FONT_FILE "Monaco.dfont"
 # define SYSTEM_DEFAULT_MONOSPACE_FAMILY    "Monaco"
 # define HAVE_GET_FONT_BY_FAMILY_NAME
@@ -109,6 +112,10 @@ extern "C" {
 
 #ifndef DEFAULT_FAMILY
 # define DEFAULT_FAMILY SYSTEM_DEFAULT_FAMILY
+#endif
+
+#ifndef SYSTEM_FALLBACK_FAMILY
+# define SYSTEM_FALLBACK_FAMILY SYSTEM_DEFAULT_FAMILY
 #endif
 
 #ifndef DEFAULT_MONOSPACE_FONT_FILE

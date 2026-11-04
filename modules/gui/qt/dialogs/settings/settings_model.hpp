@@ -102,6 +102,9 @@ signals:
 private:
     ConfigOption* createOption(const QString& name);
     void onOptionEdited(ConfigOption* option);
+    void applySubtitleOptionLive(const QString& name);
+    void refreshSubtitleCue();
+    QTimer m_subRefreshTimer;
     void saveNow();
     void markRestart();
 

@@ -712,8 +712,8 @@ static char* SelectFontWithFamilyFallback( vlc_font_select_t *fs,
 
     if( !p_family || !p_family->p_fonts )
     {
-        Debug( fs->p_obj, "Looking for DEFAULT_FAMILY \"%s\" as a last resort", DEFAULT_FAMILY );
-        char *lc = LowercaseDup(DEFAULT_FAMILY);
+        Debug( fs->p_obj, "Looking for DEFAULT_FAMILY \"%s\" as a last resort", SYSTEM_FALLBACK_FAMILY );
+        char *lc = LowercaseDup(SYSTEM_FALLBACK_FAMILY);
         p_family = FontSelectFamily( fs, lc );
         free(lc);
     }
