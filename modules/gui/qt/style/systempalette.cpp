@@ -416,6 +416,16 @@ void SystemPalette::updatePalette()
         colors.textDisabled = getColor(C::Menu, C::Fg, C::Primary, C::Disabled);
         colors.separator = getColor(C::Menu, C::Decoration, C::Separator, C::Normal);
         colors.accent = getColor(C::Menu, C::Decoration, C::Accent, C::Normal);
+        colors.dlgSurface = getColor(C::View, C::Bg, C::Primary, C::Normal);
+        colors.dlgHeader = getColor(C::View, C::Bg, C::Secondary, C::Normal);
+        colors.dlgText = getColor(C::View, C::Fg, C::Primary, C::Normal);
+        colors.dlgTextSecondary = getColor(C::View, C::Fg, C::Secondary, C::Normal);
+        colors.dlgSeparator = getColor(C::View, C::Decoration, C::Separator, C::Normal);
+        colors.dlgButton = getColor(C::Window, C::Bg, C::Primary, C::Normal);
+        colors.dlgButtonHover = getColor(C::Item, C::Bg, C::Primary, C::Hovered);
+        colors.dlgPrimary = getColor(C::ButtonTonal, C::Bg, C::Primary, C::Normal);
+        colors.dlgPrimaryHover = getColor(C::ButtonTonal, C::Bg, C::Primary, C::Hovered);
+        colors.dlgPrimaryText = getColor(C::ButtonTonal, C::Fg, C::Primary, C::Normal);
         VLCMenuStyle::setColors(colors);
     }
 

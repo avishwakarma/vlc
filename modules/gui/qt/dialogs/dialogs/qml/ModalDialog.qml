@@ -25,6 +25,9 @@ import VLC.Widgets as Widgets
 import VLC.Util
 import VLC.Style
 
+// In-window modal card used by the login / question / progress / custom dialogs.
+// Same look as the form dialogs (DialogShell): rounded card (radius_xl), B2 title band,
+// content area with 20 px padding and a footer of DialogButtons (see ModalFooter).
 Dialog {
     id: control
 
@@ -33,15 +36,19 @@ Dialog {
     focus: true
     modal: true
 
-
     anchors.centerIn: T.Overlay.overlay
 
-    padding: VLCStyle.margin_normal
+    padding: VLCStyle.spacing_20
+    topPadding: VLCStyle.spacing_20
+    bottomPadding: VLCStyle.spacing_20
     margins: VLCStyle.margin_large
 
-    implicitWidth: contentWidth > 0 ? contentWidth + leftPadding + rightPadding : 0
-    implicitHeight: (header && header.visible ? header.implicitHeight + spacing : 0)
-                    + (footer && footer.visible ? footer.implicitHeight + spacing : 0)
+    readonly property real minCardWidth: VLCStyle.dp(420, VLCStyle.scale)
+    readonly property real maxCardWidth: VLCStyle.dp(560, VLCStyle.scale)
+
+    implicitWidth: Math.min(maxCardWidth, Math.max(minCardWidth, contentWidth + leftPadding + rightPadding))
+    implicitHeight: (header && header.visible ? header.implicitHeight : 0)
+                    + (footer && footer.visible ? footer.implicitHeight : 0)
                     + (contentHeight > 0 ? contentHeight + topPadding + bottomPadding : 0)
 
     closePolicy: Popup.CloseOnEscape
@@ -49,20 +56,10 @@ Dialog {
     readonly property ColorContext colorContext: ColorContext {
         id: theme
         palette: VLCStyle.palette
-        colorSet: ColorContext.Window
+        colorSet: ColorContext.View
     }
 
     T.Overlay.modal: Item {
-        Rectangle {
-            anchors.fill: blur
-
-            visible: !blur.visible
-
-            color: theme.bg.primary
-
-            opacity: 0.6
-        }
-
         Widgets.DualKawaseBlur {
             id: blur
 
@@ -81,43 +78,82 @@ Dialog {
 
             radius: 2
         }
-    }
 
-    background: Rectangle {
-        color: theme.bg.primary
+        // dimming scrim above the (optional) blur so bright content never glows around the card
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: MainCtx.windowExtendedMargin
 
-        Widgets.RoundedRectangleShadow {
-            yOffset: VLCStyle.dp(4, VLCStyle.scale)
-            blurRadius: VLCStyle.dp(3, VLCStyle.scale)
+            color: theme.bg.primary
 
-            visible: (parent.color.a > 0.0)
-
-            opacity: 0.2
-
-            color: "black"
+            opacity: blur.visible ? 0.75 : 0.6
         }
     }
 
-    //FIXME use the right xxxLabel class
-    header: T.Label {
-        text: control.title
-        visible: control.title
-        elide: Label.ElideRight
-        font.bold: true
-        color: theme.fg.primary
-        padding: 6
-        background: Rectangle {
-            x: 1; y: 1
-            width: parent.width - 2
-            height: parent.height - 1
-            color: theme.bg.primary
+    background: Rectangle {
+        radius: VLCStyle.radius_xl
+        color: theme.bg.primary
+
+        Widgets.RoundedRectangleShadow {
+            blurRadius: VLCStyle.shadow_floating.blur
+            yOffset: VLCStyle.shadow_floating.y
+            color: Qt.rgba(0, 0, 0, VLCStyle.shadow_floating.alpha)
+            z: -1
+        }
+    }
+
+    header: Item {
+        visible: control.title !== ""
+        implicitHeight: visible ? titleRow.height + 2 * VLCStyle.dp(9, VLCStyle.scale) : 0
+
+        // B2 band with rounded top corners
+        Rectangle {
+            width: parent.width
+            height: VLCStyle.radius_xl * 2
+            radius: VLCStyle.radius_xl
+            color: theme.bg.secondary
+        }
+        Rectangle {
+            y: VLCStyle.radius_xl
+            width: parent.width
+            height: parent.height - VLCStyle.radius_xl
+            color: theme.bg.secondary
+        }
+
+        Item {
+            id: titleRow
+
+            x: VLCStyle.dp(9, VLCStyle.scale)
+            y: VLCStyle.dp(9, VLCStyle.scale)
+            width: parent.width - 2 * x
+            height: VLCStyle.toggle_h
+
+            Text {
+                x: VLCStyle.spacing_10
+                width: parent.width - x
+                anchors.verticalCenter: parent.verticalCenter
+                text: control.title
+                color: theme.fg.primary
+                elide: Text.ElideRight
+                font.pixelSize: VLCStyle.text_body
+                font.weight: VLCStyle.fontWeight_regular
+                textFormat: Text.PlainText
+
+                Accessible.role: Accessible.Heading
+            }
         }
     }
 
     exit: Transition {
-        OpacityAnimator { from: 1.0; to: 0.0 }
+        ParallelAnimation {
+            NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; duration: VLCStyle.duration_short; easing.type: Easing.InCubic }
+            NumberAnimation { property: "scale"; from: 1.0; to: 0.98; duration: VLCStyle.duration_short; easing.type: Easing.InCubic }
+        }
     }
     enter: Transition {
-        OpacityAnimator { from: 0.0; to: 1.0 }
+        ParallelAnimation {
+            NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; duration: VLCStyle.duration_long; easing.type: Easing.OutCubic }
+            NumberAnimation { property: "scale"; from: 0.98; to: 1.0; duration: VLCStyle.duration_long; easing.type: Easing.OutCubic }
+        }
     }
 }

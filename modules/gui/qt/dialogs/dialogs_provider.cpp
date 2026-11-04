@@ -530,6 +530,7 @@ bool DialogsProvider::questionDialog(const QString& text, const QString &title) 
     messageBox.setText(text);
     if (!title.isEmpty())
         messageBox.setWindowTitle(title);
+    messageBox.setOption(QMessageBox::Option::DontUseNativeDialog); // styled by VLCMenuStyle
     messageBox.setIcon(QMessageBox::Question);
     messageBox.setStandardButtons(QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No));
     messageBox.setDefaultButton(QMessageBox::No);
@@ -557,6 +558,7 @@ QMessageBox::StandardButton DialogsProvider::messageDialog(const QString &text,
                                                            const QMessageBox::Icon icon)
 {
     QMessageBox messageBox;
+    messageBox.setOption(QMessageBox::Option::DontUseNativeDialog); // styled by VLCMenuStyle
 
     messageBox.setText(text);
 
@@ -792,6 +794,14 @@ void DialogsProvider::simpleOpenDialog(bool start)
  **/
 void DialogsProvider::openUrlDialog()
 {
+    /* "Open Location from clipboard": the QML Open Network Stream form preselects the
+     * clipboard locations itself */
+    if (p_intf->p_mi && var_InheritBool(p_intf, "qt-qml-settings"))
+    {
+        emit showOpenNetworkStream();
+        return;
+    }
+
     OpenUrlDialog oud( p_intf );
     if( oud.exec() != QDialog::Accepted )
         return;
