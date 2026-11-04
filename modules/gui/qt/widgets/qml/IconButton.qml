@@ -26,7 +26,16 @@ import VLC.Widgets as Widgets
 T.Button {
     id: control
 
-    property color color: "white"
+    readonly property ColorContext colorContext: ColorContext {
+        id: theme
+        colorSet: ColorContext.ToolButton
+
+        enabled: control.enabled
+        hovered: control.hovered
+        pressed: control.down
+    }
+
+    property color color: theme.fg.primary
     property string description
 
     // Opt-in SVG icon, see IconToolButton. When set, `color` recolours the
@@ -36,7 +45,7 @@ T.Button {
     readonly property bool _svg: (iconName !== "")
 
     property int textStyle: Text.Normal
-    property color textStyleColor: "black"
+    property color textStyleColor: theme.bg.primary
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)

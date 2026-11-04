@@ -1060,6 +1060,7 @@ qml_modules += {
         'widgets/qml/SegmentedControl.qml',
         'widgets/qml/Dropdown.qml',
         'widgets/qml/DialogButton.qml',
+        'widgets/qml/FocusRing.qml',
         'widgets/qml/SettingButton.qml',
         'widgets/qml/IconButton.qml',
         'widgets/qml/IconToolButton.qml',

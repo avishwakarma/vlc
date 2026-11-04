@@ -25,7 +25,7 @@ ToolTipExt {
 
     margins: 0
     padding: VLCStyle.margin_xxsmall
-    radius: VLCStyle.dp(6, VLCStyle.scale)
+    radius: VLCStyle.radius_tooltip
 
     height: implicitHeight + background.arrowHeight
     bottomInset: height - implicitHeight
@@ -33,7 +33,7 @@ ToolTipExt {
     implicitHeight: (implicitContentHeight + topPadding + bottomPadding)
 
     x: _x
-    y: _pos.y - (implicitHeight + arrowArea.implicitHeight + VLCStyle.dp(7.5, VLCStyle.scale))
+    y: _pos.y - (implicitHeight + arrowArea.implicitHeight + VLCStyle.spacing_8)
 
     readonly property real _x: _pos.x - (width / 2)
     property point pos
@@ -78,8 +78,8 @@ ToolTipExt {
                 anchors.horizontalCenterOffset: (pointingTooltip._x - pointingTooltip.x)
                 anchors.verticalCenter: parent.top
 
-                implicitWidth: VLCStyle.dp(10, VLCStyle.scale)
-                implicitHeight: VLCStyle.dp(10, VLCStyle.scale)
+                implicitWidth: VLCStyle.spacing_10
+                implicitHeight: VLCStyle.spacing_10
 
                 rotation: 45
 

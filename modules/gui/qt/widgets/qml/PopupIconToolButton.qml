@@ -100,10 +100,10 @@ Widgets.IconToolButton {
                 colorSet: ColorContext.Window
             }
 
-            radius: VLCStyle.dp(8, VLCStyle.scale)
+            radius: VLCStyle.radius_popup
 
             // NOTE: The opacity should be stronger on a light background for readability.
-            color: popupTheme.bg.primary.alpha(popupTheme.palette.isDark ? 0.8 : 0.96)
+            color: popupTheme.bg.primary.alpha(popupTheme.palette.isDark ? 0.8 : 0.96)  // opaque enough for text on light video/library backgrounds
         }
     }
 

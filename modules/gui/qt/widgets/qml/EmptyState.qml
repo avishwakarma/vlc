@@ -127,7 +127,7 @@ FocusScope {
                                                + ".svg")
                                      .color1(theme.fg.highlight)
                                      .accent(theme.accent)
-                                     .color2(Qt.darker(theme.accent, 1.3))
+                                     .color2(theme.accentDim)
                                      .uri()
             }
         }

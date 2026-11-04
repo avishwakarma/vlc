@@ -57,7 +57,7 @@ T.Button {
 
         color: {
             if (control.pressed || (control.externalPressed && control._paintHovered))
-                return Qt.darker(control.hoverColor, 1.2)
+                return Qt.alpha(control.hoverColor, 0.8)
 
             if (control._paintHovered)
                 return control.hoverColor

@@ -58,8 +58,8 @@ T.CheckBox {
         x: control.text ? (control.mirrored ? control.width - width - control.rightPadding : control.leftPadding) : control.leftPadding + (control.availableWidth - width) / 2
         y: control.topPadding + (control.availableHeight - height) / 2
 
-        color: control.down ? Qt.lighter(theme.accent) : theme.bg.primary
-        border.width: control.visualFocus ? VLCStyle.dp(2, VLCStyle.scale) : VLCStyle.dp(1, VLCStyle.scale)
+        color: control.down ? theme.accentBright : theme.bg.primary
+        border.width: control.visualFocus ? VLCStyle.focusRing_width : VLCStyle.border
         border.color: control.visualFocus ? theme.accent : theme.fg.primary
         border.pixelAligned: (radius < Number.EPSILON)
 
@@ -82,7 +82,7 @@ T.CheckBox {
             verticalAlignment: Text.AlignVCenter
 
             font.pixelSize: Math.min(width, height)
-            font.weight: Font.DemiBold
+            font.weight: VLCStyle.fontWeight_semibold
             minimumPixelSize: 1
             fontSizeMode: Text.Fit
 

@@ -55,7 +55,7 @@ T.Control {
 
     // Settings
 
-    implicitWidth: VLCStyle.dp(213, VLCStyle.scale)
+    implicitWidth: VLCStyle.size_segmented_w
     implicitHeight: compact ? VLCStyle.segmentedCompact_h : VLCStyle.segmented_h
 
     padding: VLCStyle.spacing_2
@@ -103,8 +103,8 @@ T.Control {
         radius: VLCStyle.radius_m
         color: theme.bg.secondary
 
-        border.width: VLCStyle.dp(1, VLCStyle.scale)
-        border.color: control.visualFocus ? theme.visualFocus : Qt.darker(color, 2.0)
+        border.width: VLCStyle.border
+        border.color: control.visualFocus ? theme.visualFocus : theme.border
     }
 
     contentItem: Row {

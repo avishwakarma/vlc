@@ -107,12 +107,12 @@ T.Slider {
 
         radius: VLCStyle.radius_s
 
-        color: control.pressed ? Qt.darker(control.handleColor, 1.2)
-                               : (control.hovered || control.visualFocus ? Qt.lighter(control.handleColor, 1.15)
-                                                                          : control.handleColor)
+        // pressed = dimmed accent (token), hover/focus = outline instead of a derived tint
+        color: control.pressed ? theme.accentDim : control.handleColor
 
-        border.width: control.visualFocus ? VLCStyle.dp(1, VLCStyle.scale) : 0
-        border.color: theme.visualFocus
+        border.width: control.visualFocus ? VLCStyle.focusRing_width
+                                          : (control.hovered ? VLCStyle.border : 0)
+        border.color: control.visualFocus ? theme.visualFocus : theme.accentText
 
         Behavior on color {
             ColorAnimation { duration: VLCStyle.duration_short }

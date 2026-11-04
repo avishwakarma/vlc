@@ -75,7 +75,7 @@ FocusScope {
 
         font.pixelSize: VLCStyle.icon_banner
 
-        text: VLCIcons.search
+        text: qsTr("Filter")
         iconName: "search"
         description: qsTr("Filter")
 
@@ -168,8 +168,8 @@ FocusScope {
 
                 implicitWidth: VLCStyle.widthSearchInput
 
-                padding: VLCStyle.dp(6, VLCStyle.scale)
-                leftPadding: padding + VLCStyle.dp(4, VLCStyle.scale)
+                padding: VLCStyle.spacing_6
+                leftPadding: padding + VLCStyle.spacing_4
                 rightPadding: leftPadding + (insideRow.visible ? insideRow.width : 0.0)
 
                 radius: clearButton.radius
@@ -240,11 +240,9 @@ FocusScope {
                         id: caseSensitiveToggleButton
 
                         anchors.verticalCenter: parent.verticalCenter
-
-                        // Animating font properties with native rendering is probably not a good idea:
-                        font.pixelSize: 0.6 * (contentItem.renderType === Text.QtRendering ? textField.height
-                                                                                           : textField.implicitHeight)
-                        text: VLCIcons.ic_fluent_text_change_case_24_regular
+                        text: qsTr("Case sensitive")
+        iconName: "case-sensitive"
+        iconSize: VLCStyle.icon_normal
 
                         description: qsTr("Case sensitive")
 
@@ -261,11 +259,9 @@ FocusScope {
                         id: regexToggleButton
 
                         anchors.verticalCenter: parent.verticalCenter
-
-                        // Animating font properties with native rendering is probably not a good idea:
-                        font.pixelSize: 0.6 * (contentItem.renderType === Text.QtRendering ? textField.height
-                                                                                           : textField.implicitHeight)
-                        text: VLCIcons.regex
+                        text: qsTr("Regular expression")
+        iconName: "regex"
+        iconSize: VLCStyle.icon_normal
 
                         description: qsTr("Use regular expression")
 
@@ -282,11 +278,9 @@ FocusScope {
                         id: clearButton
 
                         anchors.verticalCenter: parent.verticalCenter
-
-                        // Animating font properties with native rendering is probably not a good idea:
-                        font.pixelSize: 0.6 * (contentItem.renderType === Text.QtRendering ? textField.height
-                                                                                           : textField.implicitHeight)
-                        text: VLCIcons.close
+                        text: qsTr("Clear")
+        iconName: "close"
+        iconSize: VLCStyle.icon_normal
 
                         description: qsTr("Clear")
 

@@ -40,7 +40,7 @@ T.Switch {
     property color colorOff: offTheme.bg.primary           // label area, OFF
     property color colorHandle: (checked) ? theme.fg.secondary
                                           : theme.fg.primary
-    property color colorLabelOn: theme.accent
+    property color colorLabelOn: theme.accentText
     property color colorLabelOff: viewTheme.fg.secondary
 
     // Settings
@@ -97,9 +97,9 @@ T.Switch {
         radius: VLCStyle.radius_m
         color: root.color
 
-        border.width: VLCStyle.dp(1, VLCStyle.scale)
+        border.width: VLCStyle.border
         border.color: root.visualFocus ? theme.visualFocus
-                                       : (root.hovered ? theme.fg.primary : Qt.darker(root.color, 2.0))
+                                       : (root.hovered ? theme.fg.primary : theme.separator)
 
         Behavior on border.color {
             ColorAnimation { duration: root.animationDuration }
@@ -151,8 +151,7 @@ T.Switch {
 
             x: root.checked ? (root.width - root._inset - width) : root._inset
 
-            color: root.down ? Qt.darker(root.colorHandle, 1.2)
-                             : (root.hovered ? Qt.lighter(root.colorHandle, 1.15) : root.colorHandle)
+            color: root.down ? (root.checked ? theme.accent : theme.fg.highlight) : root.colorHandle
 
             Behavior on x {
                 NumberAnimation { duration: root.animationDuration; easing.type: Easing.OutQuad }

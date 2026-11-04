@@ -34,8 +34,8 @@ Item {
     property alias secondaryHorizontalOffset: secondaryShadow.xOffset
     property alias secondaryBlurRadius: secondaryShadow.blurRadius
 
-    primaryColor: Qt.rgba(0, 0, 0, .18)
-    secondaryColor: Qt.rgba(0, 0, 0, .22)
+    primaryColor: VLCStyle.shadowColor(.18)
+    secondaryColor: VLCStyle.shadowColor(.22)
 
     RoundedRectangleShadow {
         id: primaryShadow

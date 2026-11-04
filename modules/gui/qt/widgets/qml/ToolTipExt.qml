@@ -38,16 +38,16 @@ T.ToolTip {
 
     margins: VLCStyle.margin_xsmall
     // Figma tooltip (2245:9805): padding 10, radius 6
-    padding: VLCStyle.dp(10, VLCStyle.scale)
+    padding: VLCStyle.spacing_10
 
     // wider texts wrap
-    readonly property real maxTextWidth: VLCStyle.dp(360, VLCStyle.scale)
+    readonly property real maxTextWidth: VLCStyle.size_tooltip_maxw
 
     font.pixelSize: VLCStyle.text_body
 
     closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent | T.Popup.CloseOnReleaseOutsideParent
 
-    property real radius: VLCStyle.dp(6, VLCStyle.scale)
+    property real radius: VLCStyle.radius_tooltip
 
     Component.onCompleted: {
         if (control.popupType !== undefined) {
@@ -127,7 +127,7 @@ T.ToolTip {
     }
 
     background: Rectangle {
-        border.width: VLCStyle.dp(1, VLCStyle.scale)
+        border.width: VLCStyle.border
         border.color: theme.border
         border.pixelAligned: (radius < Number.EPSILON)
         color: theme.bg.primary

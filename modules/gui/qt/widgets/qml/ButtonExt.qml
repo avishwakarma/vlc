@@ -76,7 +76,7 @@ T.Button {
     padding: VLCStyle.margin_xsmall
     spacing: VLCStyle.margin_xsmall
 
-    font.pixelSize: VLCStyle.fontSize_normal
+    font.pixelSize: VLCStyle.text_body
 
     // Keys
 
@@ -202,8 +202,8 @@ T.Button {
 
             elide: Text.ElideRight
 
-            font.pixelSize: VLCStyle.fontSize_normal
-            font.weight: Font.DemiBold
+            font.pixelSize: VLCStyle.text_body
+            font.weight: VLCStyle.fontWeight_semibold
 
             textFormat: Text.PlainText
 
