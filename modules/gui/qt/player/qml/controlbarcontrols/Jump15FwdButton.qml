@@ -32,7 +32,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && Player.isStarted
 
-    text: VLCIcons.skip_for
+    text: description
     iconName: "forward-15-sec"
 
     description: qsTr("Forward 15 seconds")

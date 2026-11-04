@@ -33,7 +33,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && Player.isStarted && MainCtx.mediaLibraryAvailable
 
-    text: VLCIcons.bookmark
+    text: description
     iconName: "bookmarks"
 
     description: qsTr("Bookmarks")

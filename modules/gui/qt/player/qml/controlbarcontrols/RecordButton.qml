@@ -30,7 +30,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && Player.isStarted
 
-    text: VLCIcons.record
+    text: description
     iconName: "record"
     iconNameChecked: "record-active"
     checked: Player.recording

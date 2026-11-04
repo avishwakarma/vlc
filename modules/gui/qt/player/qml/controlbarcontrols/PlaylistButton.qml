@@ -30,7 +30,7 @@ import VLC.Util
 Widgets.IconToolButton {
     id: playlistBtn
 
-    text: VLCIcons.playlist
+    text: description
     iconName: "lists"
     iconNameChecked: "lists-active"
 

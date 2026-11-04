@@ -29,7 +29,9 @@ Widgets.IconToolButton {
 
     enabled: Player.ratechangable
 
-    text: VLCIcons.previous_frame
+    text: description
+
+    iconName: "frame-previous"
     onClicked: Player.framePrev()
     description: qsTr("Previous frame")
 

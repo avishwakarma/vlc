@@ -34,7 +34,9 @@ PopupIconToolButton {
 
     enabled: Player.isTeletextAvailable
 
-    text: VLCIcons.tvtelx
+    text: description
+
+    iconName: "teletext"
 
     description: qsTr("Teletext")
 

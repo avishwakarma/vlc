@@ -30,7 +30,9 @@ Widgets.IconToolButton {
 
     enabled: Player.ratechangable
 
-    text: VLCIcons.next_frame
+    text: description
+
+    iconName: "frame-next"
     onClicked: Player.frameNext()
     description: qsTr("Next frame")
 

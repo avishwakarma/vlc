@@ -29,7 +29,9 @@ import VLC.Util
 Widgets.IconToolButton {
     enabled: Player.rewindable
 
-    text: VLCIcons.play_reverse
+    text: description
+
+    iconName: "reverse"
     description: qsTr("Reverse")
 
     AccessibleCompat.id: "reverseButton"

@@ -28,7 +28,9 @@ Widgets.IconToolButton {
 
     enabled: Player.seekable
 
-    text: VLCIcons.skip_for
+    text: description
+
+    iconName: "step-forward"
     onClicked: Player.jumpFwd()
     description: qsTr("Step forward")
 

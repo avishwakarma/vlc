@@ -31,7 +31,9 @@ Widgets.IconToolButton {
 
     signal requestLockUnlockAutoHide(bool lock)
 
-    text: VLCIcons.tv
+    text: description
+
+    iconName: "tv"
 
     description: qsTr("Programs")
 

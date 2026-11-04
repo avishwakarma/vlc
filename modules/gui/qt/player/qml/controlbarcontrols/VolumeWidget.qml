@@ -112,7 +112,7 @@ T.Pane {
             }
 
             // glyph text is only needed as a fallback by the base type
-            text: VLCIcons.volume_high
+            text: description
             description: qsTr("Mute")
 
             T.ToolTip.text: PlayerAux.tip(description, "vol-mute")

@@ -29,7 +29,8 @@ Widgets.IconToolButton {
     id: infoBtn
 
     enabled: Player.isStarted
-    text: VLCIcons.info
+    text: description
+    iconName: "info"
     onClicked: DialogsProvider.mediaInfoDialog()
     description: qsTr("Information")
 

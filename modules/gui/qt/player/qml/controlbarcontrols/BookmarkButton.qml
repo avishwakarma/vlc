@@ -32,7 +32,9 @@ Widgets.IconToolButton {
 
     signal requestLockUnlockAutoHide(bool lock)
 
-    text: VLCIcons.bookmark
+    text: description
+
+    iconName: "bookmark"
     description: qsTr("Bookmarks")
 
     AccessibleCompat.id: "bookmarkButton"

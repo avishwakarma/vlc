@@ -34,7 +34,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && Player.hasVideoOutput
 
-    text: VLCIcons.info
+    text: description
     iconName: "PiP"
     checkable: false
     checked: active

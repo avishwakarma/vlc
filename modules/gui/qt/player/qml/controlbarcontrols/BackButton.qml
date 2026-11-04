@@ -26,7 +26,9 @@ import VLC.Util
 Widgets.IconToolButton {
     id: backBtn
 
-    text: VLCIcons.back
+    text: description
+
+    iconName: "arrow-left"
     description: qsTr("Back")
 
     AccessibleCompat.id: "backButton"

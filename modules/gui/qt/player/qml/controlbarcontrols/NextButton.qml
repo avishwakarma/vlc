@@ -28,7 +28,7 @@ import VLC.Util
 Widgets.IconToolButton {
     id: nextBtn
 
-    text: VLCIcons.next
+    text: description
     iconName: "next"
     enabled: MainPlaylistController.hasNext
     onClicked: MainPlaylistController.next()

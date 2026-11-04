@@ -29,7 +29,9 @@ Widgets.IconToolButton {
 
     enabled: Player.ratechangable
 
-    text: VLCIcons.faster
+    text: description
+
+    iconName: "faster"
     onClicked: Player.faster()
     description: qsTr("Faster")
 

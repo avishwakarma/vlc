@@ -35,7 +35,7 @@ Widgets.IconToolButton {
 
     iconName: "sidebar-left"
     iconNameChecked: "sidebar-active"
-    text: VLCIcons.more
+    text: description
     checkable: true
     checked: PlayerHost.sidebarVisible
     enabled: !paintOnly

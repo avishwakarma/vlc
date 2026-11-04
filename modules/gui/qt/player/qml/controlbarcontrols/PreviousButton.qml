@@ -28,7 +28,7 @@ import VLC.Util
 Widgets.IconToolButton {
     id: prevBtn
 
-    text: VLCIcons.previous
+    text: description
     iconName: "previous"
     enabled: MainPlaylistController.hasPrev
     onClicked: MainPlaylistController.prev()

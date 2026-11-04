@@ -32,7 +32,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && MainCtx.mediaLibraryAvailable
 
-    text: VLCIcons.playlist
+    text: description
     iconName: "playlist"
 
     description: qsTr("Playlists")

@@ -32,7 +32,7 @@ ChoicePopupButton {
 
     enabled: !paintOnly && Player.hasChapters
 
-    text: VLCIcons.info
+    text: description
     iconName: "chapters"
 
     description: qsTr("Chapters")

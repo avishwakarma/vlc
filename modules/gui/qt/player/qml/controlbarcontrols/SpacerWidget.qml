@@ -43,19 +43,15 @@ Item {
         enabled: spacer.enabled || spacer.paintOnly
     }
 
-    T.Label {
+    Widgets.SvgIcon {
         id: spacetext
-        text: VLCIcons.space
+
+        name: "spacer"
+        size: VLCStyle.icon_toolbar
         color: theme.fg.secondary
         visible: parent.paintOnly
 
         anchors.centerIn: parent
-
-        font.pixelSize: VLCStyle.icon_toolbar
-        font.family: VLCIcons.fontFamily
-
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
 
         Accessible.ignored: true
     }

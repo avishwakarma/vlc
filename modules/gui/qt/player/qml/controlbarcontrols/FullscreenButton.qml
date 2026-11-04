@@ -47,7 +47,7 @@ Widgets.IconToolButton {
     readonly property bool _fullscreen: Player.hasVideoOutput ? Player.fullscreen : PlayerHost.windowFullscreen
 
     enabled: !paintOnly
-    text: _fullscreen ? VLCIcons.defullscreen : VLCIcons.fullscreen
+    text: description
     iconName: _fullscreen ? "fullscreen-active" : "fullscreen"
     onClicked: {
         if (Player.hasVideoOutput)

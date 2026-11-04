@@ -43,7 +43,7 @@ Widgets.IconToolButton {
 
     // Settings
 
-    text: VLCIcons.audiosub
+    text: description
 
     // Redesign: the control bar instantiates one button for audio ("audio") and one
     // for subtitles ("subtitles"); the legacy combined button keeps the glyph.

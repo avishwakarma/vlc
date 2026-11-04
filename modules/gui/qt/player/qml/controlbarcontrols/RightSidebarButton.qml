@@ -32,7 +32,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly
 
-    text: VLCIcons.playlist
+    text: description
     iconName: "sidebar-right"
     iconNameChecked: "sidebar-active"
     checked: PlayerHost.playlistVisible

@@ -32,7 +32,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && Player.isStarted
 
-    text: VLCIcons.info
+    text: description
     iconName: "replay"
 
     description: qsTr("Replay")

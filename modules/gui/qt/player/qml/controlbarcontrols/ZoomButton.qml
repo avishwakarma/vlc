@@ -32,7 +32,7 @@ ChoicePopupButton {
 
     enabled: !paintOnly && Player.hasVideoOutput
 
-    text: VLCIcons.aspect_ratio
+    text: description
     iconName: "zoom"
 
     description: qsTr("Zoom")

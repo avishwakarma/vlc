@@ -29,9 +29,7 @@ Widgets.IconToolButton {
     id: repeatBtn
 
     checked: MainPlaylistController.repeatMode !== PlaylistController.PLAYBACK_REPEAT_NONE
-    text: (MainPlaylistController.repeatMode === PlaylistController.PLAYBACK_REPEAT_CURRENT)
-          ? VLCIcons.repeat_one
-          : VLCIcons.repeat_all
+    text: description
     iconName: "repeat-right"
     onClicked: MainPlaylistController.toggleRepeatMode()
     description: qsTr("Repeat")

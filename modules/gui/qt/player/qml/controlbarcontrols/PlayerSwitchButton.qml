@@ -24,7 +24,8 @@ import VLC.Util
 
 
 Widgets.IconToolButton {
-    text: VLCIcons.fullscreen
+    text: description
+    iconName: "fullscreen"
 
     onClicked: {
         MainCtx.playerView = !MainCtx.playerView

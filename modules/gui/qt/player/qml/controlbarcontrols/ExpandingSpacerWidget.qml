@@ -40,19 +40,15 @@ Item {
         colorSet: ColorContext.ButtonStandard
     }
 
-    T.Label {
+    Widgets.SvgIcon {
         id: spacetext
-        anchors.centerIn: parent
 
-        text: VLCIcons.space
+        name: "spacer"
+        size: VLCStyle.icon_toolbar
         color: theme.fg.secondary
         visible: paintOnly
 
-        font.pixelSize: VLCStyle.icon_toolbar
-        font.family: VLCIcons.fontFamily
-
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
+        anchors.centerIn: parent
 
         Accessible.ignored: true
     }
