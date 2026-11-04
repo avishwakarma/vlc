@@ -18,6 +18,8 @@
 
 import QtQuick
 
+import VLC.Style
+
 // A convenience file to encapsulate two drop shadow rectangles stacked
 Item {
     id: root
