@@ -119,6 +119,9 @@ class MainCtx : public QObject
     Q_PROPERTY(QStringList accentPresets READ accentPresets CONSTANT FINAL)
     Q_PROPERTY(bool hasVLM READ hasVLM CONSTANT FINAL)
     Q_PROPERTY(bool clientSideDecoration READ useClientSideDecoration NOTIFY useClientSideDecorationChanged FINAL)
+    Q_PROPERTY(bool nativeTrafficLights READ nativeTrafficLights NOTIFY useClientSideDecorationChanged FINAL)
+    //width (points) reserved at the start of the title bar for the macOS traffic lights, measured from the NSWindow
+    Q_PROPERTY(qreal trafficLightsInset READ trafficLightsInset WRITE setTrafficLightsInset NOTIFY trafficLightsInsetChanged FINAL)
     Q_PROPERTY(bool hasFirstrun READ hasFirstrun CONSTANT FINAL)
     Q_PROPERTY(int  csdBorderSize READ CSDBorderSize NOTIFY useClientSideDecorationChanged FINAL)
     Q_PROPERTY(bool hasToolbarMenu READ hasToolbarMenu WRITE setHasToolbarMenu NOTIFY hasToolbarMenuChanged FINAL)
@@ -249,6 +252,10 @@ public:
     QStringList accentPresets() const;
     bool hasVLM() const;
     bool useClientSideDecoration() const;
+    //macOS: the native traffic lights sit on top of the (expanded client area) in-app title bar
+    bool nativeTrafficLights() const;
+    qreal trafficLightsInset() const { return m_trafficLightsInset; }
+    void setTrafficLightsInset(qreal inset);
     bool hasFirstrun() const;
     inline bool hasToolbarMenu() const { return m_hasToolbarMenu; }
     inline bool canShowVideoPIP() const { return m_canShowVideoPIP; }
@@ -525,6 +532,7 @@ protected:
     unsigned m_windowExtendedMargin = 0;
 
     std::unique_ptr<CSDButtonModel> m_csdButtonModel;
+    qreal m_trafficLightsInset = 78.0;
 
     SearchCtx* m_search = nullptr;
     SortCtx* m_sort = nullptr;
@@ -601,6 +609,7 @@ signals:
     void colorSchemeChanged( QString );
     void accentColorChanged();
     void useClientSideDecorationChanged();
+    void trafficLightsInsetChanged();
     void hasToolbarMenuChanged();
 
     /// forward window maximise query to the actual window or widget

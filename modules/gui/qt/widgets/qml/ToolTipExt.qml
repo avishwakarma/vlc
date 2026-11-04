@@ -30,19 +30,24 @@ T.ToolTip {
     x: 0
     y: -implicitHeight - VLCStyle.margin_xxxsmall
 
-    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + leftPadding + rightPadding)
+    implicitWidth: Math.min(Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                                     implicitContentWidth + leftPadding + rightPadding),
+                            maxTextWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
 
     margins: VLCStyle.margin_xsmall
-    padding: VLCStyle.margin_xsmall
+    // Figma tooltip (2245:9805): padding 10, radius 6
+    padding: VLCStyle.dp(10, VLCStyle.scale)
+
+    // wider texts wrap
+    readonly property real maxTextWidth: VLCStyle.dp(360, VLCStyle.scale)
 
     font.pixelSize: VLCStyle.text_body
 
     closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent | T.Popup.CloseOnReleaseOutsideParent
 
-    property real radius: VLCStyle.radius_s
+    property real radius: VLCStyle.dp(6, VLCStyle.scale)
 
     Component.onCompleted: {
         if (control.popupType !== undefined) {
@@ -71,6 +76,9 @@ T.ToolTip {
     readonly property ColorContext colorContext: ColorContext {
         id: theme
         colorSet: ColorContext.Tooltip
+        // A Popup is not an Item: without an explicit palette the context has no parent to inherit
+        // from and every colour falls back to magenta.
+        palette: VLCStyle.palette
     }
 
     contentItem: Text {
@@ -78,7 +86,8 @@ T.ToolTip {
 
         text: control.text
         font: control.font
-        wrapMode: textMetrics.width > maxContentWidth ? Text.WordWrap : Text.NoWrap
+        wrapMode: Text.WordWrap
+        width: control.availableWidth
         color: theme.fg.primary
 
         property QtWindow _lastWindowForNoRedirectionSurface

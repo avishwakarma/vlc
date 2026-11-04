@@ -95,7 +95,23 @@ void ColorContext::componentComplete()
 {
     QQuickItem* contextParent = qobject_cast<QQuickItem*>(QObject::parent());
     if (!contextParent)
+    {
+        // The owner is not an Item, typically a Popup/ToolTip/Menu (they are not part of the visual tree
+        // so nothing would be inherited and every colour would be magenta). Inherit from the context
+        // of the item the popup is anchored to.
+        QObject* owner = QObject::parent();
+        QQuickItem* anchor = owner ? owner->property("parent").value<QQuickItem*>() : nullptr;
+        for (; anchor != nullptr; anchor = anchor->parentItem())
+        {
+            ColorContext* anchorCtx = anchor->findChild<ColorContext*>({}, Qt::FindDirectChildrenOnly);
+            if (anchorCtx && anchorCtx != this)
+            {
+                setParentContext(anchorCtx);
+                break;
+            }
+        }
         return;
+    }
 
     connect(contextParent, &QQuickItem::parentChanged, this, &ColorContext::onParentChanged);
 
@@ -391,7 +407,15 @@ void ColorContextState::updateState()
 QColor ColorContext::getColor(ColorSection section, ColorName color) const
 {
     if (!m_palette)
-        return Qt::magenta;
+    {
+        // Not bound to a palette yet (inheritance resolves after creation): use the application palette
+        // instead of flashing magenta on the first frame.
+        if (SystemPalette* fallback = SystemPalette::fallbackPalette())
+            return fallback->getColor(m_colorSet, section, color, m_state ? m_state->m_state : ColorContext::Normal);
+        if (qEnvironmentVariableIsSet("VLC_MAGENTA_DEBUG"))
+            qWarning("MAGENTA no-palette-at-all set=%d section=%d name=%d", int(m_colorSet), int(section), int(color));
+        return Qt::transparent;
+    }
 
     return m_palette->getColor(m_colorSet, section,  color, m_state ? m_state->m_state : ColorContext::Normal);
 }

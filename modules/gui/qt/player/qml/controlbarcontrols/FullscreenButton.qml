@@ -33,7 +33,7 @@ Widgets.IconToolButton {
     readonly property bool keepSize: inTitleBar
 
     // in the title bar of a window decorated by the system the toggle is not needed (except to leave fullscreen)
-    readonly property bool hostHidden: inTitleBar && !PlayerHost.showCSD && !PlayerHost.windowFullscreen
+    readonly property bool hostHidden: inTitleBar && (!PlayerHost.showCSD || MainCtx.nativeTrafficLights) && !PlayerHost.windowFullscreen
 
     implicitWidth: inTitleBar ? VLCStyle.windowButton_w : Math.max(implicitBackgroundWidth + leftInset + rightInset,
                                                                     implicitContentWidth + leftPadding + rightPadding)

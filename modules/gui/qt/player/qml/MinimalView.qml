@@ -150,9 +150,9 @@ FocusScope {
             }
 
             focus: false
-            active:  root._showCSD
-            enabled: root._showCSD
-            visible: root._showCSD
+            active:  root._showCSD && !MainCtx.nativeTrafficLights
+            enabled: active
+            visible: active
             source:  VLCStyle.palette.hasCSDImage
                      ? "qrc:///qt/qml/VLC/Widgets/CSDThemeButtonSet.qml"
                      : "qrc:///qt/qml/VLC/Widgets/CSDWindowButtonSet.qml"

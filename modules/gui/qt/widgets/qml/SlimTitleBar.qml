@@ -152,14 +152,18 @@ FocusScope {
         }
     }
 
+    // macOS: the native traffic lights cover the start of the bar, no cone of our own
+    readonly property bool nativeButtons: MainCtx.nativeTrafficLights && !root.fullscreen
+
     // cone: 38x28 box (padding 7/2), 24px icon, then a 7px gap before the items
     Item {
         id: cone
+        visible: !root.nativeButtons
 
         x: VLCStyle.spacing_6
         anchors.verticalCenter: parent.verticalCenter
 
-        width: VLCStyle.dp(38, VLCStyle.scale)
+        width: root.nativeButtons ? 0 : VLCStyle.dp(38, VLCStyle.scale)
         height: VLCStyle.windowButton_h
 
         Widgets.SvgIcon {
@@ -181,7 +185,8 @@ FocusScope {
         keyPrefix: "top"
         model: root.model
 
-        leftInset: cone.width + VLCStyle.dp(7, VLCStyle.scale)
+        leftInset: root.nativeButtons ? (VLCStyle.trafficLights_inset - VLCStyle.spacing_6)
+                                          : cone.width + VLCStyle.dp(7, VLCStyle.scale)
         zoneSpacing: VLCStyle.spacing_16
 
         focus: true

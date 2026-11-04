@@ -394,6 +394,8 @@ QtObject {
     readonly property real viewport_inset: MainCtx.dp(10, scale)       // player video inset / visible corner radius base
     readonly property real viewport_radius: MainCtx.dp(10, scale)      // visible video corner radius (Figma 19 is the stroke centre-line)
     readonly property real windowButton_w: MainCtx.dp(36, scale)
+    // room left at the start of the title bar for the native macOS traffic lights (3 x 14pt + gaps + margin)
+    readonly property real trafficLights_inset: MainCtx.trafficLightsInset  // measured from the NSWindow (points)
     readonly property real windowButton_h: MainCtx.dp(28, scale)
     readonly property real iconButton_w: MainCtx.dp(30, scale)
     readonly property real iconButton_h: MainCtx.dp(32, scale)

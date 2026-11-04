@@ -69,6 +69,10 @@ private:
 
 protected:
     virtual void updateCSDWindowSettings();
+#ifdef __APPLE__
+    void updateNativeChrome();
+    void createMacApplicationMenu();
+#endif
 
 protected:
     qt_intf_t* p_intf = nullptr;

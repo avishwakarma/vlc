@@ -37,6 +37,10 @@ FocusScope {
     readonly property bool fullscreen: (MainCtx.intfMainWindow.visibility === Window.FullScreen)
 
     implicitHeight: VLCStyle.titleBar_height
+    // macOS: native traffic lights are drawn over the start of the bar: no cone, no window buttons
+    readonly property bool nativeButtons: MainCtx.nativeTrafficLights
+    readonly property real leadingInset: (nativeButtons && !fullscreen) ? VLCStyle.trafficLights_inset : 0
+
     implicitWidth: cone.width + menuButton.width + VLCStyle.spacing_12 * 2
 
     readonly property ColorContext colorContext: ColorContext {
@@ -65,8 +69,9 @@ FocusScope {
 
         x: VLCStyle.spacing_6
         anchors.verticalCenter: parent.verticalCenter
+        visible: !root.nativeButtons || root.fullscreen
 
-        width: VLCStyle.dp(38, VLCStyle.scale)
+        width: root.nativeButtons && !root.fullscreen ? 0 : VLCStyle.dp(38, VLCStyle.scale)
         height: VLCStyle.windowButton_h
 
         Widgets.SvgIcon {
@@ -80,7 +85,8 @@ FocusScope {
     TitleMenuButton {
         id: menuButton
 
-        x: cone.x + cone.width + VLCStyle.dp(7, VLCStyle.scale)
+        x: root.leadingInset > 0 ? root.leadingInset
+                                 : cone.x + cone.width + VLCStyle.dp(7, VLCStyle.scale)
         anchors.verticalCenter: parent.verticalCenter
 
         focus: true
@@ -123,7 +129,7 @@ FocusScope {
 
         height: VLCStyle.windowButton_h
 
-        active: root.showCSD
+        active: root.showCSD && !root.nativeButtons
         visible: active
 
         sourceComponent: Widgets.CSDWindowButtonSet {

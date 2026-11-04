@@ -298,9 +298,24 @@ void ExternalPaletteImpl::updateMetrics(vlc_qt_theme_image_type type)
     }
 }
 
+static QPointer<SystemPalette> s_fallbackPalette;
+
+SystemPalette* SystemPalette::fallbackPalette()
+{
+    return s_fallbackPalette.data();
+}
+
+SystemPalette::~SystemPalette()
+{
+    if (s_fallbackPalette == this)
+        s_fallbackPalette = nullptr;
+}
+
 SystemPalette::SystemPalette(QObject* parent)
     : QObject(parent)
 {
+    if (!s_fallbackPalette)
+        s_fallbackPalette = this;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     // Auto follows the OS light/dark setting
     if (qGuiApp && qGuiApp->styleHints())
@@ -485,6 +500,8 @@ QColor SystemPalette::getColor(ColorContext::ColorSet colorSet, ColorContext::Co
         if (name == C::Heading)
             return getColor(colorSet, section, C::Primary, state);
         //nothing matches, that's probably an issue, return an ugly color
+        if (qEnvironmentVariableIsSet("VLC_MAGENTA_DEBUG"))
+            qWarning("MAGENTA palette set=%d section=%d name=%d state=%d", int(colorSet), int(section), int(name), int(state));
         return Qt::magenta;
     }
 }
@@ -809,8 +826,11 @@ void SystemPalette::fillPalette(bool dark)
     //tooltip
     {
         C::ColorSet CS = C::Tooltip;
-        setColor(CS, C::Bg, C::Primary, C::Normal, bgA4);
-        setColor(CS, C::Fg, C::Primary, C::Normal, fg2);
+        // Figma (2245:9805): Dark/BG/B1 at 95% with Dark/FG/2 text, in every scheme
+        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha(QColor("#0E0E0E"), 0.95));
+        setColor(CS, C::Fg, C::Primary, C::Normal, QColor("#C6C6C6"));
+        setColor(CS, C::Fg, C::Secondary, C::Normal, QColor("#969696"));
+        setColor(CS, C::Decoration, C::Border, C::Normal, QColor("#2A2A2A"));
     }
 
     //slider
