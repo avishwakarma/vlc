@@ -114,8 +114,8 @@ typedef struct
 #define STYLE_BLINK_BACKGROUND  (1 << 11)
 
 #define STYLE_DEFAULT_FONT_SIZE 20
-/* Redesign: 4.0 % of the video height per em (one line is ~4.3 %), was 6.25 */
-#define STYLE_DEFAULT_REL_FONT_SIZE 4.0
+/* Redesign: 3.4 % of the video height per em (one line is ~3.6 %), was 6.25 */
+#define STYLE_DEFAULT_REL_FONT_SIZE 3.4
 
 
 typedef struct text_segment_t text_segment_t;
