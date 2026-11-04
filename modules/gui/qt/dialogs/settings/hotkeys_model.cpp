@@ -334,3 +334,22 @@ QString HotkeysModel::keyText(const QString& keys) const
     }
     return texts.join(QStringLiteral(", "));
 }
+
+QStringList HotkeysModel::keyCaps(const QString& keys, int which) const
+{
+    const QStringList list = splitKeys(keys);
+    if (which < 0 || which >= list.size())
+        return {};
+    return VLCHotkeyCaps(list.at(which));
+}
+
+QString HotkeysModel::keyGlyphs(const QString& keys) const
+{
+    QStringList texts;
+    for (const QString& key : splitKeys(keys))
+    {
+        const QString glyphs = VLCHotkeyGlyphs(key);
+        texts.append(glyphs.isEmpty() ? key : glyphs);
+    }
+    return texts.join(QStringLiteral(", "));
+}

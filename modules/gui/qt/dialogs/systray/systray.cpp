@@ -54,9 +54,9 @@ VLCSystray::VLCSystray(MainCtx* ctx, QObject* parent)
 #else
     setIcon(iconVLC);
 #endif
-    setToolTip( qtr( "VLC media player" ));
+    setToolTip( qtr( "VLC Redesign" ));
 
-    m_menu = std::make_unique<VLCMenu>( qtr( "VLC media player"), m_intf );
+    m_menu = std::make_unique<VLCMenu>( qtr( "VLC Redesign"), m_intf );
     m_menu->setIcon( iconVLC );
     setContextMenu(m_menu.get());
     update();
@@ -126,7 +126,7 @@ void VLCSystray::updateTooltipName( const QString& name )
 {
     if( name.isEmpty() )
     {
-        setToolTip( qtr( "VLC media player" ) );
+        setToolTip( qtr( "VLC Redesign" ) );
     }
     else
     {
@@ -136,7 +136,7 @@ void VLCSystray::updateTooltipName( const QString& name )
             ( m_notificationSetting == NOTIFICATION_MINIMIZED && (windowVisiblity == QWindow::Hidden || windowVisiblity == QWindow::Minimized)))
         {
             const auto showMessageTemplate = [this, &name](const auto &icon) {
-                showMessage( qtr( "VLC media player" ), name, icon, 3000 );
+                showMessage( qtr( "VLC Redesign" ), name, icon, 3000 );
             };
 
             assert(m_intf);
@@ -183,13 +183,13 @@ void VLCSystray::update()
     if( m_ctx->interfaceVisibility() != QWindow::Hidden )
     {
         m_menu->addAction(
-            QIcon( ":/logo/vlc16.png" ), qtr( "&Hide VLC media player in taskbar" ),
+            QIcon( ":/logo/vlc16.png" ), qtr( "Hide VLC Redesign in Taskbar" ),
             this, &VLCSystray::hideUpdateMenu);
     }
     else
     {
         m_menu->addAction(
-            QIcon( ":/logo/vlc16.png" ), qtr( "Sho&w VLC media player" ),
+            QIcon( ":/logo/vlc16.png" ), qtr( "Show VLC Redesign" ),
             this, &VLCSystray::showUpdateMenu);
     }
     m_menu->addSeparator();
@@ -201,11 +201,11 @@ void VLCSystray::update()
     VLCMenuBar::VolumeEntries( m_intf, m_menu.get() );
     m_menu->addSeparator();
     m_menu->addAction(
-        QIcon(":/menu/file.svg"), qtr( "&Open Media" ),
+        QIcon(":/menu/file.svg"), qtr( "Open Media" ),
         THEDP, &DialogsProvider::openFileDialog);
 
     m_menu->addAction(
-        QIcon(":/menu/exit.svg"), qtr( "&Quit" ),
+        QIcon(":/menu/exit.svg"), qtr( "Quit" ),
         THEDP, &DialogsProvider::quit);
 
     /* Set the menu */

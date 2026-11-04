@@ -22,7 +22,10 @@ import VLC.Dialogs
 import VLC.Menus
 
 Item {
-    ShortcutExt{ sequence:"Ctrl+B"; onActivated: DialogsProvider.bookmarksDialog() }
+    readonly property bool mac: Qt.platform.os === "osx"
+
+    // the menu bar (Playback > Bookmarks > Manage) owns Cmd+B on macOS
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+B"; onActivated: DialogsProvider.bookmarksDialog() }
 
     MLRecentMediaModel {
         id: recentModel
@@ -36,7 +39,8 @@ Item {
 
         Item {
             ShortcutExt {
-                sequence: "Ctrl+" + ((index + 1) % 10)
+                // Cmd+1..3 are the video zoom hotkeys on macOS: recent items are Cmd+Alt+digit there
+                sequence: (mac ? "Ctrl+Alt+" : "Ctrl+") + ((index + 1) % 10)
                 onActivated:  {
                     if (index < recentModel.count)
                     {

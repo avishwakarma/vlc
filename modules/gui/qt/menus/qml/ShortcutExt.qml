@@ -20,6 +20,11 @@ import QtQuick
 import VLC.MainInterface
 
 Shortcut {
+    // On macOS the native menu bar (VLCMenuBar::MacMenuBar) owns the shortcuts of its entries: a
+    // second Shortcut with the same sequence would make both ambiguous. Entries the bar owns set
+    // menuBarOwned, the shortcut is then only active on the other platforms.
+    property bool menuBarOwned: false
+
     context: Qt.ApplicationShortcut
-    enabled: MainCtx.useGlobalShortcuts
+    enabled: MainCtx.useGlobalShortcuts && !(menuBarOwned && Qt.platform.os === "osx")
 }

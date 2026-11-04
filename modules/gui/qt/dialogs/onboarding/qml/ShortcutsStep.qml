@@ -20,30 +20,55 @@ import QtQuick
 import VLC.MainInterface
 import VLC.Style
 
-// Step 3: basic keyboard shortcuts (Figma 1902:6770). Static key caps: the labels
-// show VLC's default bindings.
+// Step 3: basic keyboard shortcuts (Figma 1902:6770). The key caps are read from the effective
+// hotkey configuration (SettingsModel.hotkeys, the same source as the Keyboard Shortcuts sheet,
+// the menus and the menu bar), so they always match what the keys really do.
 Item {
     id: root
 
     function dp(v) { return v * VLCStyle.scale }
 
-    // a key is [text] or [text, true] for narrow keys (12 px padding); "/" is a separator
+    readonly property HotkeysModel hotkeys: SettingsModel.hotkeys
+
+    // caps of the primary binding of "key-xxx", as [text, narrow]; a binding that does not exist gives []
+    function capsOf(action) {
+        const row = hotkeys.indexOf("key-" + action)
+        if (row < 0)
+            return []
+        const caps = hotkeys.keyCaps(hotkeys.get(row).keys, 0)
+        return caps.map(c => [c, c.length === 1 && !/[A-Za-z0-9]/.test(c)])
+    }
+
+    // a key group is the caps of one or several actions, separated by "/"
+    function keysFor(actions) {
+        let res = []
+        for (const a of actions) {
+            const caps = capsOf(a)
+            if (caps.length === 0)
+                continue
+            if (res.length > 0)
+                res.push(["/"])
+            res = res.concat(caps)
+        }
+        return res
+    }
+
     readonly property var leftColumn: [
-        { label: qsTr("Play / Pause"),            keys: [["Space"]] },
-        { label: qsTr("Seek Backward / Forward"), keys: [["←", true], ["/"], ["→", true]] },
-        { label: qsTr("Previous / Next Item"),    keys: [["<", true], ["/"], [">", true]] },
-        { label: qsTr("Previous / Next Frame"),   keys: [[",", true], ["/"], [".", true]] },
-        { label: qsTr("Cycle Subtitle Track"),    keys: [["V"]] },
-        { label: qsTr("Cycle Audio Track"),       keys: [["B"]] }
+        { label: qsTr("Play / Pause"),            keys: keysFor(["play-pause"]) },
+        { label: qsTr("Seek Backward / Forward"), keys: keysFor(["jump-short", "jump+short"]) },
+        { label: qsTr("Previous / Next Item"),    keys: keysFor(["prev", "next"]) },
+        { label: qsTr("Previous / Next Frame"),   keys: keysFor(["frame-previous", "frame-next"]) },
+        { label: qsTr("Cycle Subtitle Track"),    keys: keysFor(["subtitle-track"]) },
+        { label: qsTr("Cycle Audio Track"),       keys: keysFor(["audio-track"]) }
     ]
 
     readonly property var rightColumn: [
-        { label: qsTr("Toggle Fullscreen"),         keys: [["F"]] },
-        { label: qsTr("Increase / Decrease Volume"), keys: [["↑", true], ["/"], ["↓", true]] },
-        { label: qsTr("Show / Hide Queue"),         keys: [["Q"]] },
-        { label: qsTr("Show / Hide File Browser"),  keys: [["L"]] },
-        { label: qsTr("Take a Snapshot"),           keys: [["SHIFT"], ["S"]] },
-        { label: qsTr("Record"),                    keys: [["SHIFT"], ["R"]] }
+        { label: qsTr("Toggle Fullscreen"),          keys: keysFor(["toggle-fullscreen"]) },
+        { label: qsTr("Increase / Decrease Volume"), keys: keysFor(["vol-up", "vol-down"]) },
+        { label: qsTr("Mute"),                       keys: keysFor(["vol-mute"]) },
+        { label: qsTr("Slower / Faster"),            keys: keysFor(["slower", "faster"]) },
+        { label: qsTr("Take a Snapshot"),            keys: keysFor(["snapshot"]) },
+        { label: qsTr("Record"),                     keys: keysFor(["record"]) }
     ]
 
     ColorContext {
@@ -69,7 +94,7 @@ Item {
     Text {
         x: root.dp(62)
         y: root.dp(671)
-        text: qsTr("Find the full list in the menu.")
+        text: qsTr("Find the full list in Help \u203a Keyboard Shortcuts.")
         color: viewTheme.fg.secondary
         font.pixelSize: VLCStyle.text_heading
         font.weight: VLCStyle.fontWeight_regular
@@ -117,8 +142,7 @@ Item {
                 Row {
                     x: root.dp(220 + 20)
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: (row.modelData.keys.length === 2 && row.modelData.keys[0][0] === "SHIFT")
-                             ? root.dp(4) : root.dp(10)
+                    spacing: row.modelData.keys.some(k => k[0] === "/") ? root.dp(10) : root.dp(4)
 
                     Repeater {
                         model: row.modelData.keys

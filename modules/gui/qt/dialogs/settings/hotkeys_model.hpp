@@ -104,6 +104,10 @@ public:
     Q_INVOKABLE QString keyFromEvent(int key, int modifiers) const;
     /// translated text of a raw binding ("Ctrl+a\tSpace" -> "Ctrl+A, Space")
     Q_INVOKABLE QString keyText(const QString& keys) const;
+    /// key caps ("⌥", "⌘", "→") of the which-th binding of a raw binding list
+    Q_INVOKABLE QStringList keyCaps(const QString& keys, int which = 0) const;
+    /// macOS glyph text of every binding of a raw binding list ("⌥⌘→, ←")
+    Q_INVOKABLE QString keyGlyphs(const QString& keys) const;
 
 signals:
     void countChanged();

@@ -31,6 +31,8 @@
 
 #include <QObject>
 
+class QMenuBar;
+
 class VLCMenu : public QMenu
 {
     Q_OBJECT
@@ -92,6 +94,7 @@ public:
     static void MainMenu( qt_intf_t *, QMenu * );
 
     static void ToolsMenu( qt_intf_t *, QMenu * );
+    static void InfoToolsMenu( qt_intf_t *, QMenu * );
 
     static void ViewMenu(qt_intf_t *, QMenu *);
 
@@ -99,6 +102,7 @@ public:
     static void ExtensionsMenu( qt_intf_t *p_intf, QMenu * );
 
     static void NavigMenu( qt_intf_t *, QMenu * );
+    static void NavigTracksEntries( qt_intf_t *, QMenu * );
 
     static void RebuildNavigMenu(qt_intf_t *, QMenu *);
 
@@ -109,6 +113,10 @@ public:
     static void AudioMenu( qt_intf_t *, QMenu * );
 
     static void HelpMenu( qt_intf_t *, QMenu *menu );
+#ifdef __APPLE__
+    /* complete macOS menu bar, see menus.cpp */
+    static void MacMenuBar( qt_intf_t *, QMenuBar * );
+#endif
 
     /* Popups Menus */
     static void PopupMenuStaticEntries( QMenu *menu );

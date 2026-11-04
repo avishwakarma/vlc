@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 #include "interface_window_handler.hpp"
+#include "menus/menus.hpp"
 #include "mainctx.hpp"
 #include "compositor.hpp"
 #include <player/player_controller.hpp>
@@ -280,31 +281,17 @@ void InterfaceWindowHandler::updateNativeChrome()
         m_mainCtx->setTrafficLightsInset(inset);
 }
 
-// Standard macOS application menu: About VLC, Settings... (Cmd+,), through the Qt menu roles.
-// The global menu bar is owned by this (parent-less) QMenuBar.
+// Complete macOS menu bar (VLC, File, Playback, Audio, Video, Subtitles, Window, Help), built from
+// the shared menu builders in menus/menus.cpp. The global menu bar is owned by this (parent-less)
+// QMenuBar. It is filled once the event loop runs, the media library and models are ready then.
 void InterfaceWindowHandler::createMacApplicationMenu()
 {
     if (!qobject_cast<QApplication *>(QCoreApplication::instance()))
         return;
     auto *bar = new QMenuBar(nullptr);
     connect(this, &QObject::destroyed, bar, &QObject::deleteLater); // lifetime
-    QMenu *menu = bar->addMenu(QStringLiteral("VLC"));
-
-    QAction *about = menu->addAction(QStringLiteral("About VLC"));
-    about->setMenuRole(QAction::AboutRole);
-    connect(about, &QAction::triggered, this, []() {
-        if (auto *dp = DialogsProvider::getInstance())
-            dp->aboutDialog();
-    });
-
-    // Cmd+P (GlobalShortcuts.qml) keeps working next to the standard Cmd+,
-    QAction *prefs = menu->addAction(QStringLiteral("Settings..."));
-    prefs->setMenuRole(QAction::PreferencesRole);
-    prefs->setShortcut(QKeySequence(QKeySequence::Preferences));
-    connect(prefs, &QAction::triggered, this, []() {
-        if (auto *dp = DialogsProvider::getInstance())
-            dp->prefsDialog();
-    });
+    QMetaObject::invokeMethod(this, [this, bar]() { VLCMenuBar::MacMenuBar(p_intf, bar); },
+                              Qt::QueuedConnection);
 }
 #endif
 

@@ -57,7 +57,7 @@ RendererMenu::RendererMenu( QMenu* parent, qt_intf_t* intf, PlayerController* pl
     , p_intf( intf )
     , m_renderManager(player->getRendererManager())
 {
-    setTitle( qtr("&Renderer") );
+    setTitle( qtr("Renderer") );
 
     QAction *action = new QAction( qtr("<Local>"), this );
     action->setCheckable(true);
@@ -406,7 +406,7 @@ RecentMenu::RecentMenu(MLRecentMediaModel* model, MediaLib* ml,  QWidget* parent
         m_ml->addAndPlay(id);
     });
 
-    addAction( qtr("&Clear"), model, &MLRecentMediaModel::clearHistory );
+    addAction( qtr("Clear"), model, &MLRecentMediaModel::clearHistory );
 }
 
 // BookmarkMenu
@@ -414,7 +414,7 @@ RecentMenu::RecentMenu(MLRecentMediaModel* model, MediaLib* ml,  QWidget* parent
 BookmarkMenu::BookmarkMenu(MediaLib * mediaLib, vlc_player_t * player, QWidget * parent)
     : QMenu(parent)
 {
-    addAction(qtr("&Manage"), THEDP, &DialogsProvider::bookmarksDialog )->setShortcut(QKeySequence("Ctrl+B"));
+    addAction(qtr("Manage"), THEDP, &DialogsProvider::bookmarksDialog )->setShortcut(QKeySequence("Ctrl+B"));
 
     addSeparator();
 
