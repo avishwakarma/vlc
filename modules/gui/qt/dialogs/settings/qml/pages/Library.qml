@@ -27,7 +27,7 @@
 //   Show hidden files                        -> show-hiddenfiles
 //   Fetch titles and artwork                 -> metadata-network-access (From the file only / online too)
 //   Use the media library                    -> media-library
-//   Advanced: Media library folders          -> mlFolders (virtual; hidden without a media library)
+//   Media library folders (first section)    -> mlFolders (virtual; hidden without a media library)
 
 import QtQuick
 import QtQuick.Layouts
@@ -37,6 +37,58 @@ import VLC.Style
 import VLC.Widgets as Widgets
 
 SettingsPage {
+    SettingSection {
+        title: qsTr("Media Library Folders")
+
+        SettingRow {
+            id: foldersRow
+
+            label: qsTr("Folders to scan")
+            option: SettingsModel.option("mlFolders")
+            kind: "custom"
+            customControl: Component {
+                ColumnLayout {
+                    spacing: VLCStyle.spacing_6
+
+                    Repeater {
+                        model: foldersRow.option.model
+
+                        delegate: RowLayout {
+                            required property int index
+                            required property string display
+
+                            Layout.preferredWidth: foldersRow.controlWidth
+                            spacing: VLCStyle.spacing_10
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: display
+                                elide: Text.ElideMiddle
+                                color: VLCStyle.colors.text
+                                font.pixelSize: VLCStyle.text_body
+                            }
+
+                            Widgets.DialogButton {
+                                text: qsTr("Remove")
+                                onClicked: foldersRow.option.model.removeAt(index)
+                            }
+                        }
+                    }
+
+                    Widgets.DialogButton {
+                        Layout.alignment: Qt.AlignRight
+                        text: qsTr("Add folder")
+                        onClicked: {
+                            const path = SettingsModel.pickDirectory("")
+                            if (path !== "")
+                                foldersRow.option.model.add("file://" + encodeURI(path))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     SettingSection {
         title: qsTr("Opening Files")
 
@@ -94,58 +146,4 @@ SettingsPage {
             option: SettingsModel.option("media-library")
         }
     }
-
-    advanced: [
-        SettingSection {
-            title: qsTr("Media Library Folders")
-
-            SettingRow {
-                id: foldersRow
-
-                label: qsTr("Folders to scan")
-                option: SettingsModel.option("mlFolders")
-                kind: "custom"
-                customControl: Component {
-                    ColumnLayout {
-                        spacing: VLCStyle.spacing_6
-
-                        Repeater {
-                            model: foldersRow.option.model
-
-                            delegate: RowLayout {
-                                required property int index
-                                required property string display
-
-                                Layout.preferredWidth: foldersRow.controlWidth
-                                spacing: VLCStyle.spacing_10
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: display
-                                    elide: Text.ElideMiddle
-                                    color: VLCStyle.colors.text
-                                    font.pixelSize: VLCStyle.text_body
-                                }
-
-                                Widgets.DialogButton {
-                                    text: qsTr("Remove")
-                                    onClicked: foldersRow.option.model.removeAt(index)
-                                }
-                            }
-                        }
-
-                        Widgets.DialogButton {
-                            Layout.alignment: Qt.AlignRight
-                            text: qsTr("Add folder")
-                            onClicked: {
-                                const path = SettingsModel.pickDirectory("")
-                                if (path !== "")
-                                    foldersRow.option.model.add("file://" + path)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    ]
 }

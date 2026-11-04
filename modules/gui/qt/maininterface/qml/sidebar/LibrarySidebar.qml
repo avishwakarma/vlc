@@ -429,7 +429,7 @@ FocusScope {
 
             moreEntries: [
                 { text: qsTr("Add File"), icon: "add", action: () => DialogsProvider.simpleOpenDialog() },
-                { text: qsTr("Add Folder"), icon: "new-folder-twotone", action: () => DialogsProvider.PLOpenDir() },
+                { text: qsTr("Play Folder..."), icon: "new-folder-twotone", action: () => DialogsProvider.PLOpenDir() },
                 { text: qsTr("Save Playlist..."), icon: "save-twotone", action: () => DialogsProvider.savePlayingToPlaylist() },
                 { text: qsTr("Clear"), icon: "remove", action: () => MainPlaylistController.clear() }
             ]
