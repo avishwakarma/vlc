@@ -25,8 +25,9 @@ import VLC.Style
 import VLC.Widgets as Widgets
 
 // Base of every settings page (see pages/). The shell puts a page in a
-// scrolling area; the page lays out its sections, then the sticky
-// "Advanced Options" bar and the advanced sections.
+// scrolling area; the page lays out its sections, then the advanced sections
+// (only while the window's "Show advanced settings" switch is on, or when
+// searching).
 //
 //   SettingsPage {
 //       SettingSection { title: ...; SettingRow { ... } }
@@ -43,10 +44,14 @@ ColumnLayout {
     property string filter: ""
     readonly property bool searching: filter.trim() !== ""
 
-    // the Flickable the page scrolls in (for the sticky bar)
+    // the Flickable the page scrolls in
     property Flickable viewport: null
 
-    property bool advancedExpanded: false
+    // "Show advanced settings" switch of the window (SettingsModel.showAdvanced), set by the shell
+    property bool showAdvanced: false
+
+    // the column holding the advanced sections (SettingSection marks itself with it)
+    readonly property Item advancedHost: advancedColumn
 
     // sections of the main part
     default property alias content: mainColumn.data
@@ -76,7 +81,7 @@ ColumnLayout {
 
     Component.onCompleted: sectionsChanged()
 
-    readonly property bool _showAdvanced: searching || advancedExpanded
+    readonly property bool _showAdvanced: searching || showAdvanced
 
     Layout.fillWidth: true
     spacing: VLCStyle.spacing_20
@@ -91,100 +96,6 @@ ColumnLayout {
 
         Layout.fillWidth: true
         spacing: VLCStyle.spacing_20
-    }
-
-    // sticky bar: stays at the bottom of the viewport until its natural place
-    // is reached
-    Item {
-        id: barSlot
-
-        visible: page.hasAdvancedRows && !page.searching
-
-        Layout.fillWidth: true
-        Layout.preferredHeight: VLCStyle.dp(38, VLCStyle.scale)
-
-        Item {
-            id: bar
-
-            width: parent.width
-            height: parent.height
-            z: 10
-
-            y: page.viewport
-               ? Math.min(0, page.viewport.contentY + page.viewport.height - page.y - barSlot.y - barSlot.height)
-               : 0
-
-            Behavior on y {
-                enabled: false
-            }
-
-            Rectangle {
-                id: barBg
-
-                anchors.fill: parent
-                radius: VLCStyle.radius_xxs
-                color: barButton.hovered || barButton.visualFocus ? barTheme.bg.primary : theme.bg.secondary
-
-                Behavior on color {
-                    ColorAnimation { duration: VLCStyle.duration_short }
-                }
-
-                border.width: barButton.visualFocus ? VLCStyle.dp(1, VLCStyle.scale) : 0
-                border.color: theme.visualFocus
-            }
-
-            readonly property ColorContext _barTheme: ColorContext {
-                id: barTheme
-                colorSet: ColorContext.Item
-                hovered: true
-            }
-
-            MouseArea {
-                // hover/press target only
-                id: barButton
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-
-                readonly property bool hovered: containsMouse
-                readonly property bool visualFocus: false
-
-                onClicked: page.advancedExpanded = !page.advancedExpanded
-            }
-
-            Row {
-                anchors.centerIn: parent
-                spacing: VLCStyle.spacing_10
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: qsTr("Advanced Options")
-                    color: barButton.hovered ? theme.fg.highlight : theme.fg.primary
-                    font.pixelSize: VLCStyle.text_body
-                    font.weight: VLCStyle.fontWeight_regular
-
-                    Behavior on color {
-                        ColorAnimation { duration: VLCStyle.duration_short }
-                    }
-                }
-
-                Widgets.SvgIcon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    name: "chevron-right"
-                    size: VLCStyle.icon_normal
-                    color: barButton.hovered ? theme.fg.highlight : theme.fg.primary
-                    rotation: page.advancedExpanded ? 90 : 0
-
-                    Behavior on rotation {
-                        NumberAnimation { duration: VLCStyle.duration_long; easing.type: Easing.InOutSine }
-                    }
-                }
-            }
-
-            Accessible.role: Accessible.Button
-            Accessible.name: qsTr("Advanced Options")
-            Accessible.onPressAction: page.advancedExpanded = !page.advancedExpanded
-        }
     }
 
     // collapsible advanced part

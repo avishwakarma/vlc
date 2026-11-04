@@ -54,6 +54,9 @@ FocusScope {
     // extra search keywords
     property string keywords: ""
 
+    // deep link target: pulses once (SettingsWindow.openSetting)
+    property bool highlighted: false
+
     property string kind: "auto"
 
     // [{value, text, iconName?}] overriding option.choices
@@ -167,11 +170,30 @@ FocusScope {
     implicitHeight: Math.max(VLCStyle.dp(32, VLCStyle.scale), loader.implicitHeight) + 2 * VLCStyle.dp(5, VLCStyle.scale)
     implicitWidth: VLCStyle.dp(600, VLCStyle.scale)
 
-    opacity: depsOk ? 1.0 : 0.3
-    enabled: depsOk
+    // a row that depends on another option stays hoverable (its tooltip says why it is off)
+    readonly property string _requires: (!depsOk && dependsOn)
+                                        ? qsTr("Requires \"%1\"").arg(dependsOn.text) : ""
 
-    Behavior on opacity {
-        NumberAnimation { duration: VLCStyle.duration_short }
+    onHighlightedChanged: if (highlighted) highlightTimer.restart()
+
+    Timer {
+        id: highlightTimer
+        interval: 2400
+        onTriggered: row.highlighted = false
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        radius: VLCStyle.radius_s
+        color: Qt.alpha(theme.accent, 0.22)
+        border.width: VLCStyle.border
+        border.color: theme.accent
+        opacity: row.highlighted ? 1 : 0
+        z: -1
+
+        Behavior on opacity {
+            NumberAnimation { duration: VLCStyle.duration_long }
+        }
     }
 
     readonly property ColorContext colorContext: ColorContext {
@@ -185,7 +207,10 @@ FocusScope {
         id: labelRow
 
         anchors.left: parent.left
+        anchors.leftMargin: row.highlighted ? VLCStyle.spacing_8 : 0
         anchors.verticalCenter: parent.verticalCenter
+
+        Behavior on anchors.leftMargin { NumberAnimation { duration: VLCStyle.duration_short } }
 
         spacing: VLCStyle.spacing_10
 
@@ -197,12 +222,22 @@ FocusScope {
             width: Math.min(implicitWidth, row.width - row.controlWidth - VLCStyle.spacing_12
                             - (infoIcon.visible ? infoIcon.width + labelRow.spacing : 0))
 
-            text: row.label
+            opacity: row.depsOk ? 1.0 : 0.55
+
+            // the part of the label the search matched is bold and accented
+            readonly property string _f: row.filter.trim()
+            readonly property int _at: _f !== "" ? row.label.toLowerCase().indexOf(_f.toLowerCase()) : -1
+            function _esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") }
+
+            text: _at < 0 ? row.label
+                          : _esc(row.label.substring(0, _at))
+                            + "<b><font color=\"" + theme.accentText + "\">" + _esc(row.label.substr(_at, _f.length)) + "</font></b>"
+                            + _esc(row.label.substring(_at + _f.length))
             color: theme.fg.primary
             font.pixelSize: VLCStyle.text_body
             font.weight: VLCStyle.fontWeight_regular
             elide: Text.ElideRight
-            textFormat: Text.PlainText
+            textFormat: _at < 0 ? Text.PlainText : Text.StyledText
         }
 
         Widgets.SvgIcon {
@@ -210,7 +245,7 @@ FocusScope {
 
             anchors.verticalCenter: parent.verticalCenter
 
-            visible: row.info !== ""
+            visible: row.info !== "" || row._requires !== ""
             name: "info"
             size: VLCStyle.dp(18, VLCStyle.scale)
             color: infoHover.hovered ? theme.fg.highlight : theme.fg.secondary
@@ -228,7 +263,7 @@ FocusScope {
                 x: infoIcon.width + VLCStyle.spacing_6
                 y: (infoIcon.height - height) / 2
                 visible: infoHover.hovered
-                text: row.info
+                text: row._requires !== "" ? (row.info !== "" ? row._requires + "\n" + row.info : row._requires) : row.info
             }
         }
     }
@@ -239,9 +274,18 @@ FocusScope {
         id: loader
 
         anchors.right: parent.right
+        anchors.rightMargin: row.highlighted ? VLCStyle.spacing_8 : 0
         anchors.verticalCenter: parent.verticalCenter
 
+        Behavior on anchors.rightMargin { NumberAnimation { duration: VLCStyle.duration_short } }
+
         focus: true
+        enabled: row.depsOk
+        opacity: row.depsOk ? 1.0 : 0.45
+
+        Behavior on opacity {
+            NumberAnimation { duration: VLCStyle.duration_short }
+        }
 
         sourceComponent: {
             switch (row._kind) {

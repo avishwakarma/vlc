@@ -53,6 +53,8 @@ SettingsModel::SettingsModel(qt_intf_t* intf, MainCtx* ctx, QObject* parent)
     , m_ctx(ctx)
     , m_hotkeys(new HotkeysModel(this))
 {
+    m_showAdvanced = m_intf->mainSettings->value(QStringLiteral("SettingsWindow/show-advanced"), false).toBool();
+
     m_saveTimer.setSingleShot(true);
     m_saveTimer.setInterval(saveDelayMs);
     connect(&m_saveTimer, &QTimer::timeout, this, &SettingsModel::saveNow);
@@ -254,6 +256,20 @@ void SettingsModel::saveNow()
 }
 
 /* same as PrefsDialog::reset() */
+void SettingsModel::openSettings(const QString& page, const QString& option)
+{
+    emit settingsRequested(page, option);
+}
+
+void SettingsModel::setShowAdvanced(bool value)
+{
+    if (m_showAdvanced == value)
+        return;
+    m_showAdvanced = value;
+    m_intf->mainSettings->setValue(QStringLiteral("SettingsWindow/show-advanced"), value);
+    emit showAdvancedChanged();
+}
+
 void SettingsModel::resetAll()
 {
     m_saveTimer.stop();

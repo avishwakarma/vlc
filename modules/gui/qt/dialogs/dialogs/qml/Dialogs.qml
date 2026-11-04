@@ -261,7 +261,7 @@ Item {
             Widgets.RoundedRectangleShadow {
                 blurRadius: VLCStyle.shadow_floating.blur
                 yOffset: VLCStyle.shadow_floating.y
-                color: Qt.rgba(0, 0, 0, VLCStyle.shadow_floating.alpha)
+                color: VLCStyle.shadowColor(VLCStyle.shadow_floating.alpha)
                 z: -1
             }
         }
@@ -580,6 +580,18 @@ Item {
         id: settingsWindowLoader
         active: false
         source: "qrc:///qt/qml/VLC/Dialogs/SettingsWindow.qml"
+
+        // deep links: SettingsModel.openSettings(page, option) from anywhere in the UI
+        Connections {
+            target: SettingsModel
+
+            function onSettingsRequested(page, option) {
+                settingsWindowLoader.active = true
+                const window = settingsWindowLoader.item
+                window.open()
+                window.openSetting(page, option)
+            }
+        }
 
         Connections {
             target: DialogsProvider

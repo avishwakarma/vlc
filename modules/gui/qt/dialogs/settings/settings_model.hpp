@@ -52,6 +52,8 @@ class SettingsModel : public QObject
     Q_PROPERTY(bool savePending READ savePending NOTIFY savePendingChanged FINAL)
     // absolute path of the folder containing vlcrc
     Q_PROPERTY(QString configFolder READ configFolder CONSTANT FINAL)
+    // "Show advanced settings" switch of the settings window (persisted)
+    Q_PROPERTY(bool showAdvanced READ showAdvanced WRITE setShowAdvanced NOTIFY showAdvancedChanged FINAL)
 
 public:
     SettingsModel(qt_intf_t* intf, MainCtx* ctx, QObject* parent = nullptr);
@@ -88,12 +90,26 @@ public:
     Q_INVOKABLE QString pickFile(const QString& current, bool save) const;
     Q_INVOKABLE QString pickDirectory(const QString& current) const;
 
+    /**
+     * Deep link: opens the settings window on `page` (nav name in lower case,
+     * e.g. "subtitles", "controls") and, when `option` is not empty, scrolls
+     * to the row of that VLC option and highlights it. Can be called from any
+     * QML (the window is created by Dialogs.qml).
+     */
+    Q_INVOKABLE void openSettings(const QString& page, const QString& option = QString());
+
+    bool showAdvanced() const { return m_showAdvanced; }
+    void setShowAdvanced(bool value);
+
     HotkeysModel* hotkeys() const { return m_hotkeys; }
     bool restartPending() const { return m_restartPending; }
     bool savePending() const { return m_saveTimer.isActive(); }
     QString configFolder() const;
 
 signals:
+    void showAdvancedChanged();
+    /// a deep link was requested (see openSettings)
+    void settingsRequested(const QString& page, const QString& option);
     void restartRequired();
     void savePendingChanged();
     /// emitted after the configuration file was written
@@ -114,6 +130,7 @@ private:
     QHash<QString, ConfigOption*> m_options;
     QTimer m_saveTimer;
     bool m_restartPending = false;
+    bool m_showAdvanced = false;
 };
 
 #endif // QT_SETTINGS_SETTINGS_MODEL_HPP

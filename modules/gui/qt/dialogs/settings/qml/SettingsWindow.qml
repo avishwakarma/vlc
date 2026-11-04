@@ -20,7 +20,7 @@
 // Redesigned settings window (Figma 999:5047 and friends).
 //
 // Shell: header (search | page title | close), nav card (App / Media / System),
-// a scrolling page area and, per page, a sticky "Advanced Options" bar.
+// a scrolling page area; the nav card ends with the "Show advanced settings" switch.
 // Pages live in pages/ and are registered in `pages` below, see
 // SettingsPage.qml and the "how to add a page" note in the W6 report.
 
@@ -40,22 +40,23 @@ Window {
     // --- page registry
     //
     // group: 0 = App, 1 = Media, 2 = System
-    // icon/iconActive: SvgIcon names. heading: window header title.
+    // key: deep link name (SettingsModel.openSettings). icon/iconActive: SvgIcon names.
+    // heading: window header title (same as the nav name).
     // component: the page (a SettingsPage). Add a line here to add a page.
     readonly property var pages: [
-        { group: 0, name: qsTr("General"),     heading: qsTr("Global Settings"), icon: "preferences", iconActive: "preferences-active", component: generalPage },
-        { group: 0, name: qsTr("Interface"),   heading: qsTr("Interface Settings"), icon: "interface",   iconActive: "interface-active",   component: interfacePage },
-        { group: 0, name: qsTr("Privacy"),     heading: qsTr("Privacy Settings"), icon: "privacy",     iconActive: "privacy-active",     component: privacyPage },
-        { group: 0, name: qsTr("Controls"),    heading: qsTr("Mouse, Keyboard & Remote Controls"), icon: "hotkeys",     iconActive: "hotkeys-active",     component: controlsPage },
-        { group: 1, name: qsTr("Playback"),    heading: qsTr("Playback Preferences"), icon: "play",        iconActive: "playback-active",    component: playbackPage },
-        { group: 1, name: qsTr("Video"),       heading: qsTr("Video Defaults"), icon: "video",       iconActive: "video-active",       component: videoPage },
-        { group: 1, name: qsTr("Audio"),       heading: qsTr("Audio Defaults"), icon: "audio",       iconActive: "audio-active",       component: audioPage },
-        { group: 1, name: qsTr("Subtitles"),   heading: qsTr("Subtitle Defaults"), icon: "subtitles",   iconActive: "subtitles-active",   component: subtitlesPage },
-        { group: 1, name: qsTr("Library"),     heading: qsTr("Library"), icon: "folder",      iconActive: "folder-active",      component: libraryPage },
-        { group: 2, name: qsTr("Network"),     heading: qsTr("Network Connections & Security"), icon: "streaming",   iconActive: "streaming-active",   component: networkPage },
-        { group: 2, name: qsTr("Performance"), heading: qsTr("Performance Settings"), icon: "preferences", iconActive: "preferences-active", component: performancePage },
-        { group: 2, name: qsTr("Recording"),   heading: qsTr("Recording, Casting & Streaming Out"), icon: "record",      iconActive: "record-active",      component: recordingPage },
-        { group: 2, name: qsTr("Extensions"),  heading: qsTr("Add-ons & Scripts"), icon: "plugins",     iconActive: "plugins-active",     component: extensionsPage },
+        { group: 0, key: "general", name: qsTr("General"), heading: qsTr("General"), icon: "preferences", iconActive: "preferences-active", component: generalPage },
+        { group: 0, key: "interface", name: qsTr("Interface"), heading: qsTr("Interface"), icon: "interface",   iconActive: "interface-active",   component: interfacePage },
+        { group: 0, key: "privacy", name: qsTr("Privacy"), heading: qsTr("Privacy"), icon: "privacy",     iconActive: "privacy-active",     component: privacyPage },
+        { group: 0, key: "controls", name: qsTr("Controls"), heading: qsTr("Controls"), icon: "hotkeys",     iconActive: "hotkeys-active",     component: controlsPage },
+        { group: 1, key: "playback", name: qsTr("Playback"), heading: qsTr("Playback"), icon: "play",        iconActive: "playback-active",    component: playbackPage },
+        { group: 1, key: "video", name: qsTr("Video"), heading: qsTr("Video"), icon: "video",       iconActive: "video-active",       component: videoPage },
+        { group: 1, key: "audio", name: qsTr("Audio"), heading: qsTr("Audio"), icon: "audio",       iconActive: "audio-active",       component: audioPage },
+        { group: 1, key: "subtitles", name: qsTr("Subtitles"), heading: qsTr("Subtitles"), icon: "subtitles",   iconActive: "subtitles-active",   component: subtitlesPage },
+        { group: 1, key: "library", name: qsTr("Library"), heading: qsTr("Library"), icon: "folder",      iconActive: "folder-active",      component: libraryPage },
+        { group: 2, key: "network", name: qsTr("Network"), heading: qsTr("Network"), icon: "streaming",   iconActive: "streaming-active",   component: networkPage },
+        { group: 2, key: "performance", name: qsTr("Performance"), heading: qsTr("Performance"), icon: "preferences", iconActive: "preferences-active", component: performancePage },
+        { group: 2, key: "recording", name: qsTr("Recording"), heading: qsTr("Recording"), icon: "record",      iconActive: "record-active",      component: recordingPage },
+        { group: 2, key: "extensions", name: qsTr("Extensions"), heading: qsTr("Extensions"), icon: "plugins",     iconActive: "plugins-active",     component: extensionsPage },
     ]
 
     readonly property var groupNames: [qsTr("App"), qsTr("Media"), qsTr("System")]
@@ -98,6 +99,65 @@ Window {
         searchField.text = ""
         root.searchText = ""
         currentPage = index
+    }
+
+    function setSearch(text) {
+        searchField.text = text
+        root.searchText = text
+    }
+
+    // Deep link: open page `pageKey` (see `pages`) and reveal the row of the VLC option `optionName`
+    function openSetting(pageKey, optionName) {
+        let idx = -1
+        for (let i = 0; i < pages.length; ++i) {
+            if (pages[i].key === pageKey)
+                idx = i
+        }
+        openPage(idx >= 0 ? idx : currentPage)
+        revealTimer.target = optionName || ""
+        revealTimer.tries = 0
+        if (revealTimer.target !== "")
+            revealTimer.restart()
+    }
+
+    function _findRow(item, optionName) {
+        if (!item)
+            return null
+        if (item.isSettingRow && item.option && item.option.name === optionName)
+            return item
+        const kids = item.children
+        for (let i = 0; i < kids.length; ++i) {
+            const r = _findRow(kids[i], optionName)
+            if (r)
+                return r
+        }
+        return null
+    }
+
+    Timer {
+        id: revealTimer
+
+        property string target: ""
+        property int tries: 0
+
+        interval: 160
+        onTriggered: {
+            const row = root._findRow(pageLoader.item, target)
+            if (!row) {
+                if (++tries < 12)
+                    restart()
+                return
+            }
+            // an advanced row needs the advanced sections: show them, then scroll once laid out
+            if (row._section && row._section.isAdvanced && !SettingsModel.showAdvanced) {
+                SettingsModel.showAdvanced = true
+                restart()
+                return
+            }
+            flick.scrollTo(row)
+            row.highlighted = true
+            target = ""
+        }
     }
 
     // modal confirmation inside the window
@@ -323,10 +383,9 @@ Window {
 
                     text: root.searching ? qsTr("Search results")
                                          : root.pages[root.currentPage].heading
-                    color: theme.fg.highlight
-                    opacity: 0.75
+                    color: theme.fg.primary
                     font.pixelSize: VLCStyle.text_heading
-                    font.weight: VLCStyle.fontWeight_regular
+                    font.weight: VLCStyle.fontWeight_medium
                     elide: Text.ElideRight
                     textFormat: Text.PlainText
 
@@ -384,6 +443,7 @@ Window {
                     id: nav
 
                     anchors.fill: parent
+                    anchors.bottomMargin: advancedSwitch.height
                     anchors.leftMargin: VLCStyle.spacing_6
                     anchors.rightMargin: VLCStyle.spacing_6
 
@@ -462,6 +522,54 @@ Window {
                         }
                     }
                 }
+
+                // "Show advanced settings": one switch for every page
+                FocusScope {
+                    id: advancedSwitch
+
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    height: VLCStyle.dp(52, VLCStyle.scale)
+
+                    Rectangle {
+                        x: VLCStyle.spacing_10
+                        width: parent.width - 2 * x
+                        height: VLCStyle.border
+                        color: theme.separator
+                    }
+
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: VLCStyle.spacing_16
+                        anchors.right: advancedToggle.left
+                        anchors.rightMargin: VLCStyle.spacing_8
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: qsTr("Advanced settings")
+                        color: theme.fg.primary
+                        font.pixelSize: VLCStyle.text_body
+                        font.weight: VLCStyle.fontWeight_regular
+                        wrapMode: Text.WordWrap
+                        maximumLineCount: 2
+                        elide: Text.ElideRight
+                    }
+
+                    Widgets.CheckButton {
+                        id: advancedToggle
+
+                        anchors.right: parent.right
+                        anchors.rightMargin: VLCStyle.spacing_10
+                        anchors.verticalCenter: parent.verticalCenter
+                        focus: true
+                        checked: SettingsModel.showAdvanced
+                        text: ""
+                        onToggled: SettingsModel.showAdvanced = checked
+
+                        Accessible.name: qsTr("Show advanced settings")
+
+                        Keys.onUpPressed: nav.focusCurrent()
+                    }
+                }
             }
 
             // --- page area
@@ -517,6 +625,13 @@ Window {
                         return null
                     }
 
+                    // puts a row in the upper third of the viewport (deep links)
+                    function scrollTo(item) {
+                        const p = item.mapToItem(flick.contentItem, 0, 0)
+                        const max = Math.max(-flick.topMargin, flick.contentHeight + flick.bottomMargin - flick.height)
+                        flick.contentY = Math.max(-flick.topMargin, Math.min(max, p.y - flick.height / 3))
+                    }
+
                     function ensureVisible(item) {
                         if (!item || !flick.contentItem)
                             return
@@ -558,6 +673,7 @@ Window {
 
                             onLoaded: {
                                 item.viewport = flick
+                                item.showAdvanced = Qt.binding(() => SettingsModel.showAdvanced)
                                 flick.contentY = -flick.topMargin
                                 pageFade.restart()
                             }
@@ -725,7 +841,7 @@ Window {
 
                 anchors.fill: parent
                 radius: surface.radius
-                color: Qt.rgba(0, 0, 0, 0.5)
+                color: theme.scrim
 
                 visible: opacity > 0
                 opacity: open ? 1 : 0

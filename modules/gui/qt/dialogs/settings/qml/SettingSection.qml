@@ -61,6 +61,9 @@ ColumnLayout {
         return p
     }
 
+    // the section lives in the advanced part of its page
+    readonly property bool isAdvanced: _page ? section.parent === _page.advancedHost : false
+
     onHasRowsChanged: if (_page) _page.sectionsChanged()
 
     Component.onCompleted: update()
@@ -77,19 +80,49 @@ ColumnLayout {
         colorSet: ColorContext.Pane
     }
 
-    Text {
+    RowLayout {
         visible: section.title !== ""
 
         Layout.fillWidth: true
         Layout.topMargin: VLCStyle.spacing_10
         Layout.bottomMargin: VLCStyle.spacing_10
+        spacing: VLCStyle.spacing_8
 
-        text: section.title
-        color: theme.fg.heading
-        font.pixelSize: VLCStyle.text_heading
-        font.weight: VLCStyle.fontWeight_medium
-        textFormat: Text.PlainText
-        elide: Text.ElideRight
+        Text {
+            text: section.title
+            color: theme.fg.heading
+            font.pixelSize: VLCStyle.text_heading
+            font.weight: VLCStyle.fontWeight_medium
+            textFormat: Text.PlainText
+            elide: Text.ElideRight
+            Layout.maximumWidth: section.width - (badge.visible ? badge.width + VLCStyle.spacing_8 : 0)
+
+            Accessible.role: Accessible.Heading
+        }
+
+        // marks sections that only show with "Show advanced settings"
+        Rectangle {
+            id: badge
+
+            visible: section.isAdvanced
+            implicitWidth: badgeText.implicitWidth + VLCStyle.spacing_8 * 2
+            implicitHeight: badgeText.implicitHeight + VLCStyle.spacing_2 * 2
+            radius: VLCStyle.radius_xxs
+            color: theme.bg.secondary
+            border.width: VLCStyle.border
+            border.color: theme.separator
+
+            Text {
+                id: badgeText
+                anchors.centerIn: parent
+                text: qsTr("Advanced")
+                color: theme.fg.secondary
+                font.pixelSize: VLCStyle.text_caption
+                font.weight: VLCStyle.fontWeight_regular
+            }
+        }
+
+        Item { Layout.fillWidth: true }
     }
 
     ColumnLayout {
