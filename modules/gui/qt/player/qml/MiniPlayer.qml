@@ -289,7 +289,7 @@ FocusScope {
 
                     readonly property bool hovered: mediaHover.hovered || closeButton.hovered || popButton.hovered
                                                     || prevButton.hovered || playButton.hovered || nextButton.hovered
-                                                    || seekArea.containsMouse || seekArea.pressed
+                                                    || seekArea.containsMouse || seekArea.pressed || previewHover.hovered
                     readonly property bool overlayVisible: hovered || root.activeFocus && (closeButton.visualFocus || popButton.visualFocus
                                                            || prevButton.visualFocus || playButton.visualFocus || nextButton.visualFocus)
 
@@ -427,6 +427,18 @@ FocusScope {
                             color: "transparent"
                             border.width: VLCStyle.dp(2, VLCStyle.scale)
                             border.color: sliderTheme.bg.primary
+                        }
+
+                        // Hover catcher above the live video. The VideoSurface accepts hover events
+                        // itself (even when disabled), which stops the hover delivery before it reaches
+                        // the HoverHandler on `media`. This item sits above it, always visible (an item
+                        // with opacity 0, like the overlay, receives no events), so hover is seen over video.
+                        Item {
+                            anchors.fill: parent
+
+                            HoverHandler {
+                                id: previewHover
+                            }
                         }
 
                         // hover overlay: dimmed art + controls
