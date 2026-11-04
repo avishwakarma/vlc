@@ -148,4 +148,22 @@ private:
     QObject* m_model = nullptr;
 };
 
+/**
+ * "media-library": the saved option is not the whole story, the stock
+ * launchers pass --media-library on every start, so the config item can be
+ * off while the library is running. Reports the running state too.
+ */
+class MediaLibraryOption : public ConfigOption
+{
+    Q_OBJECT
+public:
+    MediaLibraryOption(MainCtx* ctx, QObject* parent);
+
+protected:
+    QVariant readValue() const override;
+
+private:
+    MainCtx* m_ctx;
+};
+
 #endif // QT_SETTINGS_VIRTUAL_OPTIONS_HPP

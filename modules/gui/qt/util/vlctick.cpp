@@ -175,7 +175,8 @@ VLCDuration::VLCDuration()
 
 VLCDuration::VLCDuration(vlc_tick_t t)
     : VLCTick(t)
-    , m_valid(true)
+    // the media library reports -1 for a duration that is not known yet
+    , m_valid(t >= 0)
 {
 }
 

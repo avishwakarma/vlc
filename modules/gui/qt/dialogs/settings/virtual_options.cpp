@@ -326,6 +326,22 @@ void ExtraInterfaceOption::writeValue(const QVariant& value)
         config_RemoveIntf(qtu(m_intf));
 }
 
+/* media library on/off */
+
+MediaLibraryOption::MediaLibraryOption(MainCtx* ctx, QObject* parent)
+    : ConfigOption(QStringLiteral("media-library"), parent)
+    , m_ctx(ctx)
+{
+    refresh();
+}
+
+QVariant MediaLibraryOption::readValue() const
+{
+    if (m_ctx && m_ctx->hasMediaLibrary())
+        return true;
+    return ConfigOption::readValue();
+}
+
 /* media library folders */
 
 MLFoldersOption::MLFoldersOption(MainCtx* ctx, bool banned, QObject* parent)

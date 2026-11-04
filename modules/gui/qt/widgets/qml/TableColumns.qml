@@ -70,7 +70,7 @@ Item {
             const value = rowModel[criteria]
 
             if (value.formatShort) {
-                string += value.formatShort()
+                string += value.valid() ? value.formatShort() : ""
             } else if (criteria === "nb_tracks") {
                 string += qsTr("%1 track", "%1 tracks", value).arg(value)
             } else if (criteria === "nb_videos") {
@@ -219,7 +219,11 @@ Item {
             anchors.centerIn: parent
 
             horizontalAlignment: Text.AlignHCenter
-            text: timeDel.rowModel?.[timeDel.colModel.criteria]?.formatShort() ?? ""
+            text: {
+                const tick = timeDel.rowModel?.[timeDel.colModel.criteria]
+                // unknown (not parsed yet) durations are left blank
+                return (tick && tick.valid()) ? tick.formatShort() : ""
+            }
             color: timeDel.selected
                 ? timeDel.colorContext.fg.highlight
                 : timeDel.colorContext.fg.primary
