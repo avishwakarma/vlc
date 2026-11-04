@@ -562,9 +562,6 @@ void SystemPalette::updateAccent(bool dark)
     // the darkest/brightest surface text is drawn on in this theme
     const QColor surface = dark ? bgA3 : QColor("#C8C8C8");
     QColor text = base;
-    for (int i = 0; i < 40 && contrast(text, surface) < 4.5; ++i)
-        text = dark ? text.lighter(106) : text.darker(106);
-    accentText = text;
 
     if (dark)
     {
@@ -578,6 +575,13 @@ void SystemPalette::updateAccent(bool dark)
         accentDim = base.darker(125); // derived: >= 3:1 graphics colour on light surfaces
         accentBright = blend(base, bgB2, 0.42);
     }
+
+    // accentText must read on the plain surface and on the tonal tint (ON labels, selected segment,
+    // tonal buttons: text in accentText over accentBright)
+    for (int i = 0; i < 60 && (contrast(text, surface) < 4.5 || contrast(text, accentBright) < 4.5); ++i)
+        text = dark ? text.lighter(106) : text.darker(106);
+    accentText = text;
+
     accentDark = blend(base, bgB2, 0.08);
     orange500 = accentMain;
     orange800 = accentMain.lighter(150); // legacy
@@ -692,7 +696,7 @@ void SystemPalette::fillPalette(bool dark)
         setColor(CS, C::Decoration, C::HoverPlate, C::Normal, dark ? bgA2 : setColorAlpha(Qt::black, 0.08));
         setColor(CS, C::Decoration, C::PressedPlate, C::Normal, dark ? bgA1 : setColorAlpha(Qt::black, 0.14));
         setColor(CS, C::Decoration, C::Scrim, C::Normal, setColorAlpha(Qt::black, dark ? 0.6 : 0.4));
-        setColor(CS, C::Decoration, C::Placeholder, C::Normal, dark ? fgA4 : QColor("#666666"));
+        setColor(CS, C::Decoration, C::Placeholder, C::Normal, dark ? fgA4 : QColor("#525252"));
     }
 
     //window banner & miniplayer
