@@ -25,6 +25,7 @@ import VLC.Widgets as Widgets
 
 import VLC.MainInterface
 import VLC.Dialogs
+import VLC.Menus as Menus
 import VLC.Util
 
 T.Pane {
@@ -366,6 +367,62 @@ T.Pane {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
+
+            // pinned to the bottom of the card: Settings and the main menu
+            component FooterButton: SideNavigationDelegate {
+                Layout.fillWidth: true
+                Layout.preferredHeight: VLCStyle.dp(46, VLCStyle.scale)
+
+                leftPadding: VLCStyle.spacing_10
+                rightPadding: VLCStyle.spacing_8
+
+                leftInset: 0
+                rightInset: 0
+                topInset: VLCStyle.spacing_2
+                bottomInset: VLCStyle.spacing_2
+
+                radius: VLCStyle.radius_m
+
+                showText: root.delegateShowText
+
+                focusPolicy: Qt.StrongFocus
+
+                Navigation.parentItem: root
+
+                Keys.priority: Keys.AfterItem
+                Keys.onPressed: (e) => Navigation.defaultKeyAction(e)
+                Keys.onReleased: (e) => Navigation.defaultKeyReleaseAction(e)
+            }
+
+            FooterButton {
+                id: settingsButton
+
+                iconName: "settings"
+                text: qsTr("Settings")
+
+                Navigation.upItem: preferenceButton
+                Navigation.downItem: moreButton
+
+                onClicked: DialogsProvider.prefsDialog()
+            }
+
+            FooterButton {
+                id: moreButton
+
+                iconName: "more"
+                text: qsTr("More")
+
+                Navigation.upItem: settingsButton
+
+                onClicked: mainMenu.popup(moreButton.mapToGlobal(moreButton.width, 0))
+            }
         }
+    }
+
+    // the main menu of the title bar ("...")
+    Menus.QmlGlobalMenu {
+        id: mainMenu
+
+        ctx: MainCtx
     }
 }
