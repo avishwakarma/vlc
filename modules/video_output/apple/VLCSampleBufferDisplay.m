@@ -572,7 +572,12 @@ static void DeletePipController( pip_controller_t * pipcontroller );
     if (!self)
         return nil;
 #if TARGET_OS_OSX
-    self.autoresizingMask = NSViewNotSizable;
+    /* Scale with the host view until the vout sends the new place: the place arrives
+     * asynchronously (vout thread, then the main queue), but AppKit draws the window
+     * right after a resize, e.g. for the snapshot of the fullscreen transition. A view
+     * left at its old frame shows the picture small in a corner, or overflowing. */
+    self.autoresizingMask = NSViewMinXMargin | NSViewWidthSizable | NSViewMaxXMargin
+                          | NSViewMinYMargin | NSViewHeightSizable | NSViewMaxYMargin;
     self.wantsLayer = YES;
 #else
     self.autoresizingMask = UIViewAutoresizingNone;
@@ -597,6 +602,26 @@ static void DeletePipController( pip_controller_t * pipcontroller );
 #else
 + (Class)layerClass {
     return [AVSampleBufferDisplayLayer class];
+}
+#endif
+
+#if TARGET_OS_OSX
+/* The mask that hides the padding of the buffer is not resized with the layer: when
+ * the view follows its superview (see init), scale it too, until the next place. */
+- (void)setFrameSize:(NSSize)newSize {
+    const NSSize oldSize = self.frame.size;
+    [super setFrameSize:newSize];
+    CALayer *mask = self.layer.mask;
+    if (mask == nil || oldSize.width <= 0 || oldSize.height <= 0
+     || NSEqualSizes(oldSize, newSize))
+        return;
+    const CGFloat sx = newSize.width / oldSize.width;
+    const CGFloat sy = newSize.height / oldSize.height;
+    const CGRect m = mask.frame;
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    mask.frame = CGRectMake(m.origin.x * sx, m.origin.y * sy, m.size.width * sx, m.size.height * sy);
+    [CATransaction commit];
 }
 #endif
 
