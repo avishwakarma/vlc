@@ -1126,7 +1126,7 @@ static QWindow *appTopLevelWindow()
 }
 
 /**
- * Builds the whole menu bar: VLC, File, Playback, Audio, Video, Subtitles, Window, Help.
+ * Builds the whole menu bar: (application menu by Qt), File, Playback, Audio, Video, Subtitles, Window, Help.
  * The entries come from the same builders as the pop-up menus; the shortcut labels are the real
  * key equivalents of the effective hotkey configuration (see labelHotkey).
  **/
@@ -1156,18 +1156,18 @@ void VLCMenuBar::MacMenuBar( qt_intf_t *p_intf, QMenuBar *bar )
         return action;
     };
 
-    /* --- VLC (application menu): About, Settings, Quit; Hide/Services are added by Qt/macOS */
-    QMenu *app = bar->addMenu( QStringLiteral("VLC") );
-    QAction *about = app->addAction( qtr( "About VLC Redesign" ) );
-    about->setMenuRole( QAction::AboutRole );
-    QObject::connect( about, &QAction::triggered, app, []() { THEDP->aboutDialog(); } );
-    QAction *prefs = app->addAction( qtr( "Settings…" ) );
-    prefs->setMenuRole( QAction::PreferencesRole );
-    prefs->setShortcut( QKeySequence( QKeySequence::Preferences ) );
-    QObject::connect( prefs, &QAction::triggered, app, []() { THEDP->prefsDialog(); } );
-
     /* --- File */
     QMenu *file = bar->addMenu( qtr( "File" ) );
+    // The application menu is Qt's own (name from the bundle, Hide, Hide Others, Show All, Services).
+    // About, Settings and Quit are added to it through their menu roles: macOS moves these three
+    // actions out of File, so there is exactly one application menu and no extra "VLC" menu.
+    QAction *about = file->addAction( qtr( "About VLC Redesign" ) );
+    about->setMenuRole( QAction::AboutRole );
+    QObject::connect( about, &QAction::triggered, file, []() { THEDP->aboutDialog(); } );
+    QAction *prefs = file->addAction( qtr( "Settings\u2026" ) );
+    prefs->setMenuRole( QAction::PreferencesRole );
+    prefs->setShortcut( QKeySequence( QKeySequence::Preferences ) );
+    QObject::connect( prefs, &QAction::triggered, file, []() { THEDP->prefsDialog(); } );
     FileMenu( p_intf, file );   // contains Quit (QuitRole: macOS moves it to the VLC menu)
     file->addSeparator();
     entry( file, qtr( "Close Window" ), []() {
