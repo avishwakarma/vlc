@@ -22,8 +22,10 @@
 
 #include <QWindow>
 #include <QPointer>
+#include <QMargins>
 
 #include <memory>
+#include <vector>
 
 class QQuickView;
 
@@ -68,6 +70,15 @@ private:
 
     std::optional<QSize> m_pendingSize;
     std::optional<QPoint> m_pendingPosition;
+
+#ifdef __APPLE__
+    void observeNativeFullScreen();
+    void stopObservingNativeFullScreen();
+    void presetVideoViewForTransition(std::optional<bool> enter);
+    std::optional<QMarginsF> m_dockedVideoMargins;
+    bool m_videoViewAutoresizing = false;
+    std::vector<void *> m_fullScreenObservers;
+#endif
 };
 
 }

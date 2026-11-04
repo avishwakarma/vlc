@@ -66,7 +66,13 @@ FocusScope {
 
     // Private
 
-    readonly property bool _fullscreen: (MainCtx.intfMainWindow.visibility === Window.FullScreen)
+    // Fullscreen layout. It switches when the window starts its fullscreen transition (see
+    // MainCtx.fullScreenLayout), and the viewport insets jump to the new layout instead of animating:
+    // QML animations do not run during the native macOS transition, and the content drawn when it
+    // starts is what the transition shows. Assigned (not bound) so that the insets see
+    // _animateInsets === false when they change.
+    property bool _fullscreen: MainCtx.fullScreenLayout
+    property bool _animateInsets: true
 
     // The chrome (title bar, control bar) takes room around the video, like the Figma layout.
     // In fullscreen the bars float over the video and auto-hide on mouse idle.
@@ -99,7 +105,21 @@ FocusScope {
 
     // Events
 
-    Component.onCompleted: MainCtx.preferHotkeys = true
+    Component.onCompleted: {
+        MainCtx.preferHotkeys = true
+        _fullscreen = MainCtx.fullScreenLayout // from now on assigned by the Connections below
+    }
+
+    Connections {
+        target: MainCtx
+
+        function onFullScreenLayoutChanged() {
+            rootPlayer._animateInsets = false
+            rootPlayer._fullscreen = MainCtx.fullScreenLayout
+            rootPlayer._animateInsets = true
+        }
+    }
+
     Component.onDestruction: MainCtx.preferHotkeys = false
 
     Keys.priority: Keys.AfterItem
@@ -228,7 +248,7 @@ FocusScope {
         }
 
         Behavior on anchors.leftMargin {
-            enabled: playerToolbarVisibilityFSM.started
+            enabled: playerToolbarVisibilityFSM.started && rootPlayer._animateInsets
             NumberAnimation {
                 duration: VLCStyle.duration_long
                 easing.type: Easing.InOutSine
@@ -236,7 +256,7 @@ FocusScope {
         }
 
         Behavior on anchors.rightMargin {
-            enabled: playerToolbarVisibilityFSM.started
+            enabled: playerToolbarVisibilityFSM.started && rootPlayer._animateInsets
             NumberAnimation {
                 duration: VLCStyle.duration_long
                 easing.type: Easing.InOutSine
@@ -244,7 +264,7 @@ FocusScope {
         }
 
         Behavior on anchors.topMargin {
-            enabled: playerToolbarVisibilityFSM.started
+            enabled: playerToolbarVisibilityFSM.started && rootPlayer._animateInsets
             NumberAnimation {
                 duration: VLCStyle.duration_long
                 easing.type: Easing.InOutSine
@@ -252,7 +272,7 @@ FocusScope {
         }
 
         Behavior on anchors.bottomMargin {
-            enabled: playerToolbarVisibilityFSM.started
+            enabled: playerToolbarVisibilityFSM.started && rootPlayer._animateInsets
             NumberAnimation {
                 duration: VLCStyle.duration_long
                 easing.type: Easing.InOutSine
@@ -546,7 +566,7 @@ FocusScope {
         sourceComponent: sidebarComponent
 
         Behavior on x {
-            enabled: playerToolbarVisibilityFSM.started
+            enabled: playerToolbarVisibilityFSM.started && rootPlayer._animateInsets
             NumberAnimation {
                 duration: VLCStyle.duration_long
                 easing.type: Easing.InOutSine
