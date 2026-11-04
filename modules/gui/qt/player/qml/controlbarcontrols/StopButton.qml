@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
+import QtQuick.Templates as T
 
 
 import VLC.Widgets as Widgets
@@ -33,6 +34,8 @@ Widgets.IconToolButton {
     iconName: "stop"
     onClicked: MainPlaylistController.stop()
     description: qsTr("Stop")
+
+    T.ToolTip.text: PlayerAux.tip(description, "stop")
 
     AccessibleCompat.id: "stopButton"
 }

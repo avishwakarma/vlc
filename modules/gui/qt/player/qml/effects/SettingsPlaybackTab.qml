@@ -36,9 +36,6 @@ SettingsTabBase {
         colorSet: ColorContext.View
     }
 
-    // minutes left for the sleep timer, 0 when off
-    property int sleepMinutes: 0
-
     readonly property var sleepChoices: [
         { text: qsTr("Off"), minutes: 0 },
         { text: qsTr("15 minutes"), minutes: 15 },
@@ -47,17 +44,6 @@ SettingsTabBase {
         { text: qsTr("1 hour"), minutes: 60 },
         { text: qsTr("2 hours"), minutes: 120 }
     ]
-
-    Timer {
-        id: sleepTimer
-
-        interval: root.sleepMinutes * 60 * 1000
-        running: root.sleepMinutes > 0
-        onTriggered: {
-            Player.stop()
-            root.sleepMinutes = 0
-        }
-    }
 
     function visualizerIcon(name) {
         const n = name.toLowerCase()
@@ -120,11 +106,11 @@ SettingsTabBase {
             textRole: "text"
             currentIndex: {
                 for (let i = 0; i < root.sleepChoices.length; ++i)
-                    if (root.sleepChoices[i].minutes === root.sleepMinutes)
+                    if (root.sleepChoices[i].minutes === PlayerAux.sleepMinutes)
                         return i
                 return 0
             }
-            onActivated: (i) => root.sleepMinutes = root.sleepChoices[i].minutes
+            onActivated: (i) => PlayerAux.setSleep(root.sleepChoices[i].minutes)
             Accessible.name: qsTr("Sleep Timer")
         }
     }

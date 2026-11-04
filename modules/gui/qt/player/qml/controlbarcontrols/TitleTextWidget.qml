@@ -68,7 +68,7 @@ Item {
             ColorAnimation {
                 target: label
                 property: "color"
-                from: theme.accent
+                from: theme.accentText
                 to: theme.fg.primary
                 duration: 1800
                 easing.type: Easing.OutCubic

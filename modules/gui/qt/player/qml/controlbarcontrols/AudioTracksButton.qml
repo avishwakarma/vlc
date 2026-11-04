@@ -35,5 +35,7 @@ LangButton {
     panelTab: "audio"
     description: qsTr("Audio tracks")
 
+    T.ToolTip.text: PlayerAux.tip(description, "audio-track")
+
     AccessibleCompat.id: "audioTracksButton"
 }

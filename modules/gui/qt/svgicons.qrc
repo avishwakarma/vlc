@@ -98,6 +98,7 @@
         <file alias="lists.svg">pixmaps/svg_icons/lists.svg</file>
         <file alias="maximize.svg">pixmaps/svg_icons/maximize.svg</file>
         <file alias="minimize.svg">pixmaps/svg_icons/minimize.svg</file>
+        <file alias="moon.svg">pixmaps/svg_icons/moon.svg</file>
         <file alias="more.svg">pixmaps/svg_icons/more.svg</file>
         <file alias="move.svg">pixmaps/svg_icons/move.svg</file>
         <file alias="music.svg">pixmaps/svg_icons/music.svg</file>

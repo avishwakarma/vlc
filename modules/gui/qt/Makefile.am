@@ -1252,6 +1252,9 @@ libqml_module_player_a_QML = \
 	player/qml/MinimalView.qml \
 	player/qml/ResumeDialog.qml \
 	player/qml/OsdToast.qml \
+	player/qml/PlaybackQuickMenu.qml \
+	player/qml/StatusChips.qml \
+	player/qml/PlayerAux.qml \
 	player/qml/SliderBar.qml \
 	player/waveform/qml/WaveformSeekTrack.qml \
 	player/qml/TopBar.qml \
@@ -1290,11 +1293,6 @@ libqml_module_player_a_QML = \
 	player/qml/effects/FilterSection.qml \
 	player/qml/effects/EqVerticalSlider.qml \
 	player/qml/effects/EqualizerWide.qml \
-	player/qml/TracksPage.qml \
-	player/qml/TracksPageAudio.qml \
-	player/qml/TracksPageSpeed.qml \
-	player/qml/TracksPageSubtitle.qml \
-	player/qml/TracksListPage.qml \
 	player/qml/ControlLayout.qml \
 	player/qml/ControlRepeater.qml \
 	player/qml/BarRow.qml \

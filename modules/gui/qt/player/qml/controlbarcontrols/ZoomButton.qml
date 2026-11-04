@@ -37,6 +37,8 @@ ChoicePopupButton {
 
     description: qsTr("Zoom")
 
+    T.ToolTip.text: PlayerAux.tip(description, "zoom")
+
     AccessibleCompat.id: "zoomButton"
 
     model: Player.zoom

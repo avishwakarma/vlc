@@ -89,7 +89,7 @@ T.Control {
 
     T.ToolTip.visible: (cursorInside || visualFocus)
     T.ToolTip.delay: VLCStyle.delayToolTipAppear
-    T.ToolTip.text: root.Accessible.name
+    T.ToolTip.text: PlayerAux.tip(root.Accessible.name, "play-pause")
 
     // Keys
 

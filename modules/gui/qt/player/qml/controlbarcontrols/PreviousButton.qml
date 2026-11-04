@@ -16,10 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
+import QtQuick.Templates as T
 
 
 import VLC.Widgets as Widgets
 import VLC.Style
+import VLC.Player
 import VLC.Playlist
 import VLC.Util
 
@@ -31,6 +33,8 @@ Widgets.IconToolButton {
     enabled: MainPlaylistController.hasPrev
     onClicked: MainPlaylistController.prev()
     description: qsTr("Previous")
+
+    T.ToolTip.text: PlayerAux.tip(description, "prev")
 
     AccessibleCompat.id: "previousButton"
 }

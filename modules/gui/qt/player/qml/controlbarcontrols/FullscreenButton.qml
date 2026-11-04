@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
+import QtQuick.Templates as T
 
 
 import VLC.MainInterface
@@ -54,7 +55,9 @@ Widgets.IconToolButton {
         else
             MainCtx.toggleInterfaceFullScreen()
     }
-    description: qsTr("fullscreen")
+    description: qsTr("Fullscreen")
+
+    T.ToolTip.text: PlayerAux.tip(description, "toggle-fullscreen")
 
     AccessibleCompat.id: "fullscreenButton"
 }

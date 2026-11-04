@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
+import QtQuick.Templates as T
 
 
 import VLC.Widgets as Widgets
@@ -26,7 +27,7 @@ import VLC.Util
 Widgets.ImageToolButton {
     id: control
 
-    text: qsTr("A to B Loop")
+    text: qsTr("A-B loop")
 
     sourceSize: Qt.size(VLCStyle.icon_toolbar, VLCStyle.icon_toolbar)
 
@@ -34,6 +35,8 @@ Widgets.ImageToolButton {
     onClicked: Player.toggleABloopState()
 
     description: text
+
+    T.ToolTip.text: PlayerAux.tip(description, "")
 
     AccessibleCompat.id: "atoBButton"
 

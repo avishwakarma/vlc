@@ -16,8 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
+import QtQuick.Templates as T
 
 import VLC.Style
+import VLC.Player
 import VLC.Util
 
 // Playback / video / audio / subtitle settings with the effect panels
@@ -29,8 +31,11 @@ LangButton {
     iconName: "playback-settings"
     panelMode: "settings"
     panelTab: "playback"
+    quickMenu: true
 
     description: qsTr("Playback settings")
+
+    T.ToolTip.text: PlayerAux.tip(description, "")
 
     AccessibleCompat.id: "extendedSettingsButton"
 }

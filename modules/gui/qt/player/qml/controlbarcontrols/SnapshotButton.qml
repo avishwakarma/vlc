@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
+import QtQuick.Templates as T
 
 
 import VLC.Widgets as Widgets
@@ -31,6 +32,8 @@ Widgets.IconToolButton {
     iconName: "snapshot"
     onClicked: Player.snapshot()
     description: qsTr("Snapshot")
+
+    T.ToolTip.text: PlayerAux.tip(description, "snapshot")
 
     AccessibleCompat.id: "snapshotButton"
 }

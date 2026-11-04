@@ -37,6 +37,8 @@ ChoicePopupButton {
 
     description: qsTr("Chapters")
 
+    T.ToolTip.text: PlayerAux.tip(description, "")
+
     AccessibleCompat.id: "chaptersButton"
 
     model: Player.chapters

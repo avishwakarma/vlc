@@ -34,7 +34,9 @@ Widgets.IconToolButton {
     iconName: "record"
     iconNameChecked: "record-active"
     checked: Player.recording
-    description: qsTr("record")
+    description: qsTr("Record")
+
+    T.ToolTip.text: PlayerAux.tip(description, "record")
 
     AccessibleCompat.id: "recordButton"
 

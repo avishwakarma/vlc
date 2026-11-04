@@ -38,6 +38,8 @@ Widgets.IconToolButton {
 
     description: qsTr("Bookmarks")
 
+    T.ToolTip.text: PlayerAux.tip(description, "")
+
     AccessibleCompat.id: "bookmarksListButton"
 
     onClicked: DialogsProvider.bookmarksDialog()
