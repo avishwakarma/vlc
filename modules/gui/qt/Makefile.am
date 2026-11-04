@@ -1086,11 +1086,11 @@ libqml_module_dialogs_a_QML = \
 	dialogs/forms/qml/OpenNetworkStream.qml \
 	dialogs/forms/qml/DialogTextArea.qml \
 	dialogs/forms/qml/DialogHeading.qml \
+	dialogs/forms/qml/KeyChip.qml \
 	dialogs/forms/qml/DialogShell.qml \
 	dialogs/toolbar/qml/ToolbarEditorDialog.qml \
 	dialogs/toolbar/qml/PlayerCustomizeOverlay.qml
 libqml_module_dialogs_a_QML += dialogs/settings/qml/AccentSwatches.qml
-libqml_module_dialogs_a_QML += dialogs/settings/qml/HotkeysEditor.qml
 libqml_module_dialogs_a_QML += dialogs/settings/qml/SettingRow.qml
 libqml_module_dialogs_a_QML += dialogs/settings/qml/SettingSection.qml
 libqml_module_dialogs_a_QML += dialogs/settings/qml/SettingsNavButton.qml

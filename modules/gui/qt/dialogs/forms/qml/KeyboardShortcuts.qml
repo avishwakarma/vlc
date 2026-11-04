@@ -40,16 +40,6 @@ DialogShell {
 
     readonly property HotkeysModel hotkeys: SettingsModel.hotkeys
 
-    // Figma uses DM Mono for the keys, fall back to a system monospace font
-    readonly property string monoFamily: {
-        const families = Qt.fontFamilies()
-        for (const f of ["DM Mono", "Menlo", "Consolas", "DejaVu Sans Mono"]) {
-            if (families.indexOf(f) !== -1)
-                return f
-        }
-        return "monospace"
-    }
-
     // categories, in display order. Rows are put in the first category whose test matches, the
     // last one gets what is left
     readonly property var categories: [
@@ -371,6 +361,7 @@ DialogShell {
                                         row: row.index
                                         global: false
                                         keys: root.hotkeys.keyGlyphs(row.keys)
+                                        rawKeys: row.keys
                                     }
 
                                     HotkeyField {
@@ -378,6 +369,7 @@ DialogShell {
                                         row: row.index
                                         global: true
                                         keys: root.hotkeys.keyGlyphs(row.globalKeys)
+                                        rawKeys: row.globalKeys
                                         available: row.hasGlobal
                                     }
                                 }
@@ -396,7 +388,11 @@ DialogShell {
         property int row
         property bool global
         property string keys
+        // raw bindings (tab separated), drawn as key caps; `keys` is the text for accessibility
+        property string rawKeys
         property bool available: true
+
+        readonly property var bindings: rawKeys !== "" ? rawKeys.split("\t") : []
 
         property bool editing: false
         // conflicting binding waiting for a second press to be replaced
@@ -465,7 +461,9 @@ DialogShell {
 
         Behavior on border.color { ColorAnimation { duration: VLCStyle.duration_short } }
 
+        // message / prompt while recording
         Text {
+            visible: field.editing
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width - 2 * VLCStyle.dp(40, VLCStyle.scale)
@@ -473,12 +471,45 @@ DialogShell {
             elide: Text.ElideRight
             textFormat: Text.PlainText
 
-            text: field.editing ? (field.message !== "" ? field.message : qsTr("Press a key..."))
-                                : field.keys
-            color: field.editing ? (field.message !== "" ? theme.fg.neutral : theme.fg.secondary)
-                                 : theme.fg.heading
-            font.family: root.monoFamily
-            font.pixelSize: field.editing && field.message !== "" ? VLCStyle.text_caption : VLCStyle.text_body
+            text: field.message !== "" ? field.message : qsTr("Press a key...")
+            color: field.message !== "" ? theme.fg.neutral : theme.fg.secondary
+            font.pixelSize: field.message !== "" ? VLCStyle.text_caption : VLCStyle.text_body
+            font.weight: VLCStyle.fontWeight_regular
+        }
+
+        // the first binding as key caps (+N when there are more)
+        Row {
+            visible: !field.editing && field.bindings.length > 0
+            anchors.centerIn: parent
+            spacing: VLCStyle.spacing_4
+
+            Repeater {
+                model: field.bindings.length > 0 ? root.hotkeys.keyCaps(field.rawKeys, 0) : []
+
+                delegate: KeyChip {
+                    required property string modelData
+                    text: modelData
+                }
+            }
+
+            Text {
+                visible: field.bindings.length > 1
+                anchors.verticalCenter: parent.verticalCenter
+                leftPadding: VLCStyle.spacing_4
+                text: qsTr("+%1").arg(field.bindings.length - 1)
+                color: theme.fg.secondary
+                font.pixelSize: VLCStyle.text_caption
+                font.weight: VLCStyle.fontWeight_regular
+            }
+        }
+
+        Text {
+            visible: !field.editing && field.bindings.length === 0 && field.available
+            anchors.centerIn: parent
+            text: qsTr("Not set")
+            color: theme.fg.secondary
+            font.pixelSize: VLCStyle.text_caption
+            font.weight: VLCStyle.fontWeight_regular
         }
 
         Widgets.SvgIcon {
