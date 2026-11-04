@@ -124,11 +124,13 @@ decltype (ControlbarProfileModel::m_defaults)
                         {
                             {
                                 {
+                                    ControlListModel::RANDOM_BUTTON,
                                     ControlListModel::PREVIOUS_BUTTON,
                                     ControlListModel::JUMP_15_BACK_BUTTON,
                                     ControlListModel::PLAY_BUTTON,
                                     ControlListModel::JUMP_15_FWD_BUTTON,
-                                    ControlListModel::NEXT_BUTTON
+                                    ControlListModel::NEXT_BUTTON,
+                                    ControlListModel::LOOP_BUTTON
                                 },
                                 {
                                     ControlListModel::TIMELINE

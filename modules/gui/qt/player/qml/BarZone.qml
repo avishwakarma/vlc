@@ -71,6 +71,7 @@ FocusScope {
     // smallest width the items can take (the expanding item at its minimum)
     readonly property real minimumContentWidth: {
         void normalRepeater.count
+        void normalRepeater.revision
         let w = 0
         for (let i = 0; i < normalRepeater.count; ++i) {
             const l = normalRepeater.itemAt(i)
