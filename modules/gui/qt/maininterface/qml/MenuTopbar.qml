@@ -78,10 +78,11 @@ T.ToolBar {
 
             anchors {
                 left: parent.left
-                leftMargin: VLCStyle.applicationHorizontalMargin
+                leftMargin: (MainCtx.nativeTrafficLights && root._showCSD) ? VLCStyle.trafficLights_inset
+                                                                       : VLCStyle.applicationHorizontalMargin
 
                 right: parent.right
-                rightMargin: root._showCSD && !(csdButtons.height < VLCStyle.applicationVerticalMargin) ? csdButtons.width
+                rightMargin: csdButtons.active && !(csdButtons.height < VLCStyle.applicationVerticalMargin) ? csdButtons.width
                             : VLCStyle.applicationHorizontalMargin
 
                 top: parent.top
@@ -97,7 +98,7 @@ T.ToolBar {
             id: csdButtons
             anchors.right: parent.right
             height: Math.min(parent.implicitHeight, VLCStyle.globalToolbar_height)
-            active: root._showCSD
+            active: root._showCSD && !MainCtx.nativeTrafficLights
             source: VLCStyle.palette.hasCSDImage
                       ? "qrc:///qt/qml/VLC/Widgets/CSDThemeButtonSet.qml"
                       : "qrc:///qt/qml/VLC/Widgets/CSDWindowButtonSet.qml"

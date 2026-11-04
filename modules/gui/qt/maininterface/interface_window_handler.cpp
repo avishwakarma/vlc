@@ -28,6 +28,15 @@
 #include <QQmlProperty>
 #include <cmath>
 #include <QQuickWindow>
+#ifdef __APPLE__
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
+#include <QKeySequence>
+#include <QApplication>
+#include <QRectF>
+#include "dialogs/dialogs_provider.hpp"
+#endif
 
 #ifdef __APPLE__
 #include <objc/runtime.h>
@@ -41,12 +50,11 @@ namespace
 // Native window with the slim title bar drawn edge to edge: the NSWindow keeps its
 // rounded corners, shadow, edge resizing and native fullscreen (Qt::ExpandedClientAreaHint
 // sets NSWindowStyleMaskFullSizeContentView and a transparent title bar). The standard
-// traffic lights are hidden because the redesign draws its own window buttons.
+// traffic lights stay visible (the in-app title bar leaves room for them and draws no window buttons
+// of its own, see MainCtx::nativeTrafficLights); only the native title text is hidden.
 void hideNativeWindowButtons(QWindow *window)
 {
     using IdFn = id (*)(id, SEL);
-    using IdArgFn = id (*)(id, SEL, long);
-    using BoolFn = void (*)(id, SEL, BOOL);
     if (!window->handle())
         return;
     id view = reinterpret_cast<id>(window->winId());
@@ -55,15 +63,42 @@ void hideNativeWindowButtons(QWindow *window)
     id nsWindow = reinterpret_cast<IdFn>(objc_msgSend)(view, sel_registerName("window"));
     if (!nsWindow)
         return;
-    // NSWindowCloseButton, NSWindowMiniaturizeButton, NSWindowZoomButton
-    for (long b = 0; b < 3; ++b)
-    {
-        id button = reinterpret_cast<IdArgFn>(objc_msgSend)(nsWindow, sel_registerName("standardWindowButton:"), b);
-        if (button)
-            reinterpret_cast<BoolFn>(objc_msgSend)(button, sel_registerName("setHidden:"), YES);
-    }
     // NSWindowTitleHidden = 1
     reinterpret_cast<void (*)(id, SEL, long)>(objc_msgSend)(nsWindow, sel_registerName("setTitleVisibility:"), 1);
+}
+
+// Right edge (points, window coordinates) of the zoom (green) traffic light plus the gap the system
+// leaves at the left of them, measured from the real NSWindow. Returns 0 when it can't be measured.
+qreal measureTrafficLightsInset(QWindow *window)
+{
+#if defined(__arm64__)
+    struct NSRectLike { double x, y, w, h; };
+    using IdFn = id (*)(id, SEL);
+    using IdArgFn = id (*)(id, SEL, long);
+    using RectFn = NSRectLike (*)(id, SEL);
+    if (!window->handle())
+        return 0;
+    id view = reinterpret_cast<id>(window->winId());
+    if (!view)
+        return 0;
+    id nsWindow = reinterpret_cast<IdFn>(objc_msgSend)(view, sel_registerName("window"));
+    if (!nsWindow)
+        return 0;
+    // NSWindowCloseButton = 0, NSWindowZoomButton = 2
+    id close = reinterpret_cast<IdArgFn>(objc_msgSend)(nsWindow, sel_registerName("standardWindowButton:"), 0);
+    id zoom = reinterpret_cast<IdArgFn>(objc_msgSend)(nsWindow, sel_registerName("standardWindowButton:"), 2);
+    if (!close || !zoom)
+        return 0;
+    const NSRectLike c = reinterpret_cast<RectFn>(objc_msgSend)(close, sel_registerName("frame"));
+    const NSRectLike z = reinterpret_cast<RectFn>(objc_msgSend)(zoom, sel_registerName("frame"));
+    if (z.w <= 0 || z.x + z.w <= c.x)
+        return 0;
+    // same gap on the right of the lights as the one on their left
+    return (z.x + z.w) + c.x;
+#else
+    Q_UNUSED(window);
+    return 0;
+#endif
 }
 #endif
 
@@ -97,6 +132,9 @@ InterfaceWindowHandler::InterfaceWindowHandler(qt_intf_t *_p_intf, MainCtx* main
     assert(m_mainCtx);
 
     updateCSDWindowSettings();
+#ifdef __APPLE__
+    createMacApplicationMenu();
+#endif
 
     /* */
     m_pauseOnMinimize = var_InheritBool( p_intf, "qt-pause-minimized" );
@@ -234,6 +272,42 @@ InterfaceWindowHandler::~InterfaceWindowHandler()
     }
 }
 
+#ifdef __APPLE__
+void InterfaceWindowHandler::updateNativeChrome()
+{
+    hideNativeWindowButtons(m_window);
+    if (const qreal inset = measureTrafficLightsInset(m_window); inset > 0)
+        m_mainCtx->setTrafficLightsInset(inset);
+}
+
+// Standard macOS application menu: About VLC, Settings... (Cmd+,), through the Qt menu roles.
+// The global menu bar is owned by this (parent-less) QMenuBar.
+void InterfaceWindowHandler::createMacApplicationMenu()
+{
+    if (!qobject_cast<QApplication *>(QCoreApplication::instance()))
+        return;
+    auto *bar = new QMenuBar(nullptr);
+    connect(this, &QObject::destroyed, bar, &QObject::deleteLater); // lifetime
+    QMenu *menu = bar->addMenu(QStringLiteral("VLC"));
+
+    QAction *about = menu->addAction(QStringLiteral("About VLC"));
+    about->setMenuRole(QAction::AboutRole);
+    connect(about, &QAction::triggered, this, []() {
+        if (auto *dp = DialogsProvider::getInstance())
+            dp->aboutDialog();
+    });
+
+    // Cmd+P (GlobalShortcuts.qml) keeps working next to the standard Cmd+,
+    QAction *prefs = menu->addAction(QStringLiteral("Settings..."));
+    prefs->setMenuRole(QAction::PreferencesRole);
+    prefs->setShortcut(QKeySequence(QKeySequence::Preferences));
+    connect(prefs, &QAction::triggered, this, []() {
+        if (auto *dp = DialogsProvider::getInstance())
+            dp->prefsDialog();
+    });
+}
+#endif
+
 void InterfaceWindowHandler::updateCSDWindowSettings()
 {
 #ifdef __APPLE__
@@ -257,7 +331,7 @@ bool InterfaceWindowHandler::eventFilter(QObject* watched, QEvent* event)
     case QEvent::Expose:
     case QEvent::PlatformSurface:
         if (m_mainCtx->useClientSideDecoration())
-            hideNativeWindowButtons(m_window);
+            updateNativeChrome();
         break;
 #endif
     case QEvent::WindowStateChange:
@@ -267,7 +341,7 @@ bool InterfaceWindowHandler::eventFilter(QObject* watched, QEvent* event)
         Qt::WindowStates oldState = windowStateChangeEvent->oldState();
 #ifdef __APPLE__
         if (m_mainCtx->useClientSideDecoration())
-            hideNativeWindowButtons(m_window);
+            updateNativeChrome();
 #endif
 
         /* b_maximizedView stores if the window was maximized before entering fullscreen.

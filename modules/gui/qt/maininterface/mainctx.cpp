@@ -442,6 +442,23 @@ bool MainCtx::useClientSideDecoration() const
     return !m_windowTitlebar;
 }
 
+bool MainCtx::nativeTrafficLights() const
+{
+#ifdef __APPLE__
+    return useClientSideDecoration();
+#else
+    return false;
+#endif
+}
+
+void MainCtx::setTrafficLightsInset(qreal inset)
+{
+    if (qFuzzyCompare(m_trafficLightsInset, inset))
+        return;
+    m_trafficLightsInset = inset;
+    emit trafficLightsInsetChanged();
+}
+
 bool MainCtx::hasFirstrun() const {
     return var_InheritBool(p_intf,  "qt-privacy-ask" );
 }

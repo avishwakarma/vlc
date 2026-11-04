@@ -48,7 +48,7 @@ Widgets.CSDWindowButton {
     }
 
     // only drawn with client side decoration and when the window is not fullscreen
-    readonly property bool hostHidden: !PlayerHost.showCSD || PlayerHost.windowFullscreen
+    readonly property bool hostHidden: !PlayerHost.showCSD || PlayerHost.windowFullscreen || MainCtx.nativeTrafficLights
 
     readonly property ColorContext toolColorContext: ColorContext {
         id: theme

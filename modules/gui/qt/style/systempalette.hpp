@@ -157,6 +157,11 @@ public:
 
 public:
     SystemPalette(QObject* parent = nullptr);
+    ~SystemPalette();
+
+    // palette used by the ColorContext that have none yet (not inherited yet, first frame of a popup/window):
+    // the first one created (VLCStyle.palette), so unresolved colours are never the magenta debug colour
+    static SystemPalette* fallbackPalette();
 
     ColorSchemeModel::ColorScheme source() const;
     QImage getCSDImage(vlc_qt_theme_csd_button_type type, vlc_qt_theme_csd_button_state state, bool maximized, bool active, int bannerHeight);
