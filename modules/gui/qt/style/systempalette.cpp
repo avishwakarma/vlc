@@ -696,7 +696,7 @@ void SystemPalette::fillPalette(bool dark)
         setColor(CS, C::Decoration, C::HoverPlate, C::Normal, dark ? bgA2 : setColorAlpha(Qt::black, 0.08));
         setColor(CS, C::Decoration, C::PressedPlate, C::Normal, dark ? bgA1 : setColorAlpha(Qt::black, 0.14));
         setColor(CS, C::Decoration, C::Scrim, C::Normal, setColorAlpha(Qt::black, dark ? 0.6 : 0.4));
-        setColor(CS, C::Decoration, C::Placeholder, C::Normal, dark ? fgA4 : QColor("#525252"));
+        setColor(CS, C::Decoration, C::Placeholder, C::Normal, dark ? QColor("#8F8F8F") : QColor("#525252"));
     }
 
     //window banner & miniplayer

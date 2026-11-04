@@ -122,7 +122,8 @@ FocusScope {
         case ConfigOption.Float:
             if (_choiceList.length > 0)
                 return "dropdown"
-            return option.hasRange ? "slider" : "number"
+            // huge ranges (timeouts up to INT_MAX) are typed, not dragged
+            return (option.hasRange && (option.max - option.min) <= 10000) ? "slider" : "number"
         default:
             return _choiceList.length > 0 ? "dropdown" : "text"
         }

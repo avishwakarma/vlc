@@ -225,8 +225,9 @@ Window {
             Widgets.DialogButton {
                 id: skipButton
 
+                // bottom strip, below the Back / Next row (the theme step has swatches on that row)
                 x: root.dp(62)
-                y: nextButton.y
+                y: card.height - root.dp(8) - height
 
                 text: qsTr("Skip")
 
@@ -239,7 +240,7 @@ Window {
                 id: dots
 
                 anchors.horizontalCenter: parent.horizontalCenter
-                y: nextButton.y + (nextButton.height - height) / 2
+                y: skipButton.y + (skipButton.height - height) / 2
                 spacing: VLCStyle.spacing_8
 
                 Repeater {

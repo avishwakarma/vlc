@@ -175,6 +175,8 @@ SettingsPage {
 
     advanced: [
         SettingSection {
+            title: qsTr("Connection")
+
             SettingRow {
                 label: qsTr("Connection timeout")
                 option: SettingsModel.option("ipv4-timeout")

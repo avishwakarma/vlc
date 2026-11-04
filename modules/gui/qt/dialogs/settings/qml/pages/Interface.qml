@@ -166,6 +166,8 @@ SettingsPage {
 
     advanced: [
         SettingSection {
+            title: qsTr("Window")
+
             SettingRow {
                 label: qsTr("Window opacity")
                 info: ""

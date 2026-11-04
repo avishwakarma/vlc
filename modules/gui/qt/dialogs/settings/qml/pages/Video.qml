@@ -295,6 +295,8 @@ SettingsPage {
 
     advanced: [
         SettingSection {
+            title: qsTr("Snapshots")
+
             SettingRow {
                 label: qsTr("Snapshot width")
                 option: SettingsModel.option("snapshot-width")

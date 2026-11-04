@@ -109,6 +109,8 @@ SettingsPage {
 
     advanced: [
         SettingSection {
+            title: qsTr("Lua")
+
             SettingRow {
                 label: qsTr("Lua interface script")
                 option: SettingsModel.option("lua-intf")

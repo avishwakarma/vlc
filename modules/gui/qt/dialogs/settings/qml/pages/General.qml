@@ -104,6 +104,8 @@ SettingsPage {
 
     advanced: [
         SettingSection {
+            title: qsTr("Logging")
+
             SettingRow {
                 label: qsTr("Show minor warnings")
                 option: SettingsModel.option("verbose")

@@ -99,6 +99,8 @@ SettingsPage {
 
     advanced: [
         SettingSection {
+            title: qsTr("Stream Output")
+
             SettingRow {
                 label: qsTr("Stream all elementary streams")
                 option: SettingsModel.option("sout-all")
