@@ -267,6 +267,9 @@ T.ItemDelegate {
         x: - selectedBorderWidth
         y: - selectedBorderWidth
 
+        // the plate wraps the thumbnail with `selectedBorderWidth` padding: concentric with the cover radius
+        radius: VLCStyle.gridCover_radius + selectedBorderWidth
+
         enabled: theme.initialized
 
         //don't show the backgroud unless selected

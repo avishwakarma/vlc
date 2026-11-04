@@ -44,7 +44,8 @@ QtObject{
                                                        : (nbItemPerRow === 3 ? VLCStyle.margin_large + VLCStyle.margin_xxsmall
                                                                              : _defaultHorizontalSpacing)
 
-    readonly property int _defaultHorizontalSpacing: VLCStyle.column_spacing
+    property int defaultHorizontalSpacing: VLCStyle.column_spacing
+    readonly property int _defaultHorizontalSpacing: defaultHorizontalSpacing
 
     property var maxNbItemPerRow
     readonly property int nbItemPerRow: {

@@ -37,8 +37,12 @@ ListViewExt {
 
     property Component tableHeaderDelegate:  TableHeaderDelegate {
         Widgets.CaptionLabel {
-            horizontalAlignment: colModel.hCenterText ? Text.AlignHCenter : Text.AlignLeft
+            horizontalAlignment: colModel.hRightText ? Text.AlignRight
+                                                      : (colModel.hCenterText ? Text.AlignHCenter : Text.AlignLeft)
             verticalAlignment: Text.AlignVCenter
+
+            font.pixelSize: VLCStyle.text_caption
+            font.weight: VLCStyle.fontWeight_medium
 
             anchors.fill: parent
 
@@ -128,7 +132,12 @@ ListViewExt {
     //       the delegate (such as, hovering over the header). As `clip: true` adjusts both the scene graph
     //       viewport, and qt quick event delivery agent. Having a control as header and blocking the events
     //       events reaching beneath is not a good behavior, as currently done here.
-    property color headerColor: (interactive && (headerPositioning !== ListView.InlineHeader)) ? colorContext.bg.primary : "transparent"
+    // the sticky header must have the colour of the page (Pane surface), not the View colour
+    readonly property ColorContext _paneContext: ColorContext {
+        colorSet: ColorContext.Pane
+    }
+
+    property color headerColor: (interactive && (headerPositioning !== ListView.InlineHeader)) ? Qt.alpha(_paneContext.bg.primary, 1.0) : "transparent"
     property int headerTopPadding: 0
 
     property real rowHeight: VLCStyle.tableRow_height
@@ -154,7 +163,22 @@ ListViewExt {
     signal rightClick(Item menuParent, var menuModel, point globalMousePos)
     signal itemDoubleClicked(var index, var model)
 
+    // true when content is scrolled underneath the sticky column header
+    readonly property bool _contentUnderHeader: (contentY - originY) > 1
+
     Component.onCompleted: {
+        // let the page header know that this view draws the divider of the shared header surface
+        if (headerPositioning === ListView.OverlayHeader) {
+            let p = parent
+            while (p) {
+                if (p.headerDividerSuppressed !== undefined) {
+                    p.headerDividerSuppressed = true
+                    break
+                }
+                p = p.parent
+            }
+        }
+
         // This is a remnant from the time `TableViewExt` derived from `FocusScope`:
         MainCtx.setItemFlag(this, Item.ItemIsFocusScope)
     }
@@ -243,6 +267,24 @@ ListViewExt {
 
             implicitHeight: row.implicitHeight
 
+            // divider, only visible when rows are scrolled underneath the sticky header
+            Rectangle {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.bottom
+                }
+
+                height: VLCStyle.dp(1, VLCStyle.scale)
+                color: root.colorContext.fg.secondary
+                opacity: (root.headerPositioning === ListView.OverlayHeader && root._contentUnderHeader) ? 0.2 : 0
+                visible: opacity > 0
+
+                Behavior on opacity {
+                    NumberAnimation { duration: VLCStyle.duration_short }
+                }
+            }
+
             Widgets.ListLabel {
                 // NOTE: We want the section label to be slightly shifted to the left.
                 x: row.x - VLCStyle.margin_small
@@ -271,7 +313,7 @@ ListViewExt {
                 }
 
                 topPadding: root.headerTopPadding
-                bottomPadding: VLCStyle.margin_xsmall
+                bottomPadding: VLCStyle.spacing_8
 
                 spacing: VLCStyle.column_spacing
 
@@ -317,7 +359,7 @@ ListViewExt {
                         Text {
                             text: (root.model.sortOrder === Qt.AscendingOrder) ? "▼" : "▲"
                             visible: root.model.sortCriteria === modelData.model.criteria
-                            font.pixelSize: VLCStyle.fontSize_normal
+                            font.pixelSize: VLCStyle.text_caption
                             color: root.colorContext.accent
 
                             anchors {

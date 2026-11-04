@@ -90,14 +90,14 @@ QtObject {
     readonly property int heightAlbumCover_large: MainCtx.dp(255, scale);
     readonly property int heightAlbumCover_xlarge: MainCtx.dp(512, scale);
 
-    readonly property int listAlbumCover_height: MainCtx.dp(32, scale)
+    readonly property int listAlbumCover_height: MainCtx.dp(36, scale)
     readonly property int listAlbumCover_width: listAlbumCover_height * 16.0/9
-    readonly property int listAlbumCover_radius: MainCtx.dp(3, scale)
+    readonly property int listAlbumCover_radius: MainCtx.dp(6, scale)
     readonly property int trackListAlbumCover_width: MainCtx.dp(32, scale)
     readonly property int trackListAlbumCover_heigth: MainCtx.dp(32, scale)
     readonly property int trackListAlbumCover_radius: MainCtx.dp(3, scale)
 
-    readonly property int tableCoverRow_height: Math.max(listAlbumCover_height, fontHeight_normal) + margin_xsmall * 2
+    readonly property int tableCoverRow_height: Math.max(listAlbumCover_height, fontHeight_normal) + spacing_10 * 2
     readonly property int tableRow_height: fontHeight_normal + margin_small * 2
 
     readonly property int icon_xsmall: MainCtx.dp(8, scale);
@@ -201,6 +201,7 @@ QtObject {
 
     // Figma library grid: 316x178 thumbnails
     readonly property int gridCover_video_width: MainCtx.dp(316, scale)
+    readonly property int gridCover_video_minWidth: MainCtx.dp(296, scale)
     readonly property int gridCover_video_height: ( gridCover_video_width * 9.0 ) / 16
     readonly property int gridCover_video_border: MainCtx.dp(4, scale)
 

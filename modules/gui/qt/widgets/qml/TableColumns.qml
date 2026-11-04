@@ -150,18 +150,14 @@ Item {
 
             spacing: VLCStyle.margin_normal
 
-            Widgets.IconLabel {
+            // spacer with the width of the cover column, the label is aligned with the row titles
+            Item {
                 width: root.titleCover_width
                 height: parent.height
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.pixelSize: VLCStyle.icon_tableHeader
-
-                text: VLCIcons.album_cover
-                color: titleHeadDel.colorContext.fg.secondary
             }
 
             TitleHeaderText {
+                width: parent.width - root.titleCover_width - parent.spacing
                 height: parent.height
 
                 color: titleHeadDel.colorContext.fg.secondary
@@ -172,18 +168,21 @@ Item {
     }
 
     property Component timeHeaderDelegate: TableHeaderDelegate {
-        Widgets.IconLabel {
-            width: timeTextMetric.width
-            height: parent.height
+        id: timeHeadDel
 
-            anchors.centerIn: parent
+        Widgets.CaptionLabel {
+            anchors.fill: parent
 
-            horizontalAlignment: Text.AlignHCenter
+            horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
 
-            text: VLCIcons.time
-            font.pixelSize: VLCStyle.icon_tableHeader
-            color: parent.colorContext.fg.secondary
+            font.pixelSize: VLCStyle.text_caption
+            font.weight: VLCStyle.fontWeight_medium
+
+            text: timeHeadDel.colModel.text ?? qsTr("Duration")
+            color: timeHeadDel.colorContext.fg.secondary
+
+            Accessible.ignored: true
         }
     }
 
@@ -213,16 +212,16 @@ Item {
         id: timeDel
 
         Widgets.ListLabel {
-            width: timeTextMetric.width
-            height: parent.height
+            anchors.fill: parent
 
-            anchors.centerIn: parent
+            horizontalAlignment: Text.AlignRight
+            font.pixelSize: VLCStyle.text_body
+            font.weight: VLCStyle.fontWeight_regular
 
-            horizontalAlignment: Text.AlignHCenter
             text: timeDel.rowModel?.[timeDel.colModel.criteria]?.formatShort() ?? ""
             color: timeDel.selected
                 ? timeDel.colorContext.fg.highlight
-                : timeDel.colorContext.fg.primary
+                : timeDel.colorContext.fg.secondary
         }
     }
 
@@ -236,8 +235,11 @@ Item {
     }
 
     component TitleHeaderText: Widgets.CaptionLabel {
-        horizontalAlignment: Text.AlignHCenter
+        horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
+
+        font.pixelSize: VLCStyle.text_caption
+        font.weight: VLCStyle.fontWeight_medium
 
         visible: root.showTitleText
 
@@ -269,6 +271,9 @@ Item {
                 id: text
 
                 anchors.verticalCenter: parent.verticalCenter
+                font.pixelSize: VLCStyle.text_heading
+                font.weight: VLCStyle.fontWeight_regular
+
                 text: (source.rowModel && root.showTitleText)
                       ? root._titleTextProvider(source.rowModel, source.colModel)
                       : ""

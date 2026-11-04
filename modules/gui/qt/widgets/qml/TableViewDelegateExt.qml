@@ -97,17 +97,24 @@ T.Control {
 
                 horizontalAlignment: defaultDelId.colModel.hCenterText ? Text.AlignHCenter : Text.AlignLeft
 
+                font.pixelSize: VLCStyle.text_body
+                font.weight: VLCStyle.fontWeight_regular
+
                 text: defaultDelId.rowModel[defaultDelId.colModel.criteria] ?? ""
 
                 color: defaultDelId.selected
                     ? defaultDelId.colorContext.fg.highlight
-                    : defaultDelId.colorContext.fg.primary
+                    : defaultDelId.colorContext.fg.secondary
             }
         }
     }
     // Settings
 
     hoverEnabled: true
+
+    // the row surface is inset from the content edge (rounded card look)
+    leftInset: Math.max(0, leftPadding - VLCStyle.spacing_12)
+    rightInset: Math.max(0, rightPadding - VLCStyle.spacing_12)
 
     ListView.delayRemove: dragHandler.active
 
@@ -209,7 +216,9 @@ T.Control {
         }
     }
 
+    // rounded row surface, slightly inset from the content padding like the grid cards
     background: AnimatedBackground {
+        radius: VLCStyle.radius_l
         animationDuration: VLCStyle.duration_short
         enabled: theme.initialized
         color: delegate.selected ? theme.bg.highlight : theme.bg.primary

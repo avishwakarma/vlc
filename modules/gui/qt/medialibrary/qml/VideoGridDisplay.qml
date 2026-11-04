@@ -42,7 +42,11 @@ Widgets.ExpandGridItemView {
 
     // Settings
 
-    basePictureWidth: VLCStyle.gridCover_video_width
+    // Figma: 316 px cards with a 20 px gap, 5 per row on a 1920 px window. The minimum card width is
+    // a little smaller than the Figma card so that 5 fit in the content area; cells then stretch
+    // to fill the row (responsive).
+    defaultHorizontalSpacing: VLCStyle.spacing_20
+    basePictureWidth: VLCStyle.gridCover_video_minWidth
     basePictureHeight: VLCStyle.gridCover_video_height
 
     activeFocusOnTab: true
