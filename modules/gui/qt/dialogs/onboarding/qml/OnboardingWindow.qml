@@ -80,6 +80,12 @@ Window {
             close()
     }
 
+    function skip() {
+        controller.skip()
+        finished = true
+        close()
+    }
+
     function finish() {
         controller.finish(welcomeStep.metadataAccess)
         finished = true
@@ -132,7 +138,7 @@ Window {
         Widgets.RoundedRectangleShadow {
             blurRadius: root.dp(11.8)
             yOffset: root.dp(4)
-            color: Qt.rgba(0, 0, 0, 0.38)
+            color: VLCStyle.shadowColor(0.38)
         }
 
         // keyboard: Enter = next, Esc = back
@@ -213,6 +219,49 @@ Window {
                 focus: true
 
                 onClicked: root.next()
+            }
+
+            // Skip: leave the wizard now (nothing is added, it is not shown again)
+            Widgets.DialogButton {
+                id: skipButton
+
+                x: root.dp(62)
+                y: nextButton.y
+
+                text: qsTr("Skip")
+
+                visible: root.step < root.stepCount - 1
+                onClicked: root.skip()
+            }
+
+            // step dots
+            Row {
+                id: dots
+
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: nextButton.y + (nextButton.height - height) / 2
+                spacing: VLCStyle.spacing_8
+
+                Repeater {
+                    model: root.stepCount
+
+                    delegate: Rectangle {
+                        required property int index
+
+                        readonly property bool current: root.step === index
+
+                        width: current ? VLCStyle.spacing_20 : VLCStyle.spacing_8
+                        height: VLCStyle.spacing_8
+                        radius: height / 2
+                        color: current ? theme.accent : theme.fg.disabled
+
+                        Behavior on width { NumberAnimation { duration: VLCStyle.duration_long; easing.type: Easing.OutCubic } }
+                        Behavior on color { ColorAnimation { duration: VLCStyle.duration_long } }
+                    }
+                }
+
+                Accessible.role: Accessible.ProgressBar
+                Accessible.name: qsTr("Step %1 of %2").arg(root.step + 1).arg(root.stepCount)
             }
 
             Widgets.DialogButton {

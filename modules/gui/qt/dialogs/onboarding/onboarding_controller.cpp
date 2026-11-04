@@ -104,6 +104,15 @@ void OnboardingController::setFolderText(const QString& text)
     emit folderChanged();
 }
 
+void OnboardingController::skip()
+{
+    if (!m_ctx)
+        return;
+    config_PutInt("qt-privacy-ask", 0);
+    m_ctx->reloadPrefs();
+    config_SaveConfigFile(m_ctx->getIntf());
+}
+
 void OnboardingController::finish(bool metadataAccess)
 {
     if (!m_ctx)

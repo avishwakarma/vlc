@@ -66,6 +66,9 @@ public:
     /** metadataAccess: allow network access for metadata (cover art, track names...) */
     Q_INVOKABLE void finish(bool metadataAccess);
 
+    /** "Skip": the wizard is not shown again, no folder is added and the metadata access stays off */
+    Q_INVOKABLE void skip();
+
 signals:
     void ctxChanged();
     void colorSchemeIndexChanged();

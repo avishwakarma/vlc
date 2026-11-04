@@ -84,9 +84,7 @@ Dialog {
             anchors.fill: parent
             anchors.margins: MainCtx.windowExtendedMargin
 
-            color: theme.bg.primary
-
-            opacity: blur.visible ? 0.75 : 0.6
+            color: theme.scrim
         }
     }
 
@@ -97,7 +95,7 @@ Dialog {
         Widgets.RoundedRectangleShadow {
             blurRadius: VLCStyle.shadow_floating.blur
             yOffset: VLCStyle.shadow_floating.y
-            color: Qt.rgba(0, 0, 0, VLCStyle.shadow_floating.alpha)
+            color: VLCStyle.shadowColor(VLCStyle.shadow_floating.alpha)
             z: -1
         }
     }

@@ -88,7 +88,7 @@ T.Pane {
                                                                                                                   .arg(UpdateModel.revision)
                                                                                                                   .arg(extra === 0 ? "" : "." + extra)
                         case UpdateModel.UpToDate:
-                            return qsTr("You have the latest version of VLC media player: <font color=\"%1\">%2</font>.").arg(theme.accent)
+                            return qsTr("You have the latest version of VLC media player: <font color=\"%1\">%2</font>.").arg(theme.accentText)
                                                                                                                          .arg(Application.version)
                         case UpdateModel.CheckFailed:
                             return qsTr("An <font color=\"%1\">error</font> occurred while checking for updates...").arg(theme.fg.negative)
@@ -109,7 +109,7 @@ T.Pane {
 
                 elide: Text.ElideRight
 
-                font.pixelSize: VLCStyle.fontSize_large
+                font.pixelSize: VLCStyle.text_subtitle
 
                 color: theme.fg.primary
             }
@@ -311,7 +311,7 @@ T.Pane {
 
                 width: parent.width
 
-                font.pixelSize: VLCStyle.fontSize_normal
+                font.pixelSize: VLCStyle.text_body
 
                 color: theme.fg.primary
 
@@ -319,14 +319,12 @@ T.Pane {
                 // ES6 does not have replaceAll(), but this works too with regex, which we need to use
                 // anyway to match case insensitive:
                 text: UpdateModel.description.replace(/security/gi,
-                                                      (match) => { return "<font color=\"red\">" + match + "</font>" })
+                                                      (match) => { return "<font color=\"" + theme.fg.negative + "\">" + match + "</font>" })
 
                 wrapMode: Text.WordWrap
 
                 padding: VLCStyle.margin_xxsmall
 
-                style: Text.Raised
-                styleColor: Qt.rgba(0.0, 0.0, 0.0, 0.2)
             }
 
             Widgets.FadingEdge {

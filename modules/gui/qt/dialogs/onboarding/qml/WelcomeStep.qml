@@ -84,8 +84,8 @@ Item {
         Text {
             text: qsTr("Choose a Media Folder to get started with")
             color: viewTheme.fg.primary
-            font.pixelSize: VLCStyle.text_body
-            font.weight: VLCStyle.fontWeight_regular
+            font.pixelSize: VLCStyle.text_heading
+            font.weight: VLCStyle.fontWeight_light
         }
 
         Row {

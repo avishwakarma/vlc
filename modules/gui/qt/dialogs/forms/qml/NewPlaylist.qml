@@ -209,7 +209,7 @@ DialogShell {
                 ShapePath {
                     fillColor: "transparent"
                     strokeColor: (dropArea.containsDrag || hoverZone.hovered)
-                                 ? theme.fg.secondary : Qt.lighter(theme.separator, 1.35)
+                                 ? theme.fg.secondary : theme.border
                     strokeWidth: dropZone.stroke
                     strokeStyle: ShapePath.DashLine
                     dashPattern: [3, 3]

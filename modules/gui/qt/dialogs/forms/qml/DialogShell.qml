@@ -217,7 +217,7 @@ Window {
         Widgets.RoundedRectangleShadow {
             blurRadius: VLCStyle.shadow_floating.blur
             yOffset: VLCStyle.shadow_floating.y
-            color: Qt.rgba(0, 0, 0, VLCStyle.shadow_floating.alpha)
+            color: VLCStyle.shadowColor(VLCStyle.shadow_floating.alpha)
             z: -1
         }
 
