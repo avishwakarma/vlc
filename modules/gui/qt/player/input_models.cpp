@@ -139,6 +139,7 @@ void TrackListModel::updateTrackSelection(vlc_es_id_t *trackid, bool selected)
     it->m_selected = selected;
     QModelIndex dataIndex = index(pos);
     emit dataChanged(dataIndex, dataIndex, {  Qt::CheckStateRole });
+    emit trackSelectionChanged(it->m_title, selected);
 }
 
 void TrackListModel::clear()

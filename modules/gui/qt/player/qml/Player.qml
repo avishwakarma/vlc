@@ -874,6 +874,24 @@ FocusScope {
         }
     }
 
+    // On-screen messages (volume, speed, tracks, ...) replacing the big OSD text of the video
+    // output: small pill at the top, under the title bar
+    OsdToast {
+        id: osdToast
+
+        z: 2
+
+        anchors {
+            top: parent.top
+            topMargin: topBar.reservedHeight + VLCStyle.spacing_12
+            horizontalCenter: parent.horizontalCenter
+        }
+
+        maxWidth: rootPlayer.width - VLCStyle.margin_large * 2
+
+        colorContext.palette: topBar.colorContext.palette
+    }
+
     // "Resume where you left off?" pill, above the control bar
     ResumeDialog {
         id: resumeDialog

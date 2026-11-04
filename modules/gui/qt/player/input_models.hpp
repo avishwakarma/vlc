@@ -76,6 +76,8 @@ public slots:
 signals:
     void countChanged();
     void multiSelectChanged(bool multiSelect);
+    //a track was selected/unselected by the player (used by the on-screen toast)
+    void trackSelectionChanged(const QString& title, bool selected);
 
 private:
     vlc_player_t* m_player;
