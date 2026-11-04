@@ -125,7 +125,7 @@ FocusScope {
                 source: SVGColorImage.colorize("qrc:///emptystates/"
                                                + (root._searching ? "search" : root.illustration)
                                                + ".svg")
-                                     .color1(theme.fg.primary)
+                                     .color1(theme.fg.highlight)
                                      .accent(theme.accent)
                                      .color2(Qt.darker(theme.accent, 1.3))
                                      .uri()
@@ -140,7 +140,7 @@ FocusScope {
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.Wrap
             text: root._searching ? qsTr("No results") : root.title
-            color: theme.fg.primary
+            color: theme.fg.highlight
         }
 
         Widgets.CaptionLabel {
@@ -152,7 +152,7 @@ FocusScope {
             text: root._searching ? qsTr("Nothing matches \"%1\". Try a different search.")
                                       .arg(root.searchModel.searchPattern)
                                   : root.caption
-            color: theme.fg.secondary
+            color: theme.fg.primary
         }
 
         Item {
