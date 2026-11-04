@@ -54,6 +54,11 @@ Item {
     // time (ms) the message stays on screen
     property int timeout: 1800
 
+    // optional click action: label shown after the message and the url opened on click
+    // (snapshot: "Show in Finder")
+    property string actionText
+    property url actionUrl
+
     property bool shown: false
 
     readonly property bool osdEnabled: !!SettingsModel.option("osd").value
@@ -65,8 +70,9 @@ Item {
     opacity: 0
     visible: opacity > 0
 
-    // purely informative: neither focus nor mouse
-    enabled: false
+    // purely informative: no focus; only a message with an action takes the mouse
+    activeFocusOnTab: false
+    enabled: actionText !== "" && shown
 
     Accessible.role: Accessible.AlertMessage
     Accessible.name: text
@@ -78,10 +84,13 @@ Item {
 
     // ---- API -------------------------------------------------------------------------
 
-    function show(message, icon, ratio) {
+    function show(message, icon, ratio, action, url) {
         if (!osdEnabled || message === "")
             return
 
+        actionText = action || ""
+        actionUrl = url || ""
+        timeout = actionText !== "" ? 4000 : 1800
         text = message
         iconName = icon || ""
         progress = (ratio === undefined) ? -1 : Math.max(0, Math.min(1, ratio))
@@ -90,6 +99,7 @@ Item {
     }
 
     function hide() {
+        actionText = ""
         hideTimer.stop()
         shown = false
     }
@@ -148,6 +158,40 @@ Item {
             toast.show(qsTr("Speed %1x").arg(+Player.rate.toFixed(2)), "speed")
         }
 
+        function onSnapshotTaken(path) {
+            if (!toast.osdEnabled)
+                return
+            const slash = path.lastIndexOf("/")
+            const dir = slash > 0 ? path.substring(0, slash) : ""
+            toast.show(qsTr("Snapshot saved"), "snapshot", undefined,
+                       dir !== "" ? qsTr("Show in Finder") : "", dir !== "" ? "file://" + encodeURI(dir) : "")
+        }
+
+        // keyboard / menu seeks: the player time jumps by more than playback explains
+        function onTimeChanged() {
+            const now = Date.now()
+            const t = Player.position * Player.length.toSeconds() * 1000
+            const playing = Player.playingState === Player.PLAYING_STATE_PLAYING
+            const expected = playing ? (now - toast._lastWall) * Player.rate : 0
+            const jump = t - toast._lastTime - expected
+            const first = toast._lastWall === 0
+            toast._lastTime = t
+            toast._lastWall = now
+            if (first || !toast._armed || Math.abs(jump) < 1500 || now - toast._slider < 800)
+                return
+            const delta = Math.round(jump / 1000)
+            const sign = delta > 0 ? "+" : "\u2212"
+            toast.show("%1 / %2   %3%4 s".arg(Player.time.formatHMS()).arg(Player.length.formatHMS())
+                           .arg(sign).arg(Math.abs(delta)),
+                       delta > 0 ? "arrow-right" : "arrow-left",
+                       Player.length.toSeconds() > 0 ? Player.position : undefined)
+        }
+
+        // seeks done with the seek bar show their own position
+        function onSeekRequested() {
+            toast._slider = Date.now()
+        }
+
         function onAudioDelayChanged() {
             if (!toast._armed)
                 return
@@ -159,6 +203,50 @@ Item {
                 return
             toast.show(qsTr("Subtitle delay %1").arg(toast._delayText(Player.subtitleDelayMS)), "subtitles")
         }
+    }
+
+    // A-B loop state (Q_PROPERTY of the player, observed through a binding)
+    readonly property int _abState: Player.ABloopState
+
+    on_AbStateChanged: {
+        if (!_armed)
+            return
+        switch (_abState) {
+        case Player.ABLOOP_STATE_A:
+            show(qsTr("Loop start set at %1").arg(Player.ABLoopA.formatHMS()), "speed")
+            break
+        case Player.ABLOOP_STATE_B:
+            show(qsTr("Looping %1 to %2").arg(Player.ABLoopA.formatHMS()).arg(Player.ABLoopB.formatHMS()), "speed")
+            break
+        default:
+            show(qsTr("Loop off"), "speed")
+        }
+    }
+
+    // aspect ratio, crop and zoom (they were vout text)
+    Connections {
+        target: Player.aspectRatio
+        function onDataChanged(top, bottom, roles) { toast._varChoice(top, qsTr("Aspect ratio"), "video", Player.aspectRatio) }
+    }
+
+    Connections {
+        target: Player.crop
+        function onDataChanged(top, bottom, roles) { toast._varChoice(top, qsTr("Crop"), "video", Player.crop) }
+    }
+
+    Connections {
+        target: Player.zoom
+        function onDataChanged(top, bottom, roles) { toast._varChoice(top, qsTr("Zoom"), "zoom", Player.zoom) }
+    }
+
+    property double _lastWall: 0
+    property double _lastTime: 0
+    property double _slider: 0
+
+    function _varChoice(index, label, icon, model) {
+        if (!_armed || model.data(index, Qt.CheckStateRole) !== true && model.data(index, Qt.CheckStateRole) !== Qt.Checked)
+            return
+        show("%1: %2".arg(label).arg(model.data(index, Qt.DisplayRole)), icon)
     }
 
     Connections {
@@ -253,7 +341,20 @@ Item {
                 z: -1
                 blurRadius: VLCStyle.shadow_floating.blur
                 yOffset: VLCStyle.shadow_floating.y
-                color: Qt.rgba(0, 0, 0, VLCStyle.shadow_floating.alpha)
+                color: VLCStyle.shadowColor(VLCStyle.shadow_floating.alpha)
+            }
+        }
+
+        MouseArea {
+            id: actionArea
+            anchors.fill: parent
+            z: 1
+            enabled: toast.actionText !== ""
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+                Qt.openUrlExternally(toast.actionUrl)
+                toast.hide()
             }
         }
 
@@ -291,8 +392,19 @@ Item {
 
                 text: toast.text
                 color: theme.fg.primary
-                font.pixelSize: VLCStyle.fontSize_normal
+                font.pixelSize: VLCStyle.text_body
                 elide: Text.ElideRight
+            }
+
+            T.Label {
+                Layout.alignment: Qt.AlignVCenter
+
+                visible: toast.actionText !== ""
+                text: toast.actionText
+                color: theme.accentText
+                font.pixelSize: VLCStyle.text_body
+                font.weight: VLCStyle.fontWeight_semibold
+                font.underline: actionArea.containsMouse
             }
 
             // level (volume)

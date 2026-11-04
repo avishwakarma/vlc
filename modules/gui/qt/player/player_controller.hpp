@@ -508,6 +508,7 @@ signals:
 
     //misc
     void recordingChanged( bool );
+    void snapshotTaken( const QString& path );
     void ABLoopStateChanged(ABLoopState);
     void ABLoopAChanged(VLCTime);
     void ABLoopBChanged(VLCTime);
