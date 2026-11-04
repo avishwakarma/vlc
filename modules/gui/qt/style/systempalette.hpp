@@ -132,6 +132,7 @@ public:
     COLOR_DEFINITION(accentDim, "#AB6314");
     COLOR_DEFINITION(accentBright, "#371F06");
     COLOR_DEFINITION(accentDark, "#1A1611");
+    COLOR_DEFINITION(accentText, "#D37918"); // accent as text/icon colour, >= 4.5:1 on the window surface
 
     //legacy names, kept for existing code. orange500 is the current accent
     COLOR_DEFINITION(orange500, "#D37918");

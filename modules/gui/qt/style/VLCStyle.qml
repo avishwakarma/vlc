@@ -26,14 +26,18 @@ QtObject {
 
     readonly property real scale: MainCtx.intfScaleFactor
 
-    readonly property FontMetrics fontMetrics_xxsmall  : FontMetrics { font.pixelSize: MainCtx.dp(6, scale);  }
-    readonly property FontMetrics fontMetrics_xsmall   : FontMetrics { font.pixelSize: MainCtx.dp(8, scale);  }
-    readonly property FontMetrics fontMetrics_small    : FontMetrics { font.pixelSize: MainCtx.dp(10, scale); }
-    readonly property FontMetrics fontMetrics_normal   : FontMetrics { font.pixelSize: MainCtx.dp(12, scale); }
-    readonly property FontMetrics fontMetrics_large    : FontMetrics { font.pixelSize: MainCtx.dp(14, scale); }
-    readonly property FontMetrics fontMetrics_xlarge   : FontMetrics { font.pixelSize: MainCtx.dp(16, scale); }
-    readonly property FontMetrics fontMetrics_xxlarge  : FontMetrics { font.pixelSize: MainCtx.dp(20, scale); }
-    readonly property FontMetrics fontMetrics_xxxlarge : FontMetrics { font.pixelSize: MainCtx.dp(24, scale); }
+    // Legacy font-size names are aliases of the single redesign text scale (text_* below):
+    //   xxsmall/xsmall/small -> text_caption 12, normal/large -> text_body 14, xlarge -> text_heading 16,
+    //   xxlarge -> text_subtitle 20, xxxlarge -> text_title 24.
+    // New code uses text_* directly; fontSize_* / fontMetrics_* stay for files owned by other batches.
+    readonly property FontMetrics fontMetrics_xxsmall  : FontMetrics { font.pixelSize: vlc_style.text_caption }
+    readonly property FontMetrics fontMetrics_xsmall   : FontMetrics { font.pixelSize: vlc_style.text_caption }
+    readonly property FontMetrics fontMetrics_small    : FontMetrics { font.pixelSize: vlc_style.text_caption }
+    readonly property FontMetrics fontMetrics_normal   : FontMetrics { font.pixelSize: vlc_style.text_body }
+    readonly property FontMetrics fontMetrics_large    : FontMetrics { font.pixelSize: vlc_style.text_body }
+    readonly property FontMetrics fontMetrics_xlarge   : FontMetrics { font.pixelSize: vlc_style.text_heading }
+    readonly property FontMetrics fontMetrics_xxlarge  : FontMetrics { font.pixelSize: vlc_style.text_subtitle }
+    readonly property FontMetrics fontMetrics_xxxlarge : FontMetrics { font.pixelSize: vlc_style.text_title }
 
     readonly property SystemPalette palette:  SystemPalette {
         objectName: "themePalette"
@@ -66,6 +70,7 @@ QtObject {
     // Borders
     readonly property int border: MainCtx.dp(1, scale)
     readonly property int focus_border: border
+    readonly property int focusRing_width: MainCtx.dp(2, scale)
 
     readonly property int fontSize_xsmall: fontMetrics_xsmall.font.pixelSize
     readonly property int fontSize_small:  fontMetrics_small.font.pixelSize
@@ -186,7 +191,7 @@ QtObject {
     readonly property int checkButton_margins: MainCtx.dp(4, scale)
     readonly property int checkButton_handle_margins: MainCtx.dp(2, scale)
 
-    readonly property int navBoxButton_radius: MainCtx.dp(8, scale)
+    readonly property int navBoxButton_radius: radius_m
 
     readonly property int table_section_width: MainCtx.dp(32, scale)
     readonly property int table_section_text_margin: MainCtx.dp(10, scale)
@@ -413,6 +418,7 @@ QtObject {
     readonly property int text_body: MainCtx.dp(14, scale)
     readonly property int text_time: MainCtx.dp(15, scale)
     readonly property int text_heading: MainCtx.dp(16, scale)
+    readonly property int text_subtitle: MainCtx.dp(20, scale)
     readonly property int text_title: MainCtx.dp(24, scale)
     readonly property int text_display: MainCtx.dp(32, scale)
 
@@ -421,10 +427,36 @@ QtObject {
     readonly property int fontWeight_medium: Font.Medium
     readonly property int fontWeight_semibold: Font.DemiBold
 
+    // Control heights / widths shared by the base widgets
+    readonly property real size_control_s: MainCtx.dp(32, scale)    // buttons, compact dropdown, settings rows
+    readonly property real size_control_m: MainCtx.dp(36, scale)    // inputs, compact segmented
+    readonly property real size_control_l: MainCtx.dp(44, scale)    // dropdown, segmented
+    readonly property real size_control_xl: MainCtx.dp(52, scale)
+    readonly property real size_dropdown_w: MainCtx.dp(320, scale)
+    readonly property real size_dialogButton_w: MainCtx.dp(100, scale)
+    readonly property real size_input_w: MainCtx.dp(200, scale)
+    readonly property real size_button_w: MainCtx.dp(360, scale)
+    readonly property real size_segmented_w: MainCtx.dp(213, scale)
+    readonly property int icon_button: MainCtx.dp(20, scale)
+    readonly property real border_input: MainCtx.dp(2, scale)
+    readonly property real size_tooltip_maxw: MainCtx.dp(360, scale)
+    readonly property real volume_h: MainCtx.dp(28, scale)
+    readonly property real size_progress_h: MainCtx.dp(4, scale)
+
+    // Popup surfaces: menus/popovers r10, tooltips r6, dialogs r14 (same shadow/blur everywhere)
+    readonly property real radius_popup: radius_l
+    readonly property real radius_tooltip: radius_m
+    readonly property real radius_dialog: radius_xl
+
     // Blur and shadow for floating surfaces
     readonly property real blur_radius: 25
     readonly property var shadow_floating: ({ x: 0, y: MainCtx.dp(8, scale), blur: MainCtx.dp(15, scale), alpha: 0.46 })
     readonly property var shadow_popup: ({ x: 0, y: MainCtx.dp(4, scale), blur: MainCtx.dp(14, scale), alpha: 0.35 })
+
+    // Shadow colour for every drop shadow (replaces repeated Qt.rgba(0, 0, 0, a))
+    function shadowColor(alpha: real) : color {
+        return Qt.rgba(0, 0, 0, alpha)
+    }
 
     function dp(size: real, scale: real) : real {
         if (!scale)

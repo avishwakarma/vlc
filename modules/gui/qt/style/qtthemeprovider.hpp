@@ -79,6 +79,13 @@ enum vlc_qt_theme_color_name {
     VQTC_NAME_SEPARATOR,
     VQTC_NAME_INDICATOR,
     VQTC_NAME_HEADING, // headings and field labels, falls back to PRIMARY
+    VQTC_NAME_ACCENT_TEXT,   // accent usable as text/icon colour on the surface (>= 4.5:1), falls back to ACCENT
+    VQTC_NAME_ACCENT_DIM,    // pressed accent / graphics on light surfaces
+    VQTC_NAME_ACCENT_BRIGHT, // tinted accent fill (selected segment, played track)
+    VQTC_NAME_HOVER,         // hover plate (translucent, works on any surface)
+    VQTC_NAME_PRESSED,       // pressed plate
+    VQTC_NAME_SCRIM,         // modal scrim
+    VQTC_NAME_PLACEHOLDER,   // placeholder / hint text
     VQTC_NAME_COUNT
 };
 

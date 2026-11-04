@@ -18,6 +18,8 @@
 #include "vlctick.hpp"
 #include "qt.hpp"
 
+#include <algorithm>
+
 namespace  {
 
 int64_t roundNearestMultiple(int64_t number, int64_t multiple)
@@ -44,10 +46,20 @@ bool VLCTick::isSubHour() const
     return valid() && asSeconds() < 3600;
 }
 
+// One formatting policy (ux-audit 5.9):
+//  - clock positions and item durations: "0:05", "53:12", "1:47:12" (formatHMS, formatShort)
+//  - summaries / aggregates: "1 h 47 min", "5 min 3 s", "12 s" (formatLong)
+//  - sub-second values (with SubSecondFormattedAsMS): "250 ms"
+//  - unknown or negative: "\u2014" (em dash), never "-1ms" or "--:--"
+static QString unknownTime()
+{
+    return QStringLiteral("\u2014");
+}
+
 QString VLCTick::formatHMS(int formatFlags) const
 {
-    if (!valid())
-        return "--:--";
+    if (!valid() || asMilliseconds() < 0)
+        return unknownTime();
 
     if (!isSubSecond() || !(formatFlags & SubSecondFormattedAsMS))
     {
@@ -59,11 +71,11 @@ QString VLCTick::formatHMS(int formatFlags) const
 
         if (hour == 0)
             return QString("%1:%2")
-                    .arg(min, 2, 10, QChar('0'))
+                    .arg(min)
                     .arg(sec, 2, 10, QChar('0'));
         else
            return QString("%1:%2:%3")
-                    .arg(hour, 2, 10, QChar('0'))
+                    .arg(hour)
                     .arg(min, 2, 10, QChar('0'))
                     .arg(sec, 2, 10, QChar('0'));
     }
@@ -73,8 +85,8 @@ QString VLCTick::formatHMS(int formatFlags) const
 
 QString VLCTick::formatLong(int formatFlags) const
 {
-    if (!valid())
-        return "--:--";
+    if (!valid() || asMilliseconds() < 0)
+        return unknownTime();
 
     int64_t t_ms = asMilliseconds();
     if (t_ms >= 60*60*1000)
@@ -101,7 +113,7 @@ QString VLCTick::formatLong(int formatFlags) const
                     .arg(min)
                     .arg(sec);
         else
-            return qtr("%1 sec").arg(sec);
+            return qtr("%1 s").arg(sec);
 
     }
     else
@@ -110,37 +122,8 @@ QString VLCTick::formatLong(int formatFlags) const
 
 QString VLCTick::formatShort(int formatFlags) const
 {
-    if (!valid())
-        return "--:--";
-
-    int64_t t_ms = asMilliseconds();
-    if (t_ms >= 60*60*1000)
-    {
-        //round to the nearest minute
-        t_ms = roundNearestMultiple(t_ms, 60*1000);
-        int64_t t_sec = t_ms / 1000;
-        int min = (t_sec / 60) % 60;
-        int hour = t_sec / 3600;
-
-        return qtr("%1h%2")
-                .arg(hour)
-                .arg(min, 2, 10, QChar('0'));
-    }
-    else if (!isSubSecond() || !(formatFlags & SubSecondFormattedAsMS))
-    {
-        //round to the nearest second
-        t_ms = roundNearestMultiple(t_ms, 1000);
-        int64_t t_sec = t_ms / 1000;
-        int sec = t_sec % 60;
-        int min = (t_sec / 60) % 60;
-
-        return QString("%1:%2")
-                .arg(min, 2, 10, QChar('0'))
-                .arg(sec, 2, 10, QChar('0'));
-
-    }
-    else
-        return qtr("%1ms").arg(t_ms);
+    // same clock style as formatHMS (the old "1h47" form is retired)
+    return formatHMS(formatFlags);
 }
 
 int VLCTick::toSeconds() const
@@ -213,15 +196,15 @@ VLCDuration& VLCDuration::operator+=(const VLCDuration &rhs)
 
 VLCDuration VLCDuration::operator-(const VLCDuration &rhs) const
 {
-    if (m_valid || rhs.m_valid)
-        return VLCDuration{m_ticks + rhs.m_ticks};
+    if (m_valid && rhs.m_valid)
+        return VLCDuration{std::max<vlc_tick_t>(m_ticks - rhs.m_ticks, 0)};
     return VLCDuration{};
 }
 
 VLCDuration& VLCDuration::operator-=(const VLCDuration &rhs)
 {
-    m_valid |= rhs.m_valid;
-    m_ticks -= rhs.m_ticks;
+    m_valid = m_valid && rhs.m_valid;
+    m_ticks = std::max<vlc_tick_t>(m_ticks - rhs.m_ticks, 0);
     return *this;
 }
 
