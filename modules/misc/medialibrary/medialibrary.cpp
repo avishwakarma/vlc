@@ -44,6 +44,8 @@
 #include <medialibrary/IFolder.h>
 
 #include <algorithm>
+#include <atomic>
+#include <dlfcn.h>
 #include <sstream>
 #include <initializer_list>
 
@@ -52,30 +54,39 @@ class Logger : public medialibrary::ILogger
 public:
     Logger( vlc_object_t* obj ) : m_obj( obj ) {}
 
+    /* libmedialibrary keeps the logger in a process-wide static that outlives
+     * this module's vlc object: stop using the object once it is gone. */
+    void detach() { m_obj.store( nullptr ); }
+
 private:
     void Error( const std::string& msg ) override
     {
-        msg_Err( m_obj, "%s", msg.c_str() );
+        if ( auto obj = m_obj.load() )
+            msg_Err( obj, "%s", msg.c_str() );
     }
     void Warning( const std::string& msg ) override
     {
-        msg_Warn( m_obj, "%s", msg.c_str() );
+        if ( auto obj = m_obj.load() )
+            msg_Warn( obj, "%s", msg.c_str() );
     }
     void Info( const std::string& msg ) override
     {
-        msg_Dbg( m_obj, "%s", msg.c_str() );
+        if ( auto obj = m_obj.load() )
+            msg_Dbg( obj, "%s", msg.c_str() );
     }
     void Debug( const std::string& msg ) override
     {
-        msg_Dbg( m_obj, "%s", msg.c_str() );
+        if ( auto obj = m_obj.load() )
+            msg_Dbg( obj, "%s", msg.c_str() );
     }
     void Verbose( const std::string& msg ) override
     {
-        msg_Dbg( m_obj, "%s", msg.c_str() );
+        if ( auto obj = m_obj.load() )
+            msg_Dbg( obj, "%s", msg.c_str() );
     }
 
 private:
-    vlc_object_t* m_obj;
+    std::atomic<vlc_object_t*> m_obj;
 };
 
 namespace
@@ -422,7 +433,15 @@ MediaLibrary* MediaLibrary::create( vlc_medialibrary_module_t* vlc_ml )
     };
     cfg.logLevel = var_InheritBool( VLC_OBJECT( vlc_ml ), "ml-verbose" ) ?
                         medialibrary::LogLevel::Debug : medialibrary::LogLevel::Warning;
-    cfg.logger = std::make_shared<Logger>( VLC_OBJECT( vlc_ml ) );
+    auto logger = std::make_shared<Logger>( VLC_OBJECT( vlc_ml ) );
+    cfg.logger = logger;
+
+    /* libmedialibrary's static Log::s_logger is destroyed at process exit and
+     * calls Logger's (this module's) destructor. VLC dlcloses plugins before
+     * that, which crashed on every quit: pin this module in memory. */
+    Dl_info info;
+    if ( dladdr( reinterpret_cast<void*>( &MediaLibrary::create ), &info ) && info.dli_fname )
+        dlopen( info.dli_fname, RTLD_LAZY | RTLD_NODELETE );
 
     msg_Dbg(VLC_OBJECT(vlc_ml), "Opening medialibrary from %s, db at %s",
             dbPath.c_str(), mlFolderPath.c_str());
@@ -430,7 +449,9 @@ MediaLibrary* MediaLibrary::create( vlc_medialibrary_module_t* vlc_ml )
     if ( !ml )
         return nullptr;
 
-    return new MediaLibrary( vlc_ml, ml );
+    auto p_ml = new MediaLibrary( vlc_ml, ml );
+    p_ml->m_logger = std::move( logger );
+    return p_ml;
 }
 
 MediaLibrary::MediaLibrary( vlc_medialibrary_module_t* vlc_ml,
@@ -438,6 +459,13 @@ MediaLibrary::MediaLibrary( vlc_medialibrary_module_t* vlc_ml,
     : m_vlc_ml( vlc_ml )
     , m_ml( ml )
 {
+}
+
+MediaLibrary::~MediaLibrary()
+{
+    m_ml.reset();
+    if ( m_logger )
+        m_logger->detach();
 }
 
 bool MediaLibrary::Init()

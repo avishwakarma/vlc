@@ -143,6 +143,7 @@ class MediaLibrary : public medialibrary::IMediaLibraryCb
 {
 public:
     static MediaLibrary* create( vlc_medialibrary_module_t* ml );
+    ~MediaLibrary();
 
     bool Init();
     int Control( int query, va_list args );
@@ -183,6 +184,7 @@ private:
 
     vlc_medialibrary_module_t* m_vlc_ml;
     std::unique_ptr<medialibrary::IMediaLibrary> m_ml;
+    std::shared_ptr<Logger> m_logger;
 
     vlc::threads::mutex m_mutex;
     bool m_initialized = false; /* protected by m_mutex */
