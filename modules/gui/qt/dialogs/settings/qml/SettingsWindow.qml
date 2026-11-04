@@ -51,7 +51,7 @@ Window {
         { group: 1, name: qsTr("Video"),       heading: qsTr("Video Defaults"), icon: "video",       iconActive: "video-active",       component: videoPage },
         { group: 1, name: qsTr("Audio"),       heading: qsTr("Audio Defaults"), icon: "audio",       iconActive: "audio-active",       component: audioPage },
         { group: 1, name: qsTr("Subtitles"),   heading: qsTr("Subtitle Defaults"), icon: "subtitles",   iconActive: "subtitles-active",   component: subtitlesPage },
-        { group: 1, name: qsTr("Library"),     heading: qsTr("Playlists, Folders & Files"), icon: "folder",      iconActive: "folder-active",      component: libraryPage },
+        { group: 1, name: qsTr("Library"),     heading: qsTr("Library"), icon: "folder",      iconActive: "folder-active",      component: libraryPage },
         { group: 2, name: qsTr("Network"),     heading: qsTr("Network Connections & Security"), icon: "streaming",   iconActive: "streaming-active",   component: networkPage },
         { group: 2, name: qsTr("Performance"), heading: qsTr("Performance Settings"), icon: "preferences", iconActive: "preferences-active", component: performancePage },
         { group: 2, name: qsTr("Recording"),   heading: qsTr("Recording, Casting & Streaming Out"), icon: "record",      iconActive: "record-active",      component: recordingPage },

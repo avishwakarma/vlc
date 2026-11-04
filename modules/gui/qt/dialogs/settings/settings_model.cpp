@@ -102,6 +102,8 @@ ConfigOption* SettingsModel::createOption(const QString& name)
         return new AudioDeviceOption(m_intf, this);
     if (name == QLatin1String("mlFolders"))
         return new MLFoldersOption(m_ctx, false, this);
+    if (name == QLatin1String("media-library"))
+        return new MediaLibraryOption(m_ctx, this);
     if (name == QLatin1String("mlBannedFolders"))
         return new MLFoldersOption(m_ctx, true, this);
     if (name.startsWith(QLatin1String(ExtraInterfaceOption::prefix)))

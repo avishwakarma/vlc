@@ -20,6 +20,8 @@ import QtQuick.Templates as T
 
 import VLC.MainInterface
 import VLC.Style
+import VLC.Dialogs
+import VLC.Menus as Menus
 import VLC.Widgets as Widgets
 import VLC.Util
 
@@ -41,6 +43,12 @@ FocusScope {
         { key: "add", icon: "add", activeIcon: "add", text: qsTr("Add item"), action: true }
     ]
 
+    // pinned to the bottom of the rail
+    readonly property var bottomEntries: [
+        { key: "settings", icon: "settings", activeIcon: "settings", text: qsTr("Settings"), action: true, bottom: true },
+        { key: "more", icon: "more", activeIcon: "more", text: qsTr("More"), action: true, bottom: true }
+    ]
+
     signal sectionRequested(string key)
     signal addRequested()
 
@@ -59,11 +67,23 @@ FocusScope {
         color: theme.bg.secondary
     }
 
+    // the entries scroll when the window is too short to show them above the bottom group
+    Flickable {
+        anchors.top: parent.top
+        anchors.bottom: bottomGroup.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        clip: true
+        contentWidth: width
+        contentHeight: column.height + column.y
+        boundsBehavior: Flickable.StopAtBounds
+        interactive: contentHeight > height
+
     Column {
         id: column
 
-        anchors.top: parent.top
-        anchors.topMargin: VLCStyle.spacing_8 - VLCStyle.dp(1, VLCStyle.scale)
+        y: VLCStyle.spacing_8 - VLCStyle.dp(1, VLCStyle.scale)
         anchors.horizontalCenter: parent.horizontalCenter
 
         spacing: VLCStyle.dp(12, VLCStyle.scale)
@@ -101,8 +121,12 @@ FocusScope {
                 T.ToolTip.text: modelData.text
 
                 Navigation.parentItem: root
-                Navigation.upItem: index > 0 ? repeater.itemAt(index - 1) : null
-                Navigation.downItem: index < repeater.count - 1 ? repeater.itemAt(index + 1) : null
+                readonly property Repeater group: modelData.bottom ? bottomRepeater : repeater
+
+                Navigation.upItem: index > 0 ? group.itemAt(index - 1)
+                                             : (modelData.bottom ? repeater.itemAt(repeater.count - 1) : null)
+                Navigation.downItem: index < group.count - 1 ? group.itemAt(index + 1)
+                                                            : (modelData.bottom ? null : bottomRepeater.itemAt(0))
 
                 Keys.priority: Keys.AfterItem
                 Keys.onPressed: (event) => {
@@ -115,7 +139,11 @@ FocusScope {
                 }
 
                 onClicked: {
-                    if (modelData.action)
+                    if (modelData.key === "settings")
+                        DialogsProvider.prefsDialog()
+                    else if (modelData.key === "more")
+                        mainMenu.popup(button.mapToGlobal(button.width, 0))
+                    else if (modelData.action)
                         root.addRequested()
                     else
                         root.sectionRequested(modelData.key)
@@ -155,5 +183,31 @@ FocusScope {
                 }
             }
         }
+    }
+
+    }
+
+    Column {
+        id: bottomGroup
+
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: VLCStyle.spacing_8
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        spacing: column.spacing
+
+        Repeater {
+            id: bottomRepeater
+
+            model: root.bottomEntries
+            delegate: repeater.delegate
+        }
+    }
+
+    // the main menu of the title bar ("...")
+    Menus.QmlGlobalMenu {
+        id: mainMenu
+
+        ctx: MainCtx
     }
 }
