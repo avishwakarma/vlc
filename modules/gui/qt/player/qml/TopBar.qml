@@ -63,7 +63,8 @@ FocusScope {
     // music player: translucent bar over the cover backdrop
     property bool frosted: false
 
-    readonly property bool fullscreen: (MainCtx.intfMainWindow.visibility === Window.FullScreen)
+    // switches when macOS announces the transition, like the player layout (see Player.qml)
+    readonly property bool fullscreen: MainCtx.fullScreenLayout
 
     // label of the breadcrumb link: the folder of the playing media
     readonly property string breadcrumb: {
