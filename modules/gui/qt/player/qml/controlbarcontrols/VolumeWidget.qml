@@ -354,10 +354,12 @@ T.Pane {
                                 x1: -2.5; y1: 0
                                 x2: 87.5; y2: 0
 
-                                // accent up to 100 %, towards "negative" only in the over-amplified range
-                                GradientStop { position: 0.0; color: theme.accent }
-                                GradientStop { position: root._fullFraction * 0.97; color: theme.accent }
-                                GradientStop { position: 1.0; color: root._maxvol > 100 ? theme.fg.negative : theme.accent }
+                                // the Figma multicolour volume gradient (green -> yellow -> orange -> red),
+                                // the same in every colour scheme
+                                GradientStop { position: 0.0; color: VLCStyle.volumeGradient_0 }
+                                GradientStop { position: 0.579; color: VLCStyle.volumeGradient_1 }
+                                GradientStop { position: 0.792; color: VLCStyle.volumeGradient_2 }
+                                GradientStop { position: 1.0; color: VLCStyle.volumeGradient_3 }
                             }
 
                             PathSvg {

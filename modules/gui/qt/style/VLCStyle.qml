@@ -475,4 +475,10 @@ QtObject {
             return margin_normal + (width - smallWidth) * (margin_large - margin_normal) /
                     (mediumWidth - smallWidth);
     }
+
+    // volume slider gradient (Figma), used in every colour scheme
+    readonly property color volumeGradient_0: "#95D318"
+    readonly property color volumeGradient_1: "#B2A918"
+    readonly property color volumeGradient_2: "#D37918"
+    readonly property color volumeGradient_3: "#FF3737"
 }
