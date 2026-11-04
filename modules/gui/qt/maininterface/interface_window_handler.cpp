@@ -27,6 +27,7 @@
 #include <QScreen>
 #include <QQmlProperty>
 #include <cmath>
+#include <QQuickWindow>
 
 #ifdef __APPLE__
 #include <objc/runtime.h>
@@ -118,6 +119,7 @@ InterfaceWindowHandler::InterfaceWindowHandler(qt_intf_t *_p_intf, MainCtx* main
 
     m_window->setTitle("");
 
+
     if( var_InheritBool( p_intf, "qt-name-in-title" ) )
     {
         connect( THEMIM, &PlayerController::nameChanged, m_window, &QWindow::setTitle );
@@ -204,11 +206,23 @@ InterfaceWindowHandler::InterfaceWindowHandler(qt_intf_t *_p_intf, MainCtx* main
     });
 
     m_window->installEventFilter(this);
+
+    // With nested windows (platform compositor) the keys are delivered to the child quick
+    // window, so the hotkey filtering has to apply there too, before the focused item
+    // (e.g. a button) sees the key.
+    if (QQuickWindow *qw = p_intf->p_compositor ? p_intf->p_compositor->quickWindow() : nullptr;
+        qw && qw != m_window.data())
+    {
+        m_quickWindow = qw;
+        qw->installEventFilter(this);
+    }
 }
 
 InterfaceWindowHandler::~InterfaceWindowHandler()
 {
     m_window->removeEventFilter(this);
+    if (m_quickWindow)
+        m_quickWindow->removeEventFilter(this);
     /* Save this size */
     QVLCTools::saveWindowPosition(getSettings(), m_window);
     assert(qApp);
@@ -232,8 +246,11 @@ void InterfaceWindowHandler::updateCSDWindowSettings()
 #endif
 }
 
-bool InterfaceWindowHandler::eventFilter(QObject*, QEvent* event)
+bool InterfaceWindowHandler::eventFilter(QObject* watched, QEvent* event)
 {
+    if (m_quickWindow && watched == m_quickWindow.data()
+        && event->type() != QEvent::KeyPress && event->type() != QEvent::KeyRelease)
+        return false;
     switch ( event->type() )
     {
 #ifdef __APPLE__
@@ -560,12 +577,32 @@ bool InterfaceWindowHandler::applyKeyEvent(QKeyEvent * event) const
 
     // NOTE: We have to make sure tab and backtab are never used as hotkeys. When browsing the
     //       MediaLibrary, we let the view handle the navigation keys.
-    if (key == Qt::Key_Tab || key == Qt::Key_Backtab || m_mainCtx->preferHotkeys() == false)
+    // NOTE: Outside the player view the views own the keyboard, except for a plain Space: a
+    //       mouse-focused list item or button must not turn Space into "activate" while media
+    //       is playing (the miniplayer card is visible in the library), so it stays play/pause
+    //       unless the item has keyboard (visual) focus, a text input has focus or a popup is open.
+    const bool preferHotkeys = m_mainCtx->preferHotkeys();
+    const bool plainSpace = (key == Qt::Key_Space && event->modifiers() == Qt::NoModifier);
+    if (key == Qt::Key_Tab || key == Qt::Key_Backtab || (!preferHotkeys && !plainSpace))
     {
         return false;
     }
 
     QQuickItem * item = p_intf->p_compositor->activeFocusItem();
+
+    // text inputs always get their keys (QQuickTextField/TextArea are controls too, and
+    // report no visualFocus after a mouse click)
+    if (item && (item->inherits("QQuickTextInput") || item->inherits("QQuickTextEdit")))
+        return false;
+
+    if (!preferHotkeys)
+    {
+        for (QQuickItem *i = item; i; i = i->parentItem())
+        {
+            if (i->inherits("QQuickPopupItem"))
+                return false;
+        }
+    }
 
     // NOTE: When the item has visual focus we let it handle the key. When the item does not
     //       inherit from QQuickControl we have to declare the 'visualFocus' property ourselves.

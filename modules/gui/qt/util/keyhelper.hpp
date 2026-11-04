@@ -76,7 +76,11 @@ public:
         return event->key() == Qt::Key_Search
             || event->key() == Qt::Key_Slash
             || ( (event->modifiers() == Qt::ControlModifier) && event->key() == Qt::Key_K ) //global search
-            || ( (event->modifiers() == Qt::ControlModifier) && event->key() == Qt::Key_F ); //local search
+#ifndef __APPLE__
+            // on macOS Command+F is VLC's fullscreen hotkey
+            || ( (event->modifiers() == Qt::ControlModifier) && event->key() == Qt::Key_F ) //local search
+#endif
+            ;
     }
 
     static bool matchCancel(const QKeyEvent* event)

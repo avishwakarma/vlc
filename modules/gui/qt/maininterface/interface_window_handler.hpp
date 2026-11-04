@@ -26,6 +26,7 @@
 #include "util/vlchotkeyconverter.hpp"
 
 class MainCtx;
+class QQuickWindow;
 class InterfaceWindowHandler : public QObject
 {
     Q_OBJECT
@@ -72,6 +73,7 @@ protected:
 protected:
     qt_intf_t* p_intf = nullptr;
     QPointer<QWindow> m_window;
+    QPointer<QQuickWindow> m_quickWindow;
 
     MainCtx* m_mainCtx = nullptr;
 

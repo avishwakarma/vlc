@@ -310,6 +310,18 @@ Item {
             anchors.fill: parent
 
             focus: true
+
+            // The loaded view does not always hold the active focus (the Loader itself can),
+            // in that case nothing below sees the key: forward it as a VLC hotkey.
+            Keys.priority: Keys.AfterItem
+            Keys.onPressed: (event) => {
+                if (!event.accepted
+                        && MainCtx.effectiveMainInterfaceMode === MainCtx.MAININTERFACE_MODE_MAINDISPLAY) {
+                    MainCtx.sendHotkey(event.key, event.modifiers)
+                    event.accepted = true
+                }
+            }
+
             // If there is depth buffer, clipping is not necessary:
             clip: _extendedFrameVisible && !effect.hasDepthBuffer
 
