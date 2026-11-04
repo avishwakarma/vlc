@@ -138,7 +138,7 @@ FocusScope {
 
                             AccessibleCompat.id: "videoInfoPlayButton"
 
-                            iconTxt: VLCIcons.play
+                            iconName: "play"
                             text: qsTr("Play")
                             onClicked: MediaLib.addAndPlay( model.id )
                         }
@@ -148,7 +148,7 @@ FocusScope {
 
                             AccessibleCompat.id: "videoInfoEnqueueButton"
 
-                            iconTxt: VLCIcons.enqueue
+                            iconName: "queue"
                             text: qsTr("Enqueue")
                             onClicked: MediaLib.addToPlaylist( model.id )
                         }
@@ -182,7 +182,7 @@ FocusScope {
 
                         AccessibleCompat.id: "videoInfoCloseButton"
 
-                        text: VLCIcons.close
+                        iconName: "close"
 
                         description: qsTr("Close")
 
@@ -239,7 +239,7 @@ FocusScope {
                     AccessibleCompat.id: "videoInfoShowMoreButton"
 
                     text: root._showMoreInfo ? qsTr("View Less") : qsTr("View More")
-                    iconTxt: VLCIcons.expand
+                    iconName: "chevron-down"
                     iconRotation: root._showMoreInfo ? -180 : 0
                     visible: (root.model.audioDesc?.length > 0)
                              || (root.model.videoDesc?.length > 0)

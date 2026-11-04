@@ -36,12 +36,9 @@ Widgets.TableViewExt {
     property alias sortCriteria: urlModel.sortCriteria
 
     property Component urlHeaderDelegate: Widgets.TableHeaderDelegate {
-        Widgets.IconLabel {
-            anchors.fill: parent
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.pixelSize: VLCStyle.icon_tableHeader
-            text: VLCIcons.history
+        Widgets.SvgIcon {
+            anchors.centerIn: parent
+            name: "recent"
             color: parent.colorContext.fg.secondary
         }
     }

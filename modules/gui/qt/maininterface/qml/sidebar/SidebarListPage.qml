@@ -23,6 +23,7 @@ import VLC.Player
 import VLC.Style
 import VLC.Widgets as Widgets
 import VLC.Util
+import VLC.Menus as Menus
 
 // Sidebar panel listing the items of a model as rows (or tiles in grid view).
 SidebarPage {
@@ -81,7 +82,29 @@ SidebarPage {
         }
     }
 
+    // optional: function(index) returning [{text, action}] for the context menu of a row
+    property var rowEntries: null
+
+    Menus.StringListMenu {
+        id: entriesMenu
+
+        property var entries: []
+
+        ctx: MainCtx
+
+        onSelected: (index) => entries[index]?.action()
+    }
+
     function _popupContext(index, pos) {
+        if (root.rowEntries) {
+            const entries = root.rowEntries(index)
+            if (entries.length > 0) {
+                entriesMenu.entries = entries
+                entriesMenu.popup(pos, entries.map((e) => e.text))
+                return
+            }
+        }
+
         if (root.contextMenu && root.model)
             root.contextMenu.popup([root.model.index(index, 0)], pos)
         else

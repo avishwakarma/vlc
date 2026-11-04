@@ -32,6 +32,9 @@ T.Button {
     property color foregroundColor: theme.fg.primary
     property color backgroundColor: theme.bg.primary
 
+    // SVG icon (from /svgicons) shown when display is IconOnly
+    property string iconName: ""
+
     // Settings
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
@@ -45,7 +48,7 @@ T.Button {
     padding: VLCStyle.margin_xxsmall
 
     font.pixelSize: (display === T.Button.IconOnly) ? VLCStyle.icon_normal
-                                                    : VLCStyle.fontSize_large
+                                                    : VLCStyle.text_body
 
     // Children
 
@@ -79,16 +82,11 @@ T.Button {
     Component {
         id: iconTextContent
 
-        Widgets.IconLabel {
-            verticalAlignment: Text.AlignVCenter
-
-            text: button.text
-
-            elide: Text.ElideRight
+        Widgets.SvgIcon {
+            name: button.iconName
+            size: VLCStyle.icon_normal
 
             color: button.foregroundColor
-
-            font.pixelSize: button.font.pixelSize
 
             DelayedBehavior on color {
                 delayedEnabled: theme.initialized
@@ -110,7 +108,7 @@ T.Button {
 
             color: button.foregroundColor
 
-            font.weight: (highlighted) ? Font.DemiBold : Font.Normal
+            font.weight: (highlighted) ? VLCStyle.fontWeight_semibold : VLCStyle.fontWeight_regular
         }
     }
 }

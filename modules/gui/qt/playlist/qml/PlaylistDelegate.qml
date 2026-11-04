@@ -252,17 +252,17 @@ T.Control {
                 }
             }
 
-            Widgets.IconLabel {
+            Widgets.SvgIcon {
                 id: statusIcon
 
                 anchors.centerIn: parent
-                visible: (delegate.isCurrent && text !== "")
-                color: theme.accent
-                text: {
+                visible: (delegate.isCurrent && name !== "")
+                color: theme.accentText
+                name: {
                     if (Player.playingState === Player.PLAYING_STATE_PLAYING)
-                        return VLCIcons.volume_high
+                        return "volume-high"
                     else if (Player.playingState === Player.PLAYING_STATE_PAUSED)
-                        return VLCIcons.pause_filled
+                        return "pause"
                     else
                         return ""
                 }
@@ -282,7 +282,7 @@ T.Control {
 
                 Layout.fillWidth: true
 
-                font.weight: delegate.isCurrent ? Font.Bold : Font.DemiBold
+                font.weight: delegate.isCurrent ? VLCStyle.fontWeight_semibold : VLCStyle.fontWeight_medium
                 text: delegate.title || qsTr("Unknown Title")
                 color: theme.fg.primary
             }
@@ -293,7 +293,7 @@ T.Control {
                 Layout.fillWidth: true
 
                 text: delegate.artist || (delegate.title.length === 0 ? delegate.url : "")
-                color: theme.fg.primary
+                color: theme.fg.secondary
             }
         }
 

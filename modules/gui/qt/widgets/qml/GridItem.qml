@@ -42,6 +42,9 @@ T.ItemDelegate {
 
     property int _modifiersOnLastPress: Qt.NoModifier
 
+    // light colour scheme: shadows use a subtle colour (theme only, geometry unchanged)
+    readonly property bool _lightSurface: !(theme.palette?.isDark ?? true)
+
     // if true, texts are horizontally centered, provided it can fit in pictureWidth
     property bool textAlignHCenter: false
 
@@ -272,9 +275,11 @@ T.ItemDelegate {
 
         enabled: theme.initialized
 
-        //don't show the backgroud unless selected
-        color: root.selected ?  theme.bg.highlight : theme.bg.primary
-        border.color: visualFocus ? theme.visualFocus : Qt.alpha(theme.visualFocus, 0.0)
+        // selected = accent ring (no fill), focus = focus ring, hover = shadow + play cover
+        color: root.highlighted ? theme.hoverPlate : Qt.alpha(theme.hoverPlate, 0)
+        border.width: VLCStyle.focusRing_width
+        border.color: root.selected ? theme.accent
+                                    : (visualFocus ? theme.visualFocus : Qt.alpha(theme.visualFocus, 0.0))
     }
 
     contentItem: ColumnLayout {
@@ -325,6 +330,10 @@ T.ItemDelegate {
                 id: unselectedShadow
 
                 visible: opacity > 0
+
+                // colour only: on light surfaces the dark-theme shadow is far too heavy
+                primaryColor: root._lightSurface ? VLCStyle.shadowColor(0.06) : VLCStyle.shadowColor(0.18)
+                secondaryColor: root._lightSurface ? VLCStyle.shadowColor(0.07) : VLCStyle.shadowColor(0.22)
             }
 
             DoubleShadow {
@@ -338,6 +347,9 @@ T.ItemDelegate {
 
                 secondaryVerticalOffset: VLCStyle.dp(32, VLCStyle.scale)
                 secondaryBlurRadius: VLCStyle.dp(72, VLCStyle.scale)
+
+                primaryColor: root._lightSurface ? VLCStyle.shadowColor(0.07) : VLCStyle.shadowColor(0.18)
+                secondaryColor: root._lightSurface ? VLCStyle.shadowColor(0.08) : VLCStyle.shadowColor(0.22)
 
                 z: -1
             }

@@ -33,6 +33,11 @@ class StandardPathModel : public NetworkBaseModel
 {
     Q_OBJECT
 
+    // When `serversMode` is set the model lists the saved network shares (`servers`:
+    // [{name, url}]) instead of the standard folders of the user.
+    Q_PROPERTY(bool serversMode READ serversMode WRITE setServersMode NOTIFY serversModeChanged FINAL)
+    Q_PROPERTY(QVariantList servers READ servers WRITE setServers NOTIFY serversChanged FINAL)
+
 public: // Enums
     // NOTE: Roles should be aligned with the NetworkDeviceModel.
     enum Role
@@ -49,6 +54,18 @@ public: // QAbstractItemModel implementation
     QHash<int, QByteArray> roleNames() const override;
 
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const override;
+
+    bool serversMode() const;
+    void setServersMode(bool enabled);
+
+    QVariantList servers() const;
+    void setServers(const QVariantList& servers);
+
+signals:
+    void serversModeChanged();
+    void serversChanged();
+
+public:
 
     Q_DECLARE_PRIVATE(StandardPathModel)
 };

@@ -67,7 +67,7 @@ FocusScope {
     function _getStringTrack() {
         const count = model?.nb_tracks ?? 0;
 
-        return qsTr("%1 track", "%1 tracks", count).arg(count);
+        return qsTr("%1 song", "%1 songs", count).arg(count);
     }
 
     readonly property ColorContext colorContext: ColorContext {
@@ -159,7 +159,7 @@ FocusScope {
                 Widgets.ActionButtonPrimary {
                     id: _playActionBtn
 
-                    iconTxt: VLCIcons.play
+                    iconName: "play"
                     text: qsTr("Play")
                     onClicked: MediaLib.addAndPlay( root.model.id )
 
@@ -177,7 +177,7 @@ FocusScope {
                 Widgets.ButtonExt {
                     id: _enqueueActionBtn
 
-                    iconTxt: VLCIcons.enqueue
+                    iconName: "queue"
                     text: qsTr("Enqueue")
                     onClicked: MediaLib.addToPlaylist( root.model.id )
                 }
@@ -250,7 +250,7 @@ FocusScope {
                         }
 
                         Widgets.IconToolButton {
-                            text: VLCIcons.close
+                            iconName: "close"
                             focus: true
 
                             description: qsTr("Close Panel")
@@ -372,7 +372,7 @@ FocusScope {
 
                     visible: true,
 
-                    text: VLCStyle.isScreenSmall ? qsTr("Tracks") : qsTr("Title"),
+                    text: VLCStyle.isScreenSmall ? qsTr("Songs") : qsTr("Title"),
 
                     showSection: "",
 

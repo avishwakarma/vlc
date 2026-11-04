@@ -154,7 +154,7 @@ T.ItemDelegate {
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
 
-                color: (control.highlighted || control.checked) ? theme.accent : theme.fg.primary
+                color: (control.highlighted || control.checked) ? theme.accentText : theme.fg.primary
 
                 font.pixelSize: VLCStyle.icon_banner
             }
@@ -176,9 +176,9 @@ T.ItemDelegate {
 
             visible: control.showText
 
-            font.pixelSize: control.figmaStyle ? VLCStyle.text_heading : VLCStyle.fontSize_normal
+            font.pixelSize: control.figmaStyle ? VLCStyle.text_heading : VLCStyle.text_body
 
-            font.weight: (control.checked && !control.figmaStyle) ? Font.DemiBold : Font.Normal
+            font.weight: (control.checked && !control.figmaStyle) ? VLCStyle.fontWeight_semibold : Font.Normal
 
             //button text is already exposed
             Accessible.ignored: true

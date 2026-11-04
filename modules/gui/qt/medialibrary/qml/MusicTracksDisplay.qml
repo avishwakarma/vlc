@@ -25,7 +25,7 @@ import VLC.Widgets as Widgets
 Widgets.PageExt {
     id: root
 
-    title: qsTr("Tracks")
+    title: qsTr("Songs")
 
     hasGridListMode: false
     isSearchable: tracklistdisplay_id.isSearchable
@@ -96,7 +96,7 @@ Widgets.PageExt {
             visible: !tracklistdisplay_id.model.loading && (tracklistdisplay_id.model.count <= 0)
             focus: visible
             illustration: "music"
-            title: qsTr("No tracks yet")
+            title: qsTr("No songs yet")
             caption: qsTr("Add a folder with your media and it will show up here.")
             action: "addFolder"
             searchModel: tracklistdisplay_id.model

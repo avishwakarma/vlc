@@ -88,6 +88,9 @@ T.Pane {
 
             Layout.fillWidth: true
 
+            // library section title (Figma): 20 / 500, one step above the 16 px rows and tiles
+            font.pixelSize: VLCStyle.text_subtitle
+            font.weight: VLCStyle.fontWeight_medium
             color: theme.fg.primary
         }
 
@@ -107,7 +110,7 @@ T.Pane {
 
             text: qsTr("See All")
 
-            font.pixelSize: VLCStyle.fontSize_large
+            font.pixelSize: VLCStyle.text_body
 
             Navigation.parentItem: root
 

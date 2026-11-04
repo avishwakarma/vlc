@@ -169,14 +169,13 @@ Item {
                 }
             }
 
-            Widgets.IconLabel {
+            Widgets.SvgIcon {
                 id: backArrowText
 
                 anchors.centerIn: parent
 
-                text: VLCIcons.back
-
-                font.pixelSize: VLCStyle.fontSize_xxxlarge * 1.2
+                name: "arrow-left"
+                size: VLCStyle.text_title * 1.2
 
                 color: (historyDragHandler.accumulatedDelta >= historyDragHandler.threshold) ? theme.bg.primary
                                                                                              : theme.accent

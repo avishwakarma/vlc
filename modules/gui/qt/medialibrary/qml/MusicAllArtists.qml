@@ -75,7 +75,7 @@ MainViewLoader {
 
     sortModel: [
         { text: qsTr("Alphabetic"), criteria: "name" },
-        { text: qsTr("Tracks Count"),   criteria: "nb_tracks" }
+        { text: qsTr("Songs Count"),   criteria: "nb_tracks" }
     ]
 
     grid: gridComponent
@@ -204,7 +204,7 @@ MainViewLoader {
                 model: {
                     criteria: "nb_tracks",
 
-                    text: qsTr("Tracks")
+                    text: qsTr("Songs")
                 }
             }]
 

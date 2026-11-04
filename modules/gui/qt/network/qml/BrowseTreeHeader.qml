@@ -98,11 +98,11 @@ T.Pane {
 
             focus: true
 
-            iconTxt: root.providerModel.indexed ? VLCIcons.medialibrary_remove : VLCIcons.medialibrary_add
+            iconName: root.providerModel.indexed ? "remove" : "add"
 
             text: root.providerModel.indexed
-                  ? qsTr("Remove from medialibrary")
-                  : qsTr("Add to medialibrary")
+                  ? qsTr("Remove from Library")
+                  : qsTr("Add to Library")
 
             display: VLCStyle.isScreenSmall ?  T.AbstractButton.IconOnly  : T.AbstractButton.TextBesideIcon
 

@@ -62,7 +62,7 @@ T.Pane {
     verticalPadding: VLCStyle.margin_normal
 
     Accessible.role: Accessible.Pane
-    Accessible.name: qsTr("Play Queue")
+    Accessible.name: qsTr("Queue")
     AccessibleCompat.id: "playqueuePane"
 
     readonly property ColorContext colorContext: ColorContext {
@@ -145,10 +145,10 @@ T.Pane {
 
                     Layout.fillWidth: true
 
-                    text: qsTr("Play Queue")
+                    text: qsTr("Queue")
                     color: theme.fg.primary
-                    font.weight: Font.Bold
-                    font.pixelSize: VLCStyle.dp(24, VLCStyle.scale)
+                    font.weight: VLCStyle.fontWeight_medium
+                    font.pixelSize: VLCStyle.text_subtitle
                 }
 
                 Widgets.SortControl {
@@ -249,7 +249,7 @@ T.Pane {
                         duration = duration[0].sum(duration)
                     }
 
-                    return qsTr("%1 elements, %2").arg(listView.count).arg(duration.formatLong())
+                    return qsTr("%1 items, %2").arg(listView.count).arg(duration.formatLong())
                 }
             }
         }
@@ -269,14 +269,13 @@ T.Pane {
 
             spacing: VLCStyle.margin_large
 
-            Widgets.IconLabel {
-                // play queue cover column
+            Widgets.SvgIcon {
+                // queue cover column
                 Layout.preferredWidth: VLCStyle.icon_playlistArt
+                Layout.alignment: Qt.AlignVCenter
 
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                text: VLCIcons.album_cover
-                font.pixelSize: VLCStyle.icon_playlistHeader
+                name: "album"
+                size: VLCStyle.icon_playlistHeader
 
                 color: theme.fg.secondary
 
@@ -290,7 +289,7 @@ T.Pane {
                 Layout.fillWidth: true
 
                 elide: Text.ElideRight
-                font.pixelSize: VLCStyle.fontSize_normal
+                font.pixelSize: VLCStyle.text_body
                 textFormat: Text.PlainText
 
                 verticalAlignment: Text.AlignVCenter
@@ -301,14 +300,13 @@ T.Pane {
                 Accessible.name: text
             }
 
-            Widgets.IconLabel {
+            Widgets.SvgIcon {
                 Layout.preferredWidth: durationMetric.width
+                Layout.alignment: Qt.AlignVCenter
 
-                text: VLCIcons.time
+                name: "recent"
+                size: VLCStyle.icon_playlistHeader
                 color: theme.fg.secondary
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.pixelSize: VLCStyle.icon_playlistHeader
 
                 Accessible.role: Accessible.ColumnHeader
                 Accessible.name: qsTr("Duration")
@@ -317,8 +315,8 @@ T.Pane {
                 TextMetrics {
                     id: durationMetric
 
-                    font.weight: Font.DemiBold
-                    font.pixelSize: VLCStyle.fontSize_normal
+                    font.weight: VLCStyle.fontWeight_semibold
+                    font.pixelSize: VLCStyle.text_body
                     text: "00:00"
                 }
             }
@@ -567,7 +565,7 @@ T.Pane {
                                                   listView.count !== root.model.count)
 
                 illustration: filtered ? "search" : "queue"
-                title: filtered ? qsTr("No results") : qsTr("The play queue is empty")
+                title: filtered ? qsTr("No results") : qsTr("The queue is empty")
                 caption: filtered ? qsTr("Nothing in the queue matches your search.")
                                   : qsTr("Drag and drop some content here.")
 
@@ -588,9 +586,8 @@ T.Pane {
 
         focus: true
 
-        font.pixelSize: VLCStyle.icon_banner
-        text: VLCIcons.playlist
-        description: qsTr("Play queue")
+        iconName: "queue"
+        description: qsTr("Queue")
 
         AccessibleCompat.id: "playqueueToggle"
 

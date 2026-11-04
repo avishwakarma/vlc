@@ -171,7 +171,7 @@ T.Page {
             }
 
             // the network root page is titled "Browse", the Figma title is "Network"
-            if (!(pagePrefix[0] === "network" && text === qsTr("Browse") && out.length === 1) && text !== ""
+            if (!(pagePrefix[0] === "network" && text === qsTr("Network") && out.length === 1) && text !== ""
                     && out[out.length - 1] !== text)
                 out.push(text)
             return out
@@ -267,7 +267,6 @@ T.Page {
                 Layout.preferredHeight: VLCStyle.bannerButton_height
 
                 iconName: "arrow-left"
-                text: VLCIcons.back
                 description: qsTr("Previous")
                 enabled: !History.previousEmpty
 
@@ -286,7 +285,6 @@ T.Page {
                 Layout.preferredHeight: VLCStyle.bannerButton_height
 
                 iconName: "arrow-right"
-                text: VLCIcons.back
                 description: qsTr("Next")
                 enabled: false
             }

@@ -72,7 +72,7 @@ Item {
             if (value.formatShort) {
                 string += value.valid() ? value.formatShort() : ""
             } else if (criteria === "nb_tracks") {
-                string += qsTr("%1 track", "%1 tracks", value).arg(value)
+                string += qsTr("%1 song", "%1 songs", value).arg(value)
             } else if (criteria === "nb_videos") {
                 string += qsTr("%1 video", "%1 videos", value).arg(value)
             } else {
@@ -234,7 +234,7 @@ Item {
     TextMetrics {
         id: timeTextMetric
 
-        font.pixelSize: VLCStyle.fontSize_normal
+        font.pixelSize: VLCStyle.text_body
         text: "000h00"
     }
 

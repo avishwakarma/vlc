@@ -314,14 +314,13 @@ ListView {
 
                 opacity: 0.8
 
-                IconLabel {
+                SvgIcon {
                     anchors.centerIn: parent
 
-                    text: VLCIcons.add
+                    name: "add"
+                    size: VLCStyle.icon_large
 
-                    font.pixelSize: VLCStyle.fontHeight_xxxlarge
-
-                    color: theme.accent
+                    color: theme.accentText
                 }
             }
 
@@ -753,8 +752,8 @@ ListView {
 
             Text {
                 text: section
-                font.pixelSize: VLCStyle.fontSize_xlarge
-                color: theme.accent
+                font.pixelSize: VLCStyle.text_heading
+                color: theme.accentText
             }
 
             Rectangle {

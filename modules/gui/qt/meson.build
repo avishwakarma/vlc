@@ -799,6 +799,8 @@ qml_modules += {
         'network/qml/BrowseHomeDisplay.qml',
         'network/qml/BrowseTreeDisplay.qml',
         'network/qml/BrowseTreeHeader.qml',
+        'network/qml/ConnectToServerDialog.qml',
+        'network/qml/ServerStore.qml',
         'network/qml/DiscoverDisplay.qml',
         'network/qml/DiscoverUrlDisplay.qml',
         'network/qml/NetworkAddressbar.qml',

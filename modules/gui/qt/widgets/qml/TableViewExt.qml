@@ -294,7 +294,7 @@ ListViewExt {
                 verticalAlignment: Text.AlignVCenter
 
                 text: root.currentSection
-                color: root.colorContext.accent
+                color: root.colorContext.accentText
                 visible: root.useCurrentSectionLabel
                          && root.headerPositioning === ListView.OverlayHeader
                          && text !== ""
@@ -360,7 +360,7 @@ ListViewExt {
                             text: (root.model.sortOrder === Qt.AscendingOrder) ? "▼" : "▲"
                             visible: root.model.sortCriteria === modelData.model.criteria
                             font.pixelSize: VLCStyle.text_caption
-                            color: root.colorContext.accent
+                            color: root.colorContext.accentText
 
                             anchors {
                                 top: parent.top

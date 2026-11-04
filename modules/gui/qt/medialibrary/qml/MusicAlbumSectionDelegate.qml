@@ -121,7 +121,7 @@ T.Pane {
         visible: root._initialFetchCompleted
 
         // NOTE: Transparent rectangle has an optimization that it does not use a scene graph node.
-        color: blurEffect.visible ? "transparent" : (theme.palette?.isDark ? "black" : "white")
+        color: blurEffect.visible ? "transparent" : theme.bg.primary
 
         // NOTE: `FrostedGlassEffect` is purposefully not used here. It should be only used when depth
         //       is relevant and exposed to the user, such as for popups, or the mini player (mini
@@ -153,7 +153,7 @@ T.Pane {
                      !!root.contentItem?.artworkTextureProvider
 
             postprocess: true
-            tint: root.theme.palette?.isDark ? "black" : "white"
+            tint: theme.bg.primary
             tintStrength: 0.7
             backgroundColor: theme.bg.secondary
         }
@@ -162,7 +162,7 @@ T.Pane {
     component TitleLabel: Widgets.SubtitleLabel {
         required property MusicAlbumSectionDelegate delegate
 
-        font.pixelSize: VLCStyle.fontSize_xxlarge
+        font.pixelSize: VLCStyle.text_subtitle
 
         text: delegate._initialFetchCompleted ? (delegate._albumData?.title || qsTr("Unknown title"))
                                               : " " // to get the implicit height during layouting at initialization
@@ -189,7 +189,7 @@ T.Pane {
                 parts.push(year)
 
             const count = _albumData.nb_tracks ?? 0
-            parts.push(qsTr("%1 track", "%1 tracks", count).arg(count))
+            parts.push(qsTr("%1 song", "%1 songs", count).arg(count))
 
             const duration = _albumData.duration?.formatHMS()
             if (duration)
@@ -206,7 +206,7 @@ T.Pane {
     component PlayButton: Widgets.ActionButtonPrimary {
         required property MusicAlbumSectionDelegate delegate
 
-        iconTxt: VLCIcons.play
+        iconName: "play"
         text: qsTr("Play")
         enabled: !!delegate?._albumData?.id
         visible: delegate._initialFetchCompleted
@@ -219,7 +219,7 @@ T.Pane {
     component EnqueueButton: Widgets.ActionButtonOverlay {
         required property MusicAlbumSectionDelegate delegate
 
-        iconTxt: VLCIcons.enqueue
+        iconName: "queue"
         text: qsTr("Enqueue")
         enabled: !!delegate?._albumData?.id
         visible: delegate._initialFetchCompleted
@@ -232,7 +232,7 @@ T.Pane {
     component PreviousSectionButton: Widgets.ActionButtonOverlay {
         required property MusicAlbumSectionDelegate delegate
 
-        iconTxt: VLCIcons.chevron_up
+        iconName: "chevron-up"
         text: qsTr("Prev")
         enabled: delegate.previousSectionButtonEnabled
 
@@ -244,7 +244,7 @@ T.Pane {
     component NextSectionButton: Widgets.ActionButtonOverlay {
         required property MusicAlbumSectionDelegate delegate
 
-        iconTxt: VLCIcons.chevron_down
+        iconName: "chevron-down"
         text: qsTr("Next")
         enabled: delegate.nextSectionButtonEnabled
 
