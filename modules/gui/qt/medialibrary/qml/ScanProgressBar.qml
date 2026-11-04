@@ -43,7 +43,7 @@ ProgressBarExt {
 
         elide: Text.ElideMiddle
 
-        font.pixelSize: VLCStyle.fontSize_large
+        font.pixelSize: VLCStyle.text_body
         font.weight: Font.Normal
         color: theme.fg.primary
     }

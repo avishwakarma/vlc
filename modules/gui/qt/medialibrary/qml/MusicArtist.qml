@@ -316,8 +316,8 @@ FocusScope {
 
                                     Layout.maximumWidth: implicitWidth
 
-                                    font.pixelSize: VLCStyle.fontSize_normal
-                                    font.weight: Font.DemiBold
+                                    font.pixelSize: VLCStyle.text_body
+                                    font.weight: VLCStyle.fontWeight_semibold
                                 }
 
                                 MusicAlbumSectionDelegate.CaptionLabel {

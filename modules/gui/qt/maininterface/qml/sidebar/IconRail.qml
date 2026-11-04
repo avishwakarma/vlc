@@ -40,7 +40,7 @@ FocusScope {
         { key: "network", icon: "streaming", activeIcon: "streaming-active", text: qsTr("Network") },
         { key: "playlists", icon: "playlist", activeIcon: "playlist-active", text: qsTr("Playlists") },
         { key: "recent", icon: "recent", activeIcon: "recent", text: qsTr("Recent") },
-        { key: "add", icon: "add", activeIcon: "add", text: qsTr("Add item"), action: true }
+        { key: "add", icon: "add", activeIcon: "add", text: qsTr("Add Item"), action: true }
     ]
 
     // pinned to the bottom of the rail

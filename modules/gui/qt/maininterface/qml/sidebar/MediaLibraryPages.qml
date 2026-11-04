@@ -297,7 +297,7 @@ QtObject {
             titleRole: "name"
             rowsBright: true
             placeholderIcon: "playlist"
-            leadingActions: [ { text: qsTr("Create playlist"), icon: "add", action: () => DialogsProvider.newPlaylistDialog() } ]
+            leadingActions: [ { text: qsTr("Create Playlist"), icon: "add", action: () => DialogsProvider.newPlaylistDialog() } ]
 
             model: MLPlaylistListModel {
                 ml: MediaLib

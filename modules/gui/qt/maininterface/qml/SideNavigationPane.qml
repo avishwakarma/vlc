@@ -342,10 +342,8 @@ T.Pane {
                 bottomInset: VLCStyle.spacing_2
 
                 radius: VLCStyle.radius_m
-
-                iconTxt: VLCIcons.add
                 iconName: "add"
-                text: qsTr("Add item")
+                text: qsTr("Add Item")
 
                 showText: root.delegateShowText
 

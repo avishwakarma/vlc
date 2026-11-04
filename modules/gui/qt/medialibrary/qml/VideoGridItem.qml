@@ -93,18 +93,25 @@ Widgets.GridItem {
         implicitWidth: root.pictureWidth
         implicitHeight: root.pictureHeight
 
-        Widgets.ScaledImage {
-            id: image
+        // "new" marker: small accent dot with a dark rim so it reads on any thumbnail
+        Rectangle {
+            id: newDot
 
             anchors.right: parent.right
             anchors.top: parent.top
+            anchors.margins: VLCStyle.spacing_8
 
             width: VLCStyle.gridItem_newIndicator
             height: width
+            radius: width / 2
 
             visible: root.showNewIndicator
 
-            source: VLCStyle.newIndicator
+            color: root.colorContext.accent
+            border.width: VLCStyle.dp(1, VLCStyle.scale)
+            border.color: Qt.rgba(0, 0, 0, 0.45)
+
+            Accessible.ignored: true
         }
     }
 

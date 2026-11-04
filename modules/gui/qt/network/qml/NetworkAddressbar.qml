@@ -57,8 +57,7 @@ T.Control {
         let i = path.length
         while (--i >= 0) {
             const textWidth = fontMetrics.advanceWidth(path[i].display)
-                    + (i !== path.length - 1 ? iconMetrics.advanceWidth(
-                                                    VLCIcons.breadcrumb_sep) : 0) + VLCStyle.margin_xsmall * 4
+                    + (i !== path.length - 1 ? VLCStyle.icon_normal : 0) + VLCStyle.margin_xsmall * 4
 
             if (i < path.length - 1 && textWidth > leftWidth)
                 menuModel.push(path[i])
@@ -96,8 +95,7 @@ T.Control {
 
             AccessibleCompat.id: "addressBarHome"
 
-            text: VLCIcons.home
-            font.pixelSize: VLCStyle.icon_addressBar
+            iconName: "home"
 
             display: AddressbarButton.IconOnly
 
@@ -122,8 +120,7 @@ T.Control {
             AccessibleCompat.id: "addressBarMenu"
 
             visible: !!control._menuModel && control._menuModel.length > 0
-            text: VLCIcons.breadcrumb_prev
-            font.pixelSize: VLCStyle.icon_addressBar
+            iconName: "chevron-left"
 
             display: AddressbarButton.IconOnly
 
@@ -187,13 +184,12 @@ T.Control {
                     }
                 }
 
-                Widgets.IconLabel {
-                    Layout.fillHeight: true
+                Widgets.SvgIcon {
+                    Layout.alignment: Qt.AlignVCenter
                     visible: index !== contentRepeater.count - 1
-                    text: VLCIcons.breadcrumb_sep
-                    font.pixelSize: VLCStyle.icon_addressBar
+                    name: "chevron-right"
+                    size: VLCStyle.icon_normal
                     color: theme.fg.secondary
-                    verticalAlignment: Text.AlignVCenter
                 }
             }
         }
@@ -205,15 +201,7 @@ T.Control {
 
     FontMetrics {
         id: fontMetrics
-        font.pixelSize: VLCStyle.fontSize_xxxlarge
-    }
-
-    FontMetrics {
-        id: iconMetrics
-        font {
-            pixelSize: VLCStyle.fontSize_large
-            family: VLCIcons.fontFamily
-        }
+        font.pixelSize: VLCStyle.text_title
     }
 
     StringListMenu {

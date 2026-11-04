@@ -237,7 +237,7 @@ FocusScope {
 
                     AccessibleCompat.id: "artistPlayButton"
 
-                    iconTxt: VLCIcons.play
+                    iconName: "play"
                     text: qsTr("Play all")
                     focus: true
 
@@ -254,7 +254,7 @@ FocusScope {
 
                     AccessibleCompat.id: "artistEnqueueButton"
 
-                    iconTxt: VLCIcons.enqueue
+                    iconName: "queue"
                     text: qsTr("Enqueue all")
                     onClicked: MediaLib.addToPlaylist( artist.id )
 

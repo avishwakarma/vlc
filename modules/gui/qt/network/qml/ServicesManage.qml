@@ -134,7 +134,7 @@ Widgets.PageExt {
                             id: action_btn
 
                             focus: true
-                            iconTxt: model.state === ServicesDiscoveryModel.STATE_INSTALLED ? VLCIcons.del : VLCIcons.add
+                            iconName: model.state === ServicesDiscoveryModel.STATE_INSTALLED ? "remove" : "add"
                             busy: model.state === ServicesDiscoveryModel.STATE_INSTALLING || model.state === ServicesDiscoveryModel.STATE_UNINSTALLING
                             text: {
                                 switch(model.state) {

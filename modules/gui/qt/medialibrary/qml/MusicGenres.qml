@@ -191,8 +191,8 @@ MainViewLoader {
                         T.Label {
                             width: overlay.width
                             elide: Text.ElideRight
-                            font.pixelSize: VLCStyle.fontSize_large
-                            font.weight: Font.DemiBold
+                            font.pixelSize: VLCStyle.text_body
+                            font.weight: VLCStyle.fontWeight_semibold
                             text: model.name || qsTr("Unknown genre")
                             color: "white"
                             horizontalAlignment: Text.AlignHCenter
@@ -200,7 +200,7 @@ MainViewLoader {
 
                         Widgets.CaptionLabel {
                             width: overlay.width
-                            text: qsTr("%1 Track", "%1 Tracks", model.nb_tracks).arg(model.nb_tracks)
+                            text: qsTr("%1 Song", "%1 Songs", model.nb_tracks).arg(model.nb_tracks)
                             opacity: .7
                             color: "white"
                             horizontalAlignment: Text.AlignHCenter
@@ -255,7 +255,7 @@ MainViewLoader {
                 model: {
                     criteria: "nb_tracks",
 
-                    text: qsTr("Tracks"),
+                    text: qsTr("Songs"),
 
                     isSortable: false
                 }
