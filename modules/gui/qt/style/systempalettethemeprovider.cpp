@@ -442,6 +442,9 @@ static int updatePalette(vlc_qt_theme_provider_t* obj)
         setQtColorSetBg(obj, CS, VQTC_NAME_PRIMARY, QPalette::Button);
 
         setQtColor(obj, CS, VQTC_SECTION_FG, VQTC_NAME_PRIMARY, VQTC_STATE_NORMAL, accent);
+        // waveform: played bars in the accent, remaining ones in the secondary text colour
+        setQtColor(obj, CS, VQTC_SECTION_FG, VQTC_NAME_SECONDARY, VQTC_STATE_NORMAL, accent);
+        setQtColor(obj, CS, VQTC_SECTION_DECORATION, VQTC_NAME_INDICATOR, VQTC_STATE_NORMAL, secondaryTextBase);
         setQtColor(obj, CS, VQTC_SECTION_FG, VQTC_NAME_NEUTRAL, VQTC_STATE_NORMAL, neutral);
         setQtColor(obj, CS, VQTC_SECTION_FG, VQTC_NAME_NEGATIVE, VQTC_STATE_NORMAL, negative);
     }

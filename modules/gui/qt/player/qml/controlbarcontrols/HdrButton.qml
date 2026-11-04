@@ -31,7 +31,7 @@ import VLC.Util
 Widgets.IconToolButton {
     id: root
 
-    text: VLCIcons.info
+    text: description
     iconName: "HDR"
 
     description: qsTr("HDR")

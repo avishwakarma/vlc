@@ -29,7 +29,9 @@ Widgets.IconToolButton {
 
     signal requestLockUnlockAutoHide(bool lock)
 
-    text: VLCIcons.ellipsis
+    text: description
+
+    iconName: "more"
     description: qsTr("Menu")
 
     AccessibleCompat.id: "menuButton"

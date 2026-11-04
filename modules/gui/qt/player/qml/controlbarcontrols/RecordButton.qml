@@ -30,11 +30,13 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && Player.isStarted
 
-    text: VLCIcons.record
+    text: description
     iconName: "record"
     iconNameChecked: "record-active"
     checked: Player.recording
-    description: qsTr("record")
+    description: qsTr("Record")
+
+    T.ToolTip.text: PlayerAux.tip(description, "record")
 
     AccessibleCompat.id: "recordButton"
 

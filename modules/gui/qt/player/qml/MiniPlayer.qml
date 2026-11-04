@@ -190,7 +190,7 @@ FocusScope {
 
             // Figma: 0 0 5.9 rgba(0,0,0,.38)
             Widgets.RoundedRectangleShadow {
-                color: Qt.rgba(0, 0, 0, 0.38)
+                color: VLCStyle.shadowColor(0.38)
                 blurRadius: VLCStyle.dp(5.9, VLCStyle.scale)
             }
 
@@ -305,7 +305,7 @@ FocusScope {
                         // audio with a cover: the blurred cover of the card shows on both sides of the square cover
                         color: root.videoPreview ? "black"
                                : (root.coverBackdrop && coverBackdrop.hasCover) ? "transparent"
-                               : root.coverSource.toString() !== "" ? itemTheme.bg.secondary : Qt.darker(itemTheme.bg.secondary, 1.5)
+                               : root.coverSource.toString() !== "" ? itemTheme.bg.secondary : Qt.tint(itemTheme.bg.secondary, itemTheme.pressedPlate)
                         clip: true
 
                         // double click to maximise
@@ -318,7 +318,7 @@ FocusScope {
                             id: artLayer
 
                             anchors.fill: parent
-                            anchors.margins: VLCStyle.dp(2, VLCStyle.scale)
+                            anchors.margins: VLCStyle.spacing_2
 
                             visible: !root.videoPreview
 
@@ -376,7 +376,7 @@ FocusScope {
                             sourceComponent: Item {
                                 VideoSurface {
                                     anchors.fill: parent
-                                    anchors.margins: VLCStyle.dp(2, VLCStyle.scale)
+                                    anchors.margins: VLCStyle.spacing_2
 
                                     videoSurfaceProvider: MainCtx.videoSurfaceProvider
 
@@ -504,7 +504,7 @@ FocusScope {
                                     rightPadding: VLCStyle.dp(5.357, VLCStyle.scale)
                                     topPadding: VLCStyle.dp(3.571, VLCStyle.scale)
                                     bottomPadding: VLCStyle.dp(3.571, VLCStyle.scale)
-                                    radius: VLCStyle.dp(7.143, VLCStyle.scale)
+                                    radius: VLCStyle.radius_m
                                     description: qsTr("Previous")
                                     color: viewTheme.fg.highlight
 
@@ -529,7 +529,7 @@ FocusScope {
                                     rightPadding: VLCStyle.dp(5.357, VLCStyle.scale)
                                     topPadding: VLCStyle.dp(3.571, VLCStyle.scale)
                                     bottomPadding: VLCStyle.dp(3.571, VLCStyle.scale)
-                                    radius: VLCStyle.dp(7.143, VLCStyle.scale)
+                                    radius: VLCStyle.radius_m
                                     description: root._ended ? qsTr("Replay") : qsTr("Play/Pause")
                                     color: viewTheme.fg.highlight
 
@@ -559,7 +559,7 @@ FocusScope {
                                     rightPadding: VLCStyle.dp(5.357, VLCStyle.scale)
                                     topPadding: VLCStyle.dp(3.571, VLCStyle.scale)
                                     bottomPadding: VLCStyle.dp(3.571, VLCStyle.scale)
-                                    radius: VLCStyle.dp(7.143, VLCStyle.scale)
+                                    radius: VLCStyle.radius_m
                                     description: qsTr("Next")
                                     color: viewTheme.fg.highlight
 
@@ -680,7 +680,7 @@ FocusScope {
 
                         elide: Text.ElideRight
                         text: Player.displayTitle
-                        font.pixelSize: VLCStyle.dp(16, VLCStyle.scale)
+                        font.pixelSize: VLCStyle.text_heading
                         font.weight: VLCStyle.fontWeight_regular
                         color: viewTheme.fg.primary
 
@@ -711,7 +711,7 @@ FocusScope {
 
                         x: VLCStyle.dp(8, VLCStyle.scale)
                         y: parent.height - VLCStyle.dp(4 + 32, VLCStyle.scale) + (VLCStyle.dp(32, VLCStyle.scale) - height) / 2
-                        spacing: VLCStyle.dp(20, VLCStyle.scale)
+                        spacing: VLCStyle.spacing_20
 
                         // folder
                         Row {
@@ -730,7 +730,7 @@ FocusScope {
                                 width: Math.min(implicitWidth, textBlock.width * 0.4)
                                 elide: Text.ElideRight
                                 text: root.folderName
-                                font.pixelSize: VLCStyle.dp(16, VLCStyle.scale)
+                                font.pixelSize: VLCStyle.text_heading
                                 color: viewTheme.fg.primary
                             }
                         }
@@ -752,7 +752,7 @@ FocusScope {
                                 width: Math.min(implicitWidth, textBlock.width * 0.4)
                                 elide: Text.ElideRight
                                 text: Player.artist
-                                font.pixelSize: VLCStyle.dp(16, VLCStyle.scale)
+                                font.pixelSize: VLCStyle.text_heading
                                 color: viewTheme.fg.primary
                             }
                         }
@@ -772,8 +772,8 @@ FocusScope {
                         iconSize: VLCStyle.dp(24, VLCStyle.scale)
                         leftPadding: VLCStyle.dp(3, VLCStyle.scale)
                         rightPadding: VLCStyle.dp(3, VLCStyle.scale)
-                        topPadding: VLCStyle.dp(4, VLCStyle.scale)
-                        bottomPadding: VLCStyle.dp(4, VLCStyle.scale)
+                        topPadding: VLCStyle.spacing_4
+                        bottomPadding: VLCStyle.spacing_4
                         radius: VLCStyle.radius_s
                         checked: root.queueVisible
                         description: qsTr("Queue")
@@ -816,7 +816,7 @@ FocusScope {
                     anchors.horizontalCenter: parent.horizontalCenter
                     y: VLCStyle.dp(16, VLCStyle.scale)
                     text: qsTr("Queue")
-                    font.pixelSize: VLCStyle.dp(16, VLCStyle.scale)
+                    font.pixelSize: VLCStyle.text_heading
                     color: viewTheme.fg.primary
                 }
             }
@@ -833,15 +833,15 @@ FocusScope {
                     x: VLCStyle.dp(28, VLCStyle.scale)
                     anchors.verticalCenter: parent.verticalCenter
                     text: qsTr("%1 items - %2").arg(queueModel.count).arg(queueDuration.text)
-                    font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
+                    font.pixelSize: VLCStyle.text_body
                     color: viewTheme.fg.secondary
                 }
 
                 Row {
                     anchors.right: parent.right
-                    anchors.rightMargin: VLCStyle.dp(20, VLCStyle.scale)
+                    anchors.rightMargin: VLCStyle.spacing_20
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: VLCStyle.dp(20, VLCStyle.scale)
+                    spacing: VLCStyle.spacing_20
 
                     Widgets.IconToolButton {
                         iconName: "sort"
@@ -885,12 +885,7 @@ FocusScope {
                 id: queueDuration
 
                 visible: false
-                text: {
-                    const secs = queueModel.duration.toSeconds()
-                    const h = Math.floor(secs / 3600)
-                    const m = Math.floor((secs % 3600) / 60)
-                    return h > 0 ? qsTr("%1h %2m").arg(h).arg(m) : qsTr("%1m").arg(m)
-                }
+                text: queueModel.duration.formatLong()
             }
 
             ListView {
@@ -902,9 +897,9 @@ FocusScope {
 
                 clip: true
                 model: queueModel
-                spacing: VLCStyle.dp(12, VLCStyle.scale)
-                leftMargin: VLCStyle.dp(20, VLCStyle.scale)
-                rightMargin: VLCStyle.dp(20, VLCStyle.scale)
+                spacing: VLCStyle.spacing_12
+                leftMargin: VLCStyle.spacing_20
+                rightMargin: VLCStyle.spacing_20
 
                 currentIndex: MainPlaylistController.currentIndex
                 boundsBehavior: Flickable.StopAtBounds
@@ -946,24 +941,24 @@ FocusScope {
 
                     Text {
                         anchors.left: handle.right
-                        anchors.leftMargin: VLCStyle.dp(14, VLCStyle.scale)
+                        anchors.leftMargin: VLCStyle.spacing_14
                         anchors.right: durationLabel.left
-                        anchors.rightMargin: VLCStyle.dp(10, VLCStyle.scale)
+                        anchors.rightMargin: VLCStyle.spacing_10
                         anchors.verticalCenter: parent.verticalCenter
                         elide: Text.ElideRight
                         text: rowItem.title
-                        font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
-                        color: rowItem.isCurrent ? sliderTheme.accent : viewTheme.fg.primary
+                        font.pixelSize: VLCStyle.text_body
+                        color: rowItem.isCurrent ? viewTheme.accentText : viewTheme.fg.primary
                     }
 
                     Text {
                         id: durationLabel
 
                         anchors.right: parent.right
-                        anchors.rightMargin: VLCStyle.dp(4, VLCStyle.scale)
+                        anchors.rightMargin: VLCStyle.spacing_4
                         anchors.verticalCenter: parent.verticalCenter
                         text: rowItem.duration.formatHMS()
-                        font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
+                        font.pixelSize: VLCStyle.text_body
                         color: viewTheme.fg.secondary
                     }
                 }

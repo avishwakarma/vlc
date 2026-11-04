@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
+import QtQuick.Templates as T
 
 
 import VLC.Widgets as Widgets
@@ -29,9 +30,13 @@ Widgets.IconToolButton {
 
     enabled: Player.ratechangable
 
-    text: VLCIcons.next_frame
+    text: description
+
+    iconName: "frame-next"
     onClicked: Player.frameNext()
     description: qsTr("Next frame")
+
+    T.ToolTip.text: PlayerAux.tip(description, "frame-next")
 
     AccessibleCompat.id: "frameButton"
 }

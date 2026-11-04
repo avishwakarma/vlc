@@ -27,5 +27,7 @@ import VLC.Style
 Widgets.IconToolButton {
     // Settings
 
-    text: VLCIcons.circle
+    text: description
+
+    iconName: "circle"
 }

@@ -92,7 +92,7 @@ T.Popup {
                 z: -1
                 blurRadius: VLCStyle.shadow_floating.blur
                 yOffset: VLCStyle.shadow_floating.y
-                color: Qt.rgba(0, 0, 0, VLCStyle.shadow_floating.alpha)
+                color: VLCStyle.shadowColor(VLCStyle.shadow_floating.alpha)
             }
         }
 
@@ -198,7 +198,7 @@ T.Popup {
                                 Layout.topMargin: VLCStyle.dp(21, VLCStyle.scale)
 
                                 text: modelData.label
-                                font.pixelSize: VLCStyle.text_caption + 1
+                                font.pixelSize: VLCStyle.text_caption
                                 color: windowTheme.fg.secondary
                             }
 

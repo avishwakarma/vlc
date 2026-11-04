@@ -32,10 +32,12 @@ ChoicePopupButton {
 
     enabled: !paintOnly && Player.hasChapters
 
-    text: VLCIcons.info
+    text: description
     iconName: "chapters"
 
     description: qsTr("Chapters")
+
+    T.ToolTip.text: PlayerAux.tip(description, "")
 
     AccessibleCompat.id: "chaptersButton"
 

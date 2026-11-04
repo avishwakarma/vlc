@@ -63,6 +63,9 @@ FocusScope {
     // music player: translucent bar over the cover backdrop
     property bool frosted: false
 
+    // translucency of the frosted surface (same in every colour scheme)
+    readonly property real frostedAlpha: 0.36
+
     // switches when macOS announces the transition, like the player layout (see Player.qml)
     readonly property bool fullscreen: MainCtx.fullScreenLayout
 
@@ -126,7 +129,7 @@ FocusScope {
         height: root.topMargin
 
         visible: height > 0
-        color: root.frosted ? Qt.alpha(theme.bg.primary, theme.palette.isDark ? 0.30 : 0.42)
+        color: root.frosted ? Qt.alpha(theme.bg.primary, root.frostedAlpha)
                             : theme.bg.primary
         opacity: root.backgroundOpacity
     }

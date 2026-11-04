@@ -33,7 +33,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly
 
-    text: VLCIcons.effect_filter
+    text: description
     iconName: "settings"
 
     description: qsTr("VLC Settings")

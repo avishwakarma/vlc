@@ -31,7 +31,9 @@ Widgets.IconToolButton {
 
     signal requestLockUnlockAutoHide(bool lock)
 
-    text: VLCIcons.renderer
+    text: description
+
+    iconName: "cast"
     description: qsTr("Renderer")
 
     AccessibleCompat.id: "rendererButton"

@@ -38,11 +38,17 @@ Repeater {
     signal forceUnlock()
 
     // NOTE: We apply the 'navigation chain' after adding the item.
+    // bumped when an item is created or destroyed: itemAt() is not observable, bindings that
+    // read the items (BarZone.minimumContentWidth) depend on this to be evaluated again
+    property int revision: 0
+
     onItemAdded: (index, item) => {
         item.applyNavigation()
+        revision++
     }
 
     onItemRemoved: (index, item) => {
+        revision++
         // NOTE: We update the 'navigation chain' after removing the item.
         item.removeNavigation()
 

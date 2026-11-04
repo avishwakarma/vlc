@@ -66,8 +66,8 @@ T.Slider {
         implicitHeight: VLCStyle.dp(24, VLCStyle.scale)
         radius: VLCStyle.radius_s
 
-        color: control.pressed ? Qt.darker(theme.accent, 1.5)
-                               : (control.hovered || control.visualFocus ? Qt.lighter(theme.accent, 1.1) : Qt.darker(theme.accent, 1.23))
+        color: control.pressed ? theme.accentDim
+                               : (control.hovered || control.visualFocus ? theme.accent : theme.accentDim)
 
         border.width: control.visualFocus ? VLCStyle.dp(1, VLCStyle.scale) : 0
         border.color: theme.visualFocus

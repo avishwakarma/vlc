@@ -117,7 +117,7 @@ T.Control {
         color: (hoverHandler.hovered ||
                 playButton?.hovered ||
                 closeButton?.hovered ||
-                fullscreenButton?.hovered) ? "#10000000" : "transparent"
+                fullscreenButton?.hovered) ? Qt.rgba(0, 0, 0, 0.06) : "transparent"
 
         // It is acceptable for effects to exceed the boundaries of the
         // parent. They are an exception to the "hypothetical clip test".
@@ -144,16 +144,16 @@ T.Control {
 
             anchors.centerIn: parent
 
-            font.pixelSize: VLCStyle.icon_large
+            iconSize: VLCStyle.icon_large
 
-            description: qsTr("play/pause")
+            description: qsTr("Play/Pause")
 
             AccessibleCompat.id: "pipPlayButton"
 
-            text: (Player.playingState !== Player.PLAYING_STATE_PAUSED
-                   && Player.playingState !== Player.PLAYING_STATE_STOPPED)
-                  ? VLCIcons.pause_filled
-                  : VLCIcons.play_filled
+            iconName: (Player.playingState !== Player.PLAYING_STATE_PAUSED
+                       && Player.playingState !== Player.PLAYING_STATE_STOPPED)
+                      ? "pause"
+                      : "play"
 
             textStyle: root.textStyle
 
@@ -170,12 +170,12 @@ T.Control {
                 rightMargin: VLCStyle.margin_small
             }
 
-            font.pixelSize: VLCStyle.icon_PIP
-            description: qsTr("close video")
+            iconSize: VLCStyle.icon_PIP
+            description: qsTr("Close video")
 
             AccessibleCompat.id: "pipCloseButton"
 
-            text: VLCIcons.close
+            iconName: "close"
 
             textStyle: root.textStyle
 
@@ -192,13 +192,13 @@ T.Control {
                 leftMargin: VLCStyle.margin_small
             }
 
-            font.pixelSize: VLCStyle.icon_PIP
+            iconSize: VLCStyle.icon_PIP
 
-            description: qsTr("maximize player")
+            description: qsTr("Maximize player")
 
             AccessibleCompat.id: "pipFullscreenButton"
 
-            text: VLCIcons.fullscreen
+            iconName: "fullscreen"
 
             textStyle: root.textStyle
 

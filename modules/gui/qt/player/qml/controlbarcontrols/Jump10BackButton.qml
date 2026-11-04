@@ -32,7 +32,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && Player.isStarted
 
-    text: VLCIcons.skip_back
+    text: description
     iconName: "backward-10-sec"
 
     description: qsTr("Backward 10 seconds")

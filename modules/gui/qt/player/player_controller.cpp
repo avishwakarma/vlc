@@ -59,9 +59,22 @@ using SharedTitleList = ::vlc::vlc_shared_data_ptr<vlc_player_title_list,
                                                    &vlc_player_title_list_Hold,
                                                    &vlc_player_title_list_Release>;
 
+// "snapshot-file" is set on the libvlc instance by the vout each time a snapshot file was
+// written (button, hotkey, menu): the interface learns about it to show a confirmation.
+static int on_snapshot_file_changed(vlc_object_t *, const char *, vlc_value_t,
+                                    vlc_value_t newval, void *data)
+{
+    auto *q = static_cast<PlayerController *>(data);
+    const QString path = QString::fromUtf8(newval.psz_string ? newval.psz_string : "");
+    QMetaObject::invokeMethod(q, [q, path]() { emit q->snapshotTaken(path); }, Qt::QueuedConnection);
+    return VLC_SUCCESS;
+}
+
 PlayerControllerPrivate::~PlayerControllerPrivate()
 {
     assert(m_smpteTimerRequestCount == 0);
+
+    var_DelCallback(vlc_object_instance(p_intf), "snapshot-file", on_snapshot_file_changed, q_ptr);
 
     vlc_player_locker locker{m_player}; //this also locks the player
     vlc_player_vout_RemoveListener( m_player, m_player_vout_listener );
@@ -1241,6 +1254,8 @@ PlayerControllerPrivate::PlayerControllerPrivate(PlayerController *playercontrol
         m_player_vout_listener = vlc_player_vout_AddListener( m_player, &player_vout_cbs, this );
         m_player_timer = vlc_player_AddTimer( m_player, VLC_TICK_FROM_MS(500), &player_timer_cbs, this );
     }
+
+    var_AddCallback(vlc_object_instance(p_intf), "snapshot-file", on_snapshot_file_changed, q_ptr);
 
     QObject::connect( &m_autoscale, &QVLCBool::valueChanged, q_ptr, &PlayerController::autoscaleChanged );
     QObject::connect( &m_audioVisualization, &VLCVarChoiceModel::hasCurrentChanged, q_ptr, &PlayerController::hasAudioVisualizationChanged );

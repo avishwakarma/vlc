@@ -44,14 +44,10 @@ FocusScope {
 
     property alias trackPositionSlider: trackPositionSlider
 
-    // time as HH:MM:SS, like the Figma chips
+    // one time policy: "0:05", "53:12", "1:47:12", unknown "—"
     function formatTime(tick, prefix) {
-        let str = tick.formatHMS(0)
-        if (/^\d\d:\d\d$/.test(str))
-            str = "00:" + str
-        else if (str === "--:--")
-            str = "--:--:--"
-        return (prefix ?? "") + str
+        const str = tick.formatHMS(0)
+        return str === "—" ? str : (prefix ?? "") + str
     }
 
     property var _host: null
@@ -100,7 +96,7 @@ FocusScope {
         Widgets.TimeChip {
             id: timeChip
 
-            text: root.paintOnly ? "00:02:10" : root.formatTime(Player.time)
+            text: root.paintOnly ? "0:02:10" : root.formatTime(Player.time)
 
             Layout.alignment: Qt.AlignVCenter
             Layout.preferredWidth: Math.max(implicitWidth, durationChip.implicitWidth)
@@ -147,7 +143,7 @@ FocusScope {
 
             clickable: !root.paintOnly
 
-            text: root.paintOnly ? "00:25:40"
+            text: root.paintOnly ? "0:25:40"
                                  : (showRemainingTime ? root.formatTime(Player.remainingTime, "-")
                                                       : root.formatTime(Player.length))
 
@@ -187,6 +183,10 @@ FocusScope {
             }
 
             onClicked: MainCtx.showRemainingTime = !MainCtx.showRemainingTime
+        }
+
+        StatusChips {
+            Layout.alignment: Qt.AlignVCenter
         }
     }
 }

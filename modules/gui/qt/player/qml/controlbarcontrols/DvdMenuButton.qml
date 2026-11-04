@@ -30,7 +30,9 @@ Widgets.IconToolButton {
 
     enabled: Player.hasMenu
 
-    text: VLCIcons.dvd_menu
+    text: description
+
+    iconName: "lists"
     description: qsTr("Menu")
 
     AccessibleCompat.id: "dvdMenuButton"

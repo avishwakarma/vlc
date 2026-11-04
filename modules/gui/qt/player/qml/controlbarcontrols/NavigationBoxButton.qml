@@ -27,7 +27,8 @@ import VLC.Util
 
 Widgets.IconToolButton {
     visible: Player.isInteractive
-    text: VLCIcons.ic_fluent_arrow_move
+    text: description
+    iconName: "move-all"
     description: qsTr("Navigation Buttons")
 
     AccessibleCompat.id: "navigationBoxButton"

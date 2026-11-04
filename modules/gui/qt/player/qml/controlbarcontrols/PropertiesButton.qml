@@ -33,7 +33,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && Player.isStarted
 
-    text: VLCIcons.info
+    text: description
     iconName: "info"
 
     description: qsTr("Properties")

@@ -54,7 +54,7 @@ FocusScope {
         radius: VLCStyle.radius_m
         color: theme.bg.secondary
         border.width: VLCStyle.dp(2, VLCStyle.scale)
-        border.color: root.activeFocus ? viewTheme.visualFocus : Qt.darker(theme.bg.primary, 1.0)
+        border.color: root.activeFocus ? viewTheme.visualFocus : theme.border
     }
 
     TextInput {
@@ -97,6 +97,6 @@ FocusScope {
 
         color: "#" + ("000000" + (root.rgb & 0xFFFFFF).toString(16)).slice(-6)
         border.width: VLCStyle.dp(2, VLCStyle.scale)
-        border.color: Qt.rgba(0, 0, 0, 0.5)
+        border.color: theme.border
     }
 }

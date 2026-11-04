@@ -194,7 +194,7 @@ FocusScope {
                 sourceSize: Qt.size(VLCStyle.dp(738, VLCStyle.scale) * eDPR,
                                     VLCStyle.dp(738, VLCStyle.scale) * eDPR)
                 fillMode: Image.PreserveAspectCrop
-                radius: VLCStyle.dp(20, VLCStyle.scale)
+                radius: VLCStyle.radius_xl
                 cache: false
                 asynchronous: true
                 property bool _failed: false
@@ -214,7 +214,7 @@ FocusScope {
 
                 // Figma: 0 0 90.5 spread 64, white 3%
                 Widgets.RoundedRectangleShadow {
-                    color: Qt.rgba(1, 1, 1, 0.03)
+                    color: Qt.alpha(theme.fg.primary, 0.03)
                     blurRadius: VLCStyle.dp(90.5, VLCStyle.scale)
                     compensationFactor: 1.0
                     implicitCompensationFactor: 1.0
@@ -237,7 +237,7 @@ FocusScope {
 
                 text: layer.caption
 
-                font.pixelSize: VLCStyle.dp(24, VLCStyle.scale)
+                font.pixelSize: VLCStyle.text_title
                 font.weight: VLCStyle.fontWeight_medium
                 color: theme.fg.primary
 
@@ -298,7 +298,7 @@ FocusScope {
         visible: Player.hasLyrics
 
         anchors.right: parent.right
-        anchors.rightMargin: VLCStyle.dp(20, VLCStyle.scale)
+        anchors.rightMargin: VLCStyle.spacing_20
         anchors.bottom: parent.bottom
         anchors.bottomMargin: root.bottomPadding + VLCStyle.dp(20, VLCStyle.scale)
 

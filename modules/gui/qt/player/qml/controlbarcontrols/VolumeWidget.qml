@@ -112,8 +112,10 @@ T.Pane {
             }
 
             // glyph text is only needed as a fallback by the base type
-            text: VLCIcons.volume_high
+            text: description
             description: qsTr("Mute")
+
+            T.ToolTip.text: PlayerAux.tip(description, "vol-mute")
 
             AccessibleCompat.id: "muteButton"
 
@@ -352,21 +354,11 @@ T.Pane {
                                 x1: -2.5; y1: 0
                                 x2: 87.5; y2: 0
 
-                                GradientStop { position: 0.0; color: VLCStyle.volumeGradient_0 }
-                                GradientStop { position: 0.579; color: VLCStyle.volumeGradient_1 }
-                                GradientStop { position: 0.792; color: VLCStyle.volumeGradient_2 }
-                                GradientStop { position: 1.0; color: VLCStyle.volumeGradient_3 }
+                                // accent up to 100 %, towards "negative" only in the over-amplified range
+                                GradientStop { position: 0.0; color: theme.accent }
+                                GradientStop { position: root._fullFraction * 0.97; color: theme.accent }
+                                GradientStop { position: 1.0; color: root._maxvol > 100 ? theme.fg.negative : theme.accent }
                             }
-
-                            PathSvg {
-                                path: "M1.792 15.968C0.773 15.861 0 15.002 0 13.978V10.582C0 9.558 0.773 8.699 1.792 8.592L83.792 0.011C84.972-0.112 86 0.813 86 2V22.56C86 23.747 84.972 24.672 83.792 24.549L1.792 15.968Z"
-                            }
-                        }
-
-                        // darkening overlay (dark theme only)
-                        ShapePath {
-                            strokeColor: "transparent"
-                            fillColor: Qt.rgba(0, 0, 0, theme.palette.isDark ? 0.2 : 0.0)
 
                             PathSvg {
                                 path: "M1.792 15.968C0.773 15.861 0 15.002 0 13.978V10.582C0 9.558 0.773 8.699 1.792 8.592L83.792 0.011C84.972-0.112 86 0.813 86 2V22.56C86 23.747 84.972 24.672 83.792 24.549L1.792 15.968Z"

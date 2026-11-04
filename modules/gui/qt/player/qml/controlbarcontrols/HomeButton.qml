@@ -32,7 +32,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly
 
-    text: VLCIcons.info
+    text: description
     iconName: "home"
 
     description: qsTr("Go Home")

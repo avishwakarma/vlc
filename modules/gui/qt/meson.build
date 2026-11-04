@@ -829,15 +829,12 @@ qml_modules += {
        'player/qml/MinimalView.qml',
        'player/qml/ResumeDialog.qml',
        'player/qml/OsdToast.qml',
+       'player/qml/PlaybackQuickMenu.qml',
+       'player/qml/StatusChips.qml',
        'player/qml/SliderBar.qml',
        'player/waveform/qml/WaveformSeekTrack.qml',
        'player/qml/TopBar.qml',
        'player/qml/TracksMenu.qml',
-       'player/qml/TracksPage.qml',
-       'player/qml/TracksPageAudio.qml',
-       'player/qml/TracksPageSpeed.qml',
-       'player/qml/TracksPageSubtitle.qml',
-       'player/qml/TracksListPage.qml',
        'player/qml/ControlLayout.qml',
        'player/qml/ControlRepeater.qml',
        'player/qml/BarRow.qml',
@@ -880,6 +877,7 @@ qml_modules += {
    ),
    'singletons' : files(
        'player/qml/PlayerControlbarControls.qml',
+       'player/qml/PlayerAux.qml',
    )
 }
 

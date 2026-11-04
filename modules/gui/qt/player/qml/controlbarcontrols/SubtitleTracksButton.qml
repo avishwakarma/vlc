@@ -35,5 +35,7 @@ LangButton {
     panelTab: "subtitles"
     description: qsTr("Subtitles")
 
+    T.ToolTip.text: PlayerAux.tip(description, "subtitle-track")
+
     AccessibleCompat.id: "subtitleTracksButton"
 }

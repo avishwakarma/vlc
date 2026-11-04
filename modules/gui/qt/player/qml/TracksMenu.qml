@@ -140,13 +140,13 @@ T.Popup {
             radius: VLCStyle.radius_l
 
             color: popupTheme.bg.primary
-            opacity: 0.95
+            opacity: 0.98
 
             Widgets.RoundedRectangleShadow {
                 z: -1
                 blurRadius: VLCStyle.shadow_floating.blur
                 yOffset: VLCStyle.shadow_floating.y
-                color: Qt.rgba(0, 0, 0, VLCStyle.shadow_floating.alpha)
+                color: VLCStyle.shadowColor(VLCStyle.shadow_floating.alpha)
             }
         }
 

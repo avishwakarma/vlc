@@ -126,12 +126,12 @@ Flickable {
                 // Use a single pixel size and rely on `scale` to differentiate
                 // the current line; this is cheaper than re-rasterizing the
                 // font on every animation frame.
-                font.pixelSize: VLCStyle.fontSize_xlarge
-                font.weight: isCurrent ? Font.Bold : Font.Normal
+                font.pixelSize: VLCStyle.text_heading
+                font.weight: isCurrent ? VLCStyle.fontWeight_semibold : VLCStyle.fontWeight_regular
 
                 color: lyricsFlickable.colorContext.fg.primary
                 opacity: isCurrent ? 1.0 : 0.45
-                scale: isCurrent ? 1.0 : (VLCStyle.fontSize_large / VLCStyle.fontSize_xlarge)
+                scale: isCurrent ? 1.0 : (VLCStyle.text_body / VLCStyle.text_heading)
 
                 Behavior on scale {
                     // Native text rendering does not handle scaled glyphs
@@ -172,7 +172,7 @@ Flickable {
 
         // Scale the fade with the lyrics' default (non-current) line size,
         // similar to how list views derive it from delegate height.
-        fadeSize: VLCStyle.fontSize_large / 2
+        fadeSize: VLCStyle.text_body / 2
 
         // `fadingEdgeEnabled` is the master toggle; the per-edge disabler
         // Bindings below override these when the view is scrolled to the

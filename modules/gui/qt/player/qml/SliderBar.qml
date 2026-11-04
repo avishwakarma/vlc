@@ -47,7 +47,7 @@ T.ProgressBar {
 
     readonly property bool _waveform: waveformTrack.active
 
-    readonly property color handleColor: control._active ? Qt.lighter(theme.accent, 1.12) : theme.accent
+    readonly property color handleColor: dragHandler.active ? theme.accentDim : theme.accent
 
     // position for an x coordinate of the control
     function _positionAt(x) {
@@ -61,15 +61,16 @@ T.ProgressBar {
 
     property real _tooltipPosition: control.width > 0 ? control._positionAt(control._pointerX) : 0
 
-    // Track (Figma B2, darker than the bar in the dark theme, a touch lighter in the light one).
-    // Derived from the surface the bar sits on: with the "System" colour scheme the Slider set
-    // comes from the platform palette, where its background equals the window one and the unplayed
-    // part of the track became invisible (the bar looked like a short orange block).
+    // Track (Figma B2: darker than the bar in dark schemes, a touch lighter in light ones), derived
+    // from the surface the bar sits on. The Slider colour set cannot be used for it: with the
+    // "System" colour scheme it comes from the platform palette, where the track equals the window
+    // colour and the played fill is the solid accent (the bar looked like a short orange block).
+    // Whether the surface is dark is read from its colour, not from the palette flag.
     readonly property color _surface: surfaceTheme.bg.primary
-    readonly property color _track: surfaceTheme.palette.isDark ? Qt.darker(_surface, 3.3)
-                                                                : Qt.lighter(_surface, 1.04)
+    readonly property bool _darkSurface: _surface.hslLightness < 0.5
+    readonly property color _track: _darkSurface ? Qt.darker(_surface, 3.3) : Qt.lighter(_surface, 1.04)
     // played fill: accent over the track (Figma Accent Bright = accent at 24 % over B2)
-    readonly property color _fill: Qt.tint(_track, Qt.alpha(theme.accent, surfaceTheme.palette.isDark ? 0.24 : 0.30))
+    readonly property color _fill: Qt.tint(_track, Qt.alpha(theme.accent, _darkSurface ? 0.24 : 0.30))
 
     property color backgroundColor: _track
     property real touchHandlerMargin: VLCStyle.touchHandlerMargin
@@ -117,14 +118,9 @@ T.ProgressBar {
         return str
     }
 
-    // always HH:MM:SS like the Figma time chips
+    // one time policy ("0:05", "1:47:12", unknown "—")
     function formatTime(tick, length) {
-        let str = tick.formatHMS(length.isSubSecond() ? VLCTick.SubSecondFormattedAsMS : 0)
-        if (/^\d\d:\d\d$/.test(str))
-            str = "00:" + str
-        else if (str === "--:--")
-            str = "--:--:--"
-        return str
+        return tick.formatHMS(length.isSubSecond() ? VLCTick.SubSecondFormattedAsMS : 0)
     }
 
     FSM {

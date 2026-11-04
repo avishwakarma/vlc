@@ -106,7 +106,8 @@ T.Pane {
 
                 checked: Player.teletextTransparency
 
-                text: VLCIcons.transparency
+                text: description
+                iconName: "transparency"
                 description: qsTr("Teletext transparency")
 
                 Navigation.parentItem: root
@@ -176,7 +177,8 @@ T.Pane {
 
                 enabled: teleActivateBtn.checked
 
-                text: VLCIcons.home
+                text: description
+                iconName: "home"
                 description: qsTr("Index key")
 
                 Navigation.parentItem: root

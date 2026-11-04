@@ -16,21 +16,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
+import QtQuick.Templates as T
 
 
 import VLC.Widgets as Widgets
 import VLC.Style
+import VLC.Player
 import VLC.Playlist
 import VLC.Util
 
 Widgets.IconToolButton {
     id: nextBtn
 
-    text: VLCIcons.next
+    text: description
     iconName: "next"
     enabled: MainPlaylistController.hasNext
     onClicked: MainPlaylistController.next()
     description: qsTr("Next")
+
+    T.ToolTip.text: PlayerAux.tip(description, "next")
 
     AccessibleCompat.id: "nextButton"
 }

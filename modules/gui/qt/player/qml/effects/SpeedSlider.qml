@@ -42,7 +42,7 @@ ColumnLayout {
 
         Layout.fillWidth: true
 
-        handleColor: Qt.darker(colorContext.accent, 1.23)
+        handleColor: colorContext.accentDim
         handleHeight: VLCStyle.dp(24, VLCStyle.scale)
         from: 0.25
         to: 2

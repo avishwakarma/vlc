@@ -36,7 +36,9 @@ PopupIconToolButton {
     iconNameChecked: "speed-active"
     checked: popup.visible
 
-    description: qsTr("change playback speed")
+    description: qsTr("Playback speed")
+
+    T.ToolTip.text: PlayerAux.tip(description, "")
 
     AccessibleCompat.id: "playbackSpeedButton"
 

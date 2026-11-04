@@ -17,25 +17,29 @@
  *****************************************************************************/
 
 import QtQuick
+import QtQuick.Templates as T
 
 
 import VLC.MainInterface
 import VLC.Widgets as Widgets
 import VLC.Style
+import VLC.Player
 import VLC.Util
 
 // Play queue toggle of the control bar (Figma 491:1928, "lists")
 Widgets.IconToolButton {
     id: playlistBtn
 
-    text: VLCIcons.playlist
+    text: description
     iconName: "lists"
     iconNameChecked: "lists-active"
 
     checked: PlayerHost.playlistVisible
     enabled: !paintOnly
 
-    description: qsTr("Play Queue")
+    description: qsTr("Queue")
+
+    T.ToolTip.text: PlayerAux.tip(description, "")
 
     AccessibleCompat.id: "playqueueButton"
 

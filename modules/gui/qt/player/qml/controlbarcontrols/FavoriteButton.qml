@@ -37,7 +37,7 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && Player.isStarted && _available
 
-    text: VLCIcons.info
+    text: description
     iconName: isFavorite ? "favorite-active" : "favorite"
 
     description: isFavorite ? qsTr("Remove from favorites") : qsTr("Add to favorites")

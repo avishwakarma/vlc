@@ -34,12 +34,14 @@ Widgets.IconToolButton {
 
     enabled: !paintOnly && Player.hasVideoOutput
 
-    text: VLCIcons.info
+    text: description
     iconName: "PiP"
     checkable: false
     checked: active
 
     description: active ? qsTr("Exit picture in picture") : qsTr("Picture in picture")
+
+    T.ToolTip.text: PlayerAux.tip(description, "")
 
     AccessibleCompat.id: "pipButton"
 

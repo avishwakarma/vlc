@@ -43,7 +43,7 @@ Widgets.IconToolButton {
 
     // Settings
 
-    text: VLCIcons.audiosub
+    text: description
 
     // Redesign: the control bar instantiates one button for audio ("audio") and one
     // for subtitles ("subtitles"); the legacy combined button keeps the glyph.
@@ -55,8 +55,12 @@ Widgets.IconToolButton {
     property string panelMode: "tracks"
     property string panelTab: "audio"
 
-    checked: (menuLoader.item?.visible ?? false)
-             && (panelMode === "settings" || menuLoader.item.tab === panelTab)
+    // the settings button opens the compact Playback menu first ("More Settings…" opens the panel)
+    property bool quickMenu: false
+
+    checked: ((menuLoader.item?.visible ?? false)
+              && (panelMode === "settings" || menuLoader.item.tab === panelTab))
+             || (quickLoader.item?.visible ?? false)
 
     enabled: menuLoader.status === Loader.Ready
 
@@ -67,6 +71,17 @@ Widgets.IconToolButton {
     // Events
 
     onClicked: {
+        if (quickMenu) {
+            const quick = quickLoader.item
+            if (menuLoader.item.visible)
+                menuLoader.item.close()
+            else if (quick.visible)
+                quick.close()
+            else if (Date.now() - quick.closedAt > 250)
+                quick.open()
+            return
+        }
+
         const menu = menuLoader.item
         if (menu.visible)
             menu.close()
@@ -103,7 +118,46 @@ Widgets.IconToolButton {
         }
     }
 
+    Loader {
+        id: quickLoader
+
+        active: root.quickMenu
+
+        sourceComponent: PlaybackQuickMenu {
+            id: quick
+
+            parent: root._parentItem
+
+            z: 1
+
+            focus: true
+
+            colorContext.palette: root.colorContext.palette
+
+            property bool _more: false
+
+            onRequestMoreSettings: _more = true
+
+            onOpened: {
+                root.requestLockUnlockAutoHide(true)
+                root.menuOpened(quick)
+            }
+
+            onClosed: {
+                root.requestLockUnlockAutoHide(false)
+                root.forceActiveFocus()
+                root.menuOpened(null)
+                if (_more) {
+                    _more = false
+                    menuLoader.item.openMode(root.panelMode, root.panelTab)
+                }
+            }
+        }
+    }
+
     function forceUnlock() {
+        if ((quickLoader) && (quickLoader.item))
+            quickLoader.item.close()
         if((menuLoader)&&(menuLoader.item))
             menuLoader.item.close()
     }

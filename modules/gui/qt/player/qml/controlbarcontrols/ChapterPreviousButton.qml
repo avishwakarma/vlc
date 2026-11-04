@@ -26,7 +26,9 @@ import VLC.Util
 Widgets.IconToolButton {
     id: chapterPreviousBtn
 
-    text: VLCIcons.dvd_prev
+    text: description
+
+    iconName: "chapter-previous"
     onClicked: Player.chapterPrev()
     enabled: Player.hasChapters
     description: qsTr("Previous chapter")

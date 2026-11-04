@@ -56,8 +56,8 @@ Widgets.SliderExt {
     // slider of a switched off effect (Figma 614:1430): grey handle and fill
     property bool inactive: false
 
-    handleColor: inactive ? Qt.lighter(colorContext.fg.secondary, 1.05) : Qt.darker(colorContext.accent, 1.23)
-    color: inactive ? Qt.rgba(1, 1, 1, 0.09) : colorContext.fg.primary
+    handleColor: inactive ? colorContext.fg.secondary : colorContext.accentDim
+    color: inactive ? colorContext.hoverPlate : colorContext.fg.primary
     bgColor: colorContext.bg.primary
     handleHeight: VLCStyle.dp(24, VLCStyle.scale)
     trackHeight: VLCStyle.heightBar_small

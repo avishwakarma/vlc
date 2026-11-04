@@ -28,7 +28,9 @@ Widgets.IconToolButton {
 
     enabled: Player.seekable
 
-    text: VLCIcons.skip_back
+    text: description
+
+    iconName: "step-back"
     onClicked: Player.jumpBwd()
     description: qsTr("Step back")
 

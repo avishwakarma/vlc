@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
+import QtQuick.Templates as T
 
 
 import VLC.Widgets as Widgets
@@ -28,9 +29,12 @@ Widgets.IconToolButton {
     id: infoBtn
 
     enabled: Player.isStarted
-    text: VLCIcons.info
+    text: description
+    iconName: "info"
     onClicked: DialogsProvider.mediaInfoDialog()
     description: qsTr("Information")
+
+    T.ToolTip.text: PlayerAux.tip(description, "")
 
     AccessibleCompat.id: "infoButton"
 }

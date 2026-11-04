@@ -41,12 +41,7 @@ FocusScope {
         const len = Player.length
         if (!len || !len.valid())
             return ""
-        const secs = Math.max(0, Math.round(len.toSeconds() * Player.restorePosition))
-        const h = Math.floor(secs / 3600)
-        const m = Math.floor((secs % 3600) / 60)
-        const sec = secs % 60
-        const two = (n) => (n < 10 ? "0" : "") + n
-        return h > 0 ? (h + ":" + two(m) + ":" + two(sec)) : (m + ":" + two(sec))
+        return len.scale(Player.restorePosition).formatHMS(0)
     }
 
     implicitHeight: surface.height
@@ -151,7 +146,7 @@ FocusScope {
                 z: -1
                 blurRadius: VLCStyle.shadow_floating.blur
                 yOffset: VLCStyle.shadow_floating.y
-                color: Qt.rgba(0, 0, 0, VLCStyle.shadow_floating.alpha)
+                color: VLCStyle.shadowColor(VLCStyle.shadow_floating.alpha)
             }
         }
 
@@ -172,7 +167,7 @@ FocusScope {
 
                 text: qsTr("Resume where you left off?")
                 color: theme.fg.secondary
-                font.pixelSize: VLCStyle.fontSize_normal
+                font.pixelSize: VLCStyle.text_body
                 elide: Text.ElideRight
             }
 

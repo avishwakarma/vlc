@@ -507,7 +507,39 @@ QColor SystemPalette::getColor(ColorContext::ColorSet colorSet, ColorContext::Co
         case C::AccentText:
         case C::AccentDim:
         case C::AccentBright:
-            return getColor(colorSet, section, C::Accent, state);
+        {
+            // derived from the accent of the provider, the same way the redesign palettes do
+            const QColor base = getColor(colorSet, section, C::Accent, state);
+            const QColor surface = getColor(C::View, C::Bg, C::Primary, C::Normal);
+            const bool darkSurface = surface.lightnessF() < 0.5;
+            if (name == C::AccentDim)
+                return darkSurface ? QColor::fromHsvF(base.hsvHueF() < 0 ? 0 : base.hsvHueF(), base.hsvSaturationF(), base.valueF() * 0.81)
+                                   : base.darker(125);
+            if (name == C::AccentBright)
+            {
+                const QColor well = getColor(C::View, C::Bg, C::Secondary, C::Normal);
+                const qreal t = darkSurface ? 0.24 : 0.42;
+                return QColor::fromRgbF(base.redF() * (1 - t) + well.redF() * t,
+                                        base.greenF() * (1 - t) + well.greenF() * t,
+                                        base.blueF() * (1 - t) + well.blueF() * t);
+            }
+            // accentText: moved until it reads on the surface (WCAG 4.5:1)
+            auto lum = [](const QColor& c) {
+                auto ch = [](qreal v) { return v <= 0.03928 ? v / 12.92 : std::pow((v + 0.055) / 1.055, 2.4); };
+                return 0.2126 * ch(c.redF()) + 0.7152 * ch(c.greenF()) + 0.0722 * ch(c.blueF());
+            };
+            QColor text = base;
+            for (int i = 0; i < 40; ++i)
+            {
+                const qreal a = lum(text), b = lum(surface);
+                if ((std::max(a, b) + 0.05) / (std::min(a, b) + 0.05) >= 4.5)
+                    break;
+                text = darkSurface ? text.lighter(106) : text.darker(106);
+            }
+            return text;
+        }
+        case C::Indicator:
+            return getColor(C::View, C::Fg, C::Secondary, C::Normal);
         case C::HoverPlate:
             return getColor(C::Item, C::Bg, C::Primary, C::Hovered);
         case C::PressedPlate:

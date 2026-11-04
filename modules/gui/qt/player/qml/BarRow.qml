@@ -85,6 +85,12 @@ FocusScope {
         return (a.width > 0 && b.width > 0) ? zoneSpacing : 0
     }
 
+    // same for widths (the x of a zone must not read the width of the zone itself: that made a
+    // binding loop that left the centre zone at x = 0, on top of the left one)
+    function _gapW(wa, wb) {
+        return (wa > 0 && wb > 0) ? zoneSpacing : 0
+    }
+
     // Inline layout (zones side by side, one of them expands): the expanding zone always keeps
     // at least its minimum width, the other zones share what is left in the order left, center,
     // right. What does not fit in a zone is hidden by the zone itself (items too far right of the
@@ -163,7 +169,7 @@ FocusScope {
                                                          : Math.min(center.implicitWidth, _maxCentered)
 
         width: _centerWidth
-        x: root.inline ? (left.x + left.width + root._gap(left, center))
+        x: root.inline ? (left.x + left.width + root._gapW(left.width, center._centerWidth))
                        : (root.width - width) / 2
 
         Navigation.parentItem: root
@@ -188,6 +194,8 @@ FocusScope {
         height: root.height
         availableWidth: root.inline ? width : root.width
 
+        readonly property real _widthForGap: root.inline ? (right.expanding ? root._freeInline : root._capR) : width
+
         width: {
             if (root.inline)
                 return right.expanding ? root._freeInline : root._capR
@@ -198,7 +206,7 @@ FocusScope {
 
             return Math.min(right.implicitWidth, Math.max(0, root.width - start))
         }
-        x: root.inline ? (center.x + center.width + root._gap(center, right)) : root.width - width
+        x: root.inline ? (center.x + center.width + root._gapW(center.width, right._widthForGap)) : root.width - width
 
         Navigation.parentItem: root
         Navigation.leftAction: function() { return !(center.focusLast(Qt.BacktabFocusReason) || left.focusLast(Qt.BacktabFocusReason)) }

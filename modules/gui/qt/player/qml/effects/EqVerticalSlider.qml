@@ -37,7 +37,7 @@ Widgets.SliderExt {
     value: param ? Number(param.value) : 0
 
     trackHeight: VLCStyle.dp(12, VLCStyle.scale)
-    handleColor: Qt.darker(colorContext.accent, 1.23)
+    handleColor: colorContext.accentDim
     handleHeight: VLCStyle.dp(24, VLCStyle.scale)
     handleWidth: VLCStyle.icon_xsmall
     fillInset: VLCStyle.dp(1, VLCStyle.scale)
