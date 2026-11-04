@@ -729,6 +729,18 @@ static int OpenIntfCommon( vlc_object_t *p_this, bool dialogProvider )
         vlc_object_delete(p_intf);
         return VLC_EGENERIC;
     }
+    if (!dialogProvider)
+    {
+        /* The Qt interface draws its own on-screen messages (OsdToast.qml, driven by the
+         * player state). Turn off the freetype OSD of the video output (title on start,
+         * "Volume: 40%", "Subtitle track: ...", ...), which draws big text over the video.
+         * Only the run-time value of the variable is overridden: the "osd" and
+         * "video-title-show" preferences stay untouched and are honored by the toast.
+         * Subtitles use the "spu" variable and are not affected. */
+        var_Create(libvlc, "osd", VLC_VAR_BOOL);
+        var_SetBool(libvlc, "osd", false);
+    }
+
     vlc_sem_init(&p_intf->wait_quit, 0);
     p_intf->intf = intfThread;
     p_intf->b_isDialogProvider = dialogProvider;

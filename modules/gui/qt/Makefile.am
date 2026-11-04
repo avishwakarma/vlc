@@ -1251,6 +1251,7 @@ libqml_module_player_a_QML = \
 	player/qml/PlayerToolbarVisibilityFSM.qml \
 	player/qml/MinimalView.qml \
 	player/qml/ResumeDialog.qml \
+	player/qml/OsdToast.qml \
 	player/qml/SliderBar.qml \
 	player/waveform/qml/WaveformSeekTrack.qml \
 	player/qml/TopBar.qml \
