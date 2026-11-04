@@ -107,7 +107,6 @@ FocusScope {
             height: root._button
 
             iconName: "arrow-left"
-            text: VLCIcons.back
             description: qsTr("Previous")
             enabled: root.canGoBack
 
@@ -127,7 +126,6 @@ FocusScope {
             height: root._button
 
             iconName: "arrow-right"
-            text: VLCIcons.back
             description: qsTr("Next")
             enabled: root.canGoForward
 
@@ -221,7 +219,6 @@ FocusScope {
             visible: root.moreAvailable
 
             iconName: "more"
-            text: VLCIcons.more
             description: qsTr("More")
 
             Navigation.parentItem: root
@@ -241,7 +238,6 @@ FocusScope {
             height: root._button
 
             iconName: "open"
-            text: VLCIcons.more
             description: qsTr("Open in library")
 
             Navigation.parentItem: root
@@ -284,7 +280,6 @@ FocusScope {
             enabled: root.sortAvailable
 
             iconName: root.sortActive ? "sort-active" : "sort"
-            text: VLCIcons.topbar_sort
             description: qsTr("Sort")
 
             Navigation.parentItem: root
@@ -305,7 +300,6 @@ FocusScope {
             enabled: root.viewAvailable
 
             iconName: "list"
-            text: VLCIcons.list
             description: qsTr("View options")
 
             Navigation.parentItem: root
@@ -328,7 +322,6 @@ FocusScope {
             checked: root.searchOpen
 
             iconName: "search"
-            text: VLCIcons.search
             description: qsTr("Search")
 
             Navigation.parentItem: root

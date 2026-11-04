@@ -312,9 +312,7 @@ T.Control {
 
                 anchors.verticalCenter: parent.verticalCenter
 
-                text: VLCIcons.ellipsis
-
-                font.pixelSize: VLCStyle.icon_normal
+                iconName: "more"
 
                 description: qsTr("Menu")
 

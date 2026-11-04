@@ -175,7 +175,7 @@ T.ItemDelegate {
 
                     name: "playback-twotone"
                     size: VLCStyle.icon_normal
-                    color: theme.accent
+                    color: theme.accentText
                     accentColor: theme.accent
                 }
             }
