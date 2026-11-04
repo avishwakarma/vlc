@@ -69,7 +69,7 @@ QtObject {
             searchable: true
             viewOptions: true
             placeholderIcon: "folder"
-            leadingActions: [ { text: qsTr("Add"), icon: "add", action: () => DialogsProvider.PLOpenDir() } ]
+            leadingActions: [ { text: qsTr("Add"), icon: "add", action: () => page.addLibraryFolder() } ]
 
             model: MLVideoFoldersModel {
                 ml: MediaLib
@@ -121,7 +121,7 @@ QtObject {
             placeholderIcon: "songs"
             iconRole: "icon"
             itemCount: 4
-            leadingActions: [ { text: qsTr("Add"), icon: "add", action: () => DialogsProvider.PLOpenDir() } ]
+            leadingActions: [ { text: qsTr("Add"), icon: "add", action: () => page.addLibraryFolder() } ]
 
             model: ListModel {
                 ListElement { title: qsTr("Songs"); kind: "songs"; icon: "songs" }

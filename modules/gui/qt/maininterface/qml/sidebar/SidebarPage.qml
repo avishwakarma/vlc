@@ -59,7 +59,8 @@ FocusScope {
     readonly property var defaultMoreEntries: {
         const entries = [
             { text: qsTr("Add File"), icon: "add", action: () => DialogsProvider.simpleOpenDialog() },
-            { text: qsTr("Add Folder"), icon: "new-folder-twotone", action: () => DialogsProvider.PLOpenDir() }
+            { text: qsTr("Add Folder"), icon: "new-folder-twotone", action: () => root.addLibraryFolder() },
+            { text: qsTr("Play Folder..."), icon: "new-folder-twotone", action: () => DialogsProvider.PLOpenDir() }
         ]
         if (MainCtx.mediaLibraryAvailable)
             entries.push({ text: qsTr("Resync"), icon: "refresh-twotone", action: () => MediaLib.reload() })
@@ -75,6 +76,15 @@ FocusScope {
 
     readonly property ColorContext colorContext: ColorContext {
         colorSet: ColorContext.Pane
+    }
+
+    function addLibraryFolder() {
+        const path = SettingsModel.pickDirectory("")
+        if (!path)
+            return
+        const folders = SettingsModel.option("mlFolders")
+        if (folders && folders.model)
+            folders.model.add("file://" + encodeURI(path))
     }
 
     // popup of the "more" menu (folder menu), used by the context menu of rows that have no media menu
