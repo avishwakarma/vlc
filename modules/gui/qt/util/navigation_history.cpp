@@ -136,7 +136,9 @@ void NavigationHistory::update(QStringList path, const QVariantMap& properties)
 
 void NavigationHistory::previous(Qt::FocusReason reason)
 {
-    if (m_history.size() == 1)
+    // nothing to go back to; the history is still empty when the player view is shown at
+    // startup before any library page was loaded (Esc then reaches here through Navigation)
+    if (m_history.size() <= 1)
         return;
 
     m_history.pop_back();

@@ -104,6 +104,10 @@ class MainCtx : public QObject
     Q_PROPERTY(double artistAlbumsWidth READ artistAlbumsWidth WRITE setArtistAlbumsWidth NOTIFY artistAlbumsWidthChanged FINAL)
     Q_PROPERTY(bool interfaceAlwaysOnTop READ isInterfaceAlwaysOnTop WRITE setInterfaceAlwaysOnTop NOTIFY interfaceAlwaysOnTopChanged FINAL)
     Q_PROPERTY(bool hasEmbededVideo READ hasEmbededVideo NOTIFY hasEmbededVideoChanged FINAL)
+    // The layout to use for the window: true from the moment the window starts entering fullscreen
+    // until it starts leaving it. On macOS it switches when the native transition is announced
+    // (before the window is resized), so the content matches the window during the animation.
+    Q_PROPERTY(bool fullScreenLayout READ fullScreenLayout NOTIFY fullScreenLayoutChanged FINAL)
     Q_PROPERTY(bool showRemainingTime READ isShowRemainingTime WRITE setShowRemainingTime NOTIFY showRemainingTimeChanged FINAL)
     Q_PROPERTY(VLCVarChoiceModel* extraInterfaces READ getExtraInterfaces CONSTANT FINAL)
     Q_PROPERTY(double intfScaleFactor READ getIntfScaleFactor NOTIFY intfScaleFactorChanged FINAL)
@@ -229,6 +233,7 @@ public:
     Q_DECLARE_FLAGS(MainInterfaceModes, MainInterfaceMode)
 
     inline QWindow::Visibility interfaceVisibility() const { return m_windowVisibility; }
+    inline bool fullScreenLayout() const { return m_fullScreenLayout; }
     inline SidePanelCtx* getPlayqueuePanel() const { return m_playqueuePanel; }
     inline SidePanelCtx* getNavigationPanel() const { return m_navigationPanel; }
     inline double getPlayerPlaylistWidth() const { return m_playerPlaylistWidth; }
@@ -473,6 +478,7 @@ protected:
     SidePanelCtx*   m_playqueuePanel = nullptr;
     SidePanelCtx*   m_navigationPanel = nullptr;
     QWindow::Visibility  m_windowVisibility = QWindow::Windowed;
+    bool                 m_fullScreenLayout = false;
     bool                 b_interfaceOnTop = false;      ///keep UI on top
     bool                 b_hasWayland = false;
     bool                 b_hasMedialibrary = false;
@@ -564,6 +570,7 @@ public slots:
     void setbgCone(bool);
     void updateIntfScaleFactor();
     void onWindowVisibilityChanged(QWindow::Visibility);
+    void setFullScreenLayout(bool);
     void setHasAcrylicSurface(bool);
 
     void setMinimalView(bool);
@@ -600,6 +607,7 @@ signals:
     void playerPlaylistWidthChanged(double);
     void interfaceAlwaysOnTopChanged(bool);
     void hasEmbededVideoChanged(bool);
+    void fullScreenLayoutChanged(bool);
     void showRemainingTimeChanged(bool);
     void gridViewChanged( bool );
     void hasGridListModeChanged( bool );

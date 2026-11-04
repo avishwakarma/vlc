@@ -659,6 +659,17 @@ void MainCtx::updateIntfScaleFactor()
 void MainCtx::onWindowVisibilityChanged(QWindow::Visibility visibility)
 {
     m_windowVisibility = visibility;
+    // a hidden or minimized window keeps its layout
+    if (visibility != QWindow::Hidden && visibility != QWindow::Minimized)
+        setFullScreenLayout(visibility == QWindow::FullScreen);
+}
+
+void MainCtx::setFullScreenLayout(bool fullScreen)
+{
+    if (m_fullScreenLayout == fullScreen)
+        return;
+    m_fullScreenLayout = fullScreen;
+    emit fullScreenLayoutChanged(fullScreen);
 }
 
 void MainCtx::setHasAcrylicSurface(const bool v)
