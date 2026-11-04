@@ -349,6 +349,8 @@ DialogShell {
                                     required property string action
                                     required property string keysText
                                     required property string globalKeysText
+                                    required property string keys
+                                    required property string globalKeys
                                     required property bool hasGlobal
 
                                     width: parent.width
@@ -368,14 +370,14 @@ DialogShell {
                                         x: VLCStyle.dp(290, VLCStyle.scale) + (row.width - VLCStyle.dp(830, VLCStyle.scale)) / 2
                                         row: row.index
                                         global: false
-                                        keys: row.keysText
+                                        keys: root.hotkeys.keyGlyphs(row.keys)
                                     }
 
                                     HotkeyField {
                                         x: row.width - width
                                         row: row.index
                                         global: true
-                                        keys: row.globalKeysText
+                                        keys: root.hotkeys.keyGlyphs(row.globalKeys)
                                         available: row.hasGlobal
                                     }
                                 }

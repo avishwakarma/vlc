@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QPoint>
+#include <QKeySequence>
+#include <QStringList>
 #include <QtQml/qqmlregistration.h>
 
 /* VLC Key/Wheel hotkeys interactions */
@@ -18,6 +20,13 @@ int qtKeyModifiersToVLC( const QInputEvent& e );
 int qtEventToVLCKey( QKeyEvent *e );
 int qtWheelEventToVLCKey( const QWheelEvent& e );
 QString VLCKeyToString( unsigned val, bool );
+
+/* Presentation of a VLC key binding ("Command+Alt+Right"), shared by the macOS menu bar,
+ * the context menus, the onboarding and the shortcuts sheet. A binding list is '\t' separated. */
+QStringList VLCHotkeyCaps( const QString& vlcKey );          // {"⌥", "⌘", "→"}
+QString VLCHotkeyGlyphs( const QString& vlcKey );            // "⌥⌘→" (macOS) or "Ctrl+Alt+Right"
+QKeySequence VLCHotkeyToKeySequence( const QString& vlcKey ); // empty if it cannot be expressed
+bool VLCHotkeyHasModifier( const QString& vlcKey );          // Command/Ctrl/Alt/Meta (not only Shift)
 
 /**
  * @brief The WheelToVLCConverter class aggregates wheel events and

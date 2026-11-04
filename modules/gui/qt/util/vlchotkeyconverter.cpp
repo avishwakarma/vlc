@@ -358,3 +358,105 @@ QString VLCKeyToString( unsigned val, bool locale )
     free( base );
     return r;
 }
+
+/***************************************************************************
+ * Key binding presentation
+ ***************************************************************************/
+
+namespace {
+
+QString keyCapText( uint32_t base )
+{
+    switch( base )
+    {
+        case KEY_LEFT:  return QStringLiteral("\u2190");
+        case KEY_RIGHT: return QStringLiteral("\u2192");
+        case KEY_UP:    return QStringLiteral("\u2191");
+        case KEY_DOWN:  return QStringLiteral("\u2193");
+        case KEY_ENTER: return QStringLiteral("\u21A9");
+        case KEY_ESC:   return QStringLiteral("Esc");
+        case KEY_TAB:   return QStringLiteral("\u21E5");
+        case KEY_BACKSPACE: return QStringLiteral("\u232B");
+        case KEY_DELETE: return QStringLiteral("\u2326");
+        case KEY_PAGEUP: return QStringLiteral("\u21DE");
+        case KEY_PAGEDOWN: return QStringLiteral("\u21DF");
+        case ' ':       return QStringLiteral("Space");
+    }
+    if( base < 0x00200000 && base > 0 ) /* a character */
+        return QString::fromUcs4( reinterpret_cast<const char32_t *>( &base ), 1 ).toUpper();
+    return VLCKeyToString( base, true );
+}
+
+} // namespace
+
+QStringList VLCHotkeyCaps( const QString& vlcKey )
+{
+    const uint32_t code = vlc_str2keycode( qPrintable( vlcKey ) );
+    if( code == KEY_UNSET )
+        return {};
+    QStringList caps;
+#ifdef __APPLE__
+    if( code & KEY_MODIFIER_CTRL )    caps << QStringLiteral("\u2303");
+    if( code & KEY_MODIFIER_ALT )     caps << QStringLiteral("\u2325");
+    if( code & KEY_MODIFIER_SHIFT )   caps << QStringLiteral("\u21E7");
+    if( code & KEY_MODIFIER_COMMAND ) caps << QStringLiteral("\u2318");
+    if( code & KEY_MODIFIER_META )    caps << QStringLiteral("\u2318");
+#else
+    if( code & KEY_MODIFIER_CTRL )    caps << QStringLiteral("Ctrl");
+    if( code & KEY_MODIFIER_ALT )     caps << QStringLiteral("Alt");
+    if( code & KEY_MODIFIER_SHIFT )   caps << QStringLiteral("Shift");
+    if( code & (KEY_MODIFIER_META | KEY_MODIFIER_COMMAND) ) caps << QStringLiteral("Meta");
+#endif
+    caps << keyCapText( code & ~KEY_MODIFIER );
+    return caps;
+}
+
+QString VLCHotkeyGlyphs( const QString& vlcKey )
+{
+    const QStringList caps = VLCHotkeyCaps( vlcKey );
+#ifdef __APPLE__
+    return caps.join( QString() );
+#else
+    return caps.join( QLatin1Char('+') );
+#endif
+}
+
+bool VLCHotkeyHasModifier( const QString& vlcKey )
+{
+    const uint32_t code = vlc_str2keycode( qPrintable( vlcKey ) );
+    return code != KEY_UNSET
+        && ( code & ( KEY_MODIFIER_CTRL | KEY_MODIFIER_ALT | KEY_MODIFIER_META | KEY_MODIFIER_COMMAND ) );
+}
+
+QKeySequence VLCHotkeyToKeySequence( const QString& vlcKey )
+{
+    const uint32_t code = vlc_str2keycode( qPrintable( vlcKey ) );
+    if( code == KEY_UNSET )
+        return {};
+
+    int qtmods = 0;
+    if( code & KEY_MODIFIER_SHIFT ) qtmods |= Qt::ShiftModifier;
+    if( code & KEY_MODIFIER_ALT )   qtmods |= Qt::AltModifier;
+#ifdef __APPLE__
+    /* inverse of qtKeyModifiersToVLC: Qt::ControlModifier is Command */
+    if( code & KEY_MODIFIER_COMMAND ) qtmods |= Qt::ControlModifier;
+    if( code & KEY_MODIFIER_CTRL )    qtmods |= Qt::MetaModifier;
+#else
+    if( code & KEY_MODIFIER_CTRL )    qtmods |= Qt::ControlModifier;
+    if( code & KEY_MODIFIER_META )    qtmods |= Qt::MetaModifier;
+#endif
+
+    const uint32_t base = code & ~KEY_MODIFIER;
+    int qtkey = 0;
+    if( base >= 'a' && base <= 'z' )      qtkey = base - 32;
+    else if( base > ' ' && base < 0x7f )  qtkey = base;
+    else
+    {
+        for( const auto& k : keys )
+            if( k.vlc == base ) { qtkey = k.qt; break; }
+        if( base == ' ' ) qtkey = Qt::Key_Space;
+    }
+    if( qtkey == 0 )
+        return {};
+    return QKeySequence( QKeyCombination::fromCombined( qtkey | qtmods ) );
+}

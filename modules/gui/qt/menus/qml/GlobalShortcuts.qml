@@ -21,34 +21,38 @@ import VLC.MainInterface
 import VLC.Dialogs
 
 Item {
+    readonly property bool mac: Qt.platform.os === "osx"
 
-    ShortcutExt{ context: Qt.WindowShortcut; sequence:"Ctrl+O"; onActivated: DialogsProvider.simpleOpenDialog(); }
-    ShortcutExt{ sequence:"Ctrl+Shift+O"; onActivated: DialogsProvider.openFileDialog(); }
-    ShortcutExt{ context: Qt.WindowShortcut; sequence:"Ctrl+F"; onActivated: DialogsProvider.PLOpenDir(); }
-    ShortcutExt{ sequence:"Ctrl+D"; onActivated: DialogsProvider.openDiscDialog(); }
-    ShortcutExt{ sequence:"Ctrl+N"; onActivated: DialogsProvider.openNetDialog(); }
-    ShortcutExt{ sequence:"Ctrl+C"; onActivated: DialogsProvider.openCaptureDialog(); }
+    // macOS map (the same entries are in the menu bar, which owns them there: menuBarOwned):
+    //   Cmd+O Open File, Cmd+Shift+O Open Folder, Cmd+N Open Location, Cmd+, Settings, Cmd+/ Shortcuts,
+    //   Cmd+W Close Window, Cmd+M Minimize, Cmd+H Hide (system), Cmd+Q Quit, Cmd+K reserved for the
+    //   command palette (bound to nothing else), Cmd+F is fullscreen (VLC hotkey), not Open Folder.
+    ShortcutExt{ context: Qt.WindowShortcut; menuBarOwned: true; sequence:"Ctrl+O"; onActivated: DialogsProvider.simpleOpenDialog(); }
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+Shift+O"; onActivated: mac ? DialogsProvider.PLOpenDir() : DialogsProvider.openFileDialog(); }
+    ShortcutExt{ context: Qt.WindowShortcut; enabled: !mac; sequence:"Ctrl+F"; onActivated: DialogsProvider.PLOpenDir(); }
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+D"; onActivated: DialogsProvider.openDiscDialog(); }
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+N"; onActivated: DialogsProvider.openNetDialog(); }
+    ShortcutExt{ enabled: !mac; sequence:"Ctrl+C"; onActivated: DialogsProvider.openCaptureDialog(); }
     ShortcutExt{ sequences: [StandardKey.Paste]; onActivated: MainCtx.pasteFromClipboard(); }
-    ShortcutExt{ context: Qt.WindowShortcut; sequence:"Ctrl+Y"; onActivated: DialogsProvider.savePlayingToPlaylist(); }
-    ShortcutExt{ sequence:"Ctrl+R"; onActivated: DialogsProvider.openAndTranscodingDialogs(); }
-    ShortcutExt{ sequence:"Ctrl+S"; onActivated: DialogsProvider.openAndStreamingDialogs(); }
-    ShortcutExt{ sequence:"Ctrl+Q"; onActivated: DialogsProvider.quit(); }
-    ShortcutExt{ sequence:"Ctrl+E"; onActivated: DialogsProvider.extendedDialog(); }
-    ShortcutExt{ sequence:"Ctrl+I"; onActivated: DialogsProvider.mediaInfoDialog(); }
-    ShortcutExt{ sequence:"Ctrl+J"; onActivated: DialogsProvider.mediaCodecDialog(); }
-    ShortcutExt{ sequence:"Ctrl+M"; onActivated: DialogsProvider.messagesDialog(); }
-    ShortcutExt{ sequence:"Ctrl+P"; onActivated: DialogsProvider.prefsDialog(); }
-    ShortcutExt{ sequence:"Ctrl+T"; onActivated: DialogsProvider.gotoTimeDialog(); }
+    ShortcutExt{ context: Qt.WindowShortcut; menuBarOwned: true; sequence:"Ctrl+Y"; onActivated: DialogsProvider.savePlayingToPlaylist(); }
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+R"; onActivated: DialogsProvider.openAndTranscodingDialogs(); }
+    ShortcutExt{ menuBarOwned: true; sequence: mac ? "Ctrl+Shift+S" : "Ctrl+S"; onActivated: DialogsProvider.openAndStreamingDialogs(); }
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+Q"; onActivated: DialogsProvider.quit(); }
+    ShortcutExt{ menuBarOwned: true; sequence: mac ? "Ctrl+Alt+E" : "Ctrl+E"; onActivated: DialogsProvider.extendedDialog(); }
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+I"; onActivated: DialogsProvider.mediaInfoDialog(); }
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+J"; onActivated: DialogsProvider.mediaCodecDialog(); }
+    ShortcutExt{ menuBarOwned: true; sequence: mac ? "Ctrl+Shift+M" : "Ctrl+M"; onActivated: DialogsProvider.messagesDialog(); }
+    ShortcutExt{ enabled: !mac; sequence:"Ctrl+P"; onActivated: DialogsProvider.prefsDialog(); }
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+T"; onActivated: DialogsProvider.gotoTimeDialog(); }
 
-    ShortcutExt{ sequence:"Ctrl+Shift+W"; onActivated: DialogsProvider.vlmDialog(); }
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+L"; onActivated: MainCtx.playqueuePanel.visible = !MainCtx.playqueuePanel.visible; }
 
-    ShortcutExt{ sequence:"Ctrl+L"; onActivated: MainCtx.playqueuePanel.visible = !MainCtx.playqueuePanel.visible; }
-
-    ShortcutExt{ sequence:"F1"; onActivated: DialogsProvider.helpDialog() }
-    ShortcutExt{ sequence:"Ctrl+/"; onActivated: DialogsProvider.keyboardShortcutsDialog() }
+    ShortcutExt{ enabled: !mac; sequence:"F1"; onActivated: DialogsProvider.helpDialog() }
+    ShortcutExt{ enabled: mac; menuBarOwned: true; sequence:"Ctrl+?"; onActivated: DialogsProvider.helpDialog() }
+    ShortcutExt{ menuBarOwned: true; sequence:"Ctrl+/"; onActivated: DialogsProvider.keyboardShortcutsDialog() }
     ShortcutExt{ sequence:"F10"; onActivated: MainCtx.toggleToolbarMenu() }
     ShortcutExt{ sequence:"F11"; onActivated: MainCtx.toggleInterfaceFullScreen() }
-    ShortcutExt{ sequence:"Ctrl+H"; onActivated: MainCtx.minimalView = !MainCtx.minimalView; }
+    ShortcutExt{ menuBarOwned: true; sequence: mac ? "Ctrl+Shift+H" : "Ctrl+H"; onActivated: MainCtx.minimalView = !MainCtx.minimalView; }
 
     ShortcutExt{ sequences: [StandardKey.ZoomIn, "Ctrl+="]; onActivated: MainCtx.incrementIntfUserScaleFactor(true) }
     ShortcutExt{ sequences: [StandardKey.ZoomOut, "Ctrl+Shift+-"]; onActivated: MainCtx.incrementIntfUserScaleFactor(false) }

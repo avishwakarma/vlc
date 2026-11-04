@@ -1603,6 +1603,16 @@ static const char *const mouse_wheel_texts[] = {
                      value) \
     change_integer_range (subcategory /* gruik */, 0)
 
+/* Jump sizes behind the plain arrow keys (redesign keymap): macOS players
+ * (IINA, QuickTime, Elmedia) seek 5 s with Left/Right and 30 s with Shift. */
+#ifdef __APPLE__
+# define SHORT_JUMP_DEFAULT 5
+# define MEDIUM_JUMP_DEFAULT 30
+#else
+# define SHORT_JUMP_DEFAULT 10
+# define MEDIUM_JUMP_DEFAULT 60
+#endif
+
 vlc_module_begin ()
     set_description( N_("core program") )
 
@@ -2282,6 +2292,15 @@ vlc_module_begin ()
     add_obsolete_integer( "hotkeys-mousewheel-mode" ) /* since 3.0.0 */
 
 #if defined(__APPLE__)
+/* Redesign keymap (macOS, IINA/Elmedia style). A binding is a tab separated list;
+ * the first one is the primary binding shown in menus and in the shortcuts sheet.
+ *   Space play/pause      Left/Right seek 5 s     Shift+Left/Right seek 30 s
+ *   Alt+Left/Right 3 s    Up/Down volume          m mute
+ *   f, Cmd+Ctrl+f fullscreen (Esc leaves)         [ ] speed slower/faster, = normal speed
+ *   , . previous/next frame                       s subtitle track, l audio track
+ *   DVD menu navigation moved to Ctrl+Alt+arrows (plain arrows are seek/volume).
+ *   Cmd+Alt+arrows, Cmd+Up/Down, Cmd+Alt+Down keep working as before. */
+
 /* Don't use the following combo's */
 
 /*  copy                          "Command+c"
@@ -2314,14 +2333,14 @@ vlc_module_begin ()
  *  help                          "Command+?"
  *  readme / FAQ                  "Command+Alt+?"
  */
-#   define KEY_TOGGLE_FULLSCREEN  "Command+f"
+#   define KEY_TOGGLE_FULLSCREEN  "f\tCommand+Ctrl+f\tCommand+f"
 #   define KEY_LEAVE_FULLSCREEN   "Esc"
 #   define KEY_PLAY_PAUSE         "Space"
 #   define KEY_SIMPLE_PAUSE       NULL
 #   define KEY_PLAY               NULL
-#   define KEY_FASTER             "Command+="
-#   define KEY_SLOWER             "Command+-"
-#   define KEY_RATE_NORMAL        NULL
+#   define KEY_FASTER             "]"
+#   define KEY_SLOWER             "["
+#   define KEY_RATE_NORMAL        "="
 #   define KEY_RATE_FASTER_FINE   NULL
 #   define KEY_RATE_SLOWER_FINE   NULL
 #   define KEY_NEXT               "Command+Right"
@@ -2329,38 +2348,38 @@ vlc_module_begin ()
 #   define KEY_PROJECTION_TOGGLE  NULL
 #   define KEY_STOP               "Command+."
 #   define KEY_POSITION           "t"
-#   define KEY_JUMP_MEXTRASHORT   "Command+Ctrl+Left"
-#   define KEY_JUMP_PEXTRASHORT   "Command+Ctrl+Right"
-#   define KEY_JUMP_MSHORT        "Command+Alt+Left"
-#   define KEY_JUMP_PSHORT        "Command+Alt+Right"
-#   define KEY_JUMP_MMEDIUM       "Command+Shift+Left"
-#   define KEY_JUMP_PMEDIUM       "Command+Shift+Right"
+#   define KEY_JUMP_MEXTRASHORT   "Alt+Left\tCommand+Ctrl+Left"
+#   define KEY_JUMP_PEXTRASHORT   "Alt+Right\tCommand+Ctrl+Right"
+#   define KEY_JUMP_MSHORT        "Left\tCommand+Alt+Left"
+#   define KEY_JUMP_PSHORT        "Right\tCommand+Alt+Right"
+#   define KEY_JUMP_MMEDIUM       "Shift+Left\tCommand+Shift+Left"
+#   define KEY_JUMP_PMEDIUM       "Shift+Right\tCommand+Shift+Right"
 #   define KEY_JUMP_MLONG         "Command+Shift+Alt+Left"
 #   define KEY_JUMP_PLONG         "Command+Shift+Alt+Right"
-#   define KEY_FRAME_NEXT         "e"
-#   define KEY_FRAME_PREVIOUS     "Shift+e"
+#   define KEY_FRAME_NEXT         ".\te"
+#   define KEY_FRAME_PREVIOUS     ",\tShift+e"
 #   define KEY_NAV_ACTIVATE       "Enter"
-#   define KEY_NAV_UP             "Up"
-#   define KEY_NAV_DOWN           "Down"
-#   define KEY_NAV_LEFT           "Left"
-#   define KEY_NAV_RIGHT          "Right"
+#   define KEY_NAV_UP             "Ctrl+Alt+Up"
+#   define KEY_NAV_DOWN           "Ctrl+Alt+Down"
+#   define KEY_NAV_LEFT           "Ctrl+Alt+Left"
+#   define KEY_NAV_RIGHT          "Ctrl+Alt+Right"
 #   define KEY_QUIT               "Command+q"
-#   define KEY_VOL_UP             "Command+Up"
-#   define KEY_VOL_DOWN           "Command+Down"
-#   define KEY_VOL_MUTE           "Command+Alt+Down"
+#   define KEY_VOL_UP             "Up\tCommand+Up"
+#   define KEY_VOL_DOWN           "Down\tCommand+Down"
+#   define KEY_VOL_MUTE           "m\tCommand+Alt+Down"
 #   define KEY_SUBDELAY_UP        "j"
 #   define KEY_SUBDELAY_DOWN      "h"
 #   define KEY_SUBPOS_DOWN        NULL
 #   define KEY_SUBPOS_UP          NULL
 #   define KEY_SUBTEXT_SCALEUP    "Command+Mouse Wheel Up"
 #   define KEY_SUBTEXT_SCALEDOWN  "Command+Mouse Wheel Down"
-#   define KEY_SUBTEXT_SCALE      "Command+0"
+#   define KEY_SUBTEXT_SCALE      "Command+Shift+0"
 #   define KEY_SUBSYNC_MARKAUDIO  "Shift+h"
 #   define KEY_SUBSYNC_MARKSUB    "Shift+j"
 #   define KEY_SUBSYNC_APPLY      "Shift+k"
 #   define KEY_SUBSYNC_RESET      "Command+Shift+k"
-#   define KEY_AUDIODELAY_UP      "g"
-#   define KEY_AUDIODELAY_DOWN    "f"
+#   define KEY_AUDIODELAY_UP      "Shift+g"
+#   define KEY_AUDIODELAY_DOWN    "Shift+f"
 #   define KEY_AUDIO_TRACK        "l"
 #   define KEY_SUBTITLE_TRACK     "s"
 #   define KEY_SUBTITLE_TOGGLE    "Shift+s"
@@ -2386,7 +2405,7 @@ vlc_module_begin ()
 #   define KEY_SNAPSHOT           "Command+Alt+s"
 #   define KEY_ZOOM               "z"
 #   define KEY_UNZOOM             "Shift+z"
-#   define KEY_RANDOM             "Command+z"
+#   define KEY_RANDOM             "Ctrl+r"
 #   define KEY_LOOP               "Shift+l"
 
 #   define KEY_CROP_TOP           "Alt+i"
@@ -2764,9 +2783,9 @@ vlc_module_begin ()
     set_section ( N_("Jump sizes" ), NULL )
     add_integer( "extrashort-jump-size", 3, JIEXTRASHORT_TEXT,
                                     JIEXTRASHORT_LONGTEXT )
-    add_integer( "short-jump-size", 10, JISHORT_TEXT,
+    add_integer( "short-jump-size", SHORT_JUMP_DEFAULT, JISHORT_TEXT,
                                     JISHORT_LONGTEXT )
-    add_integer( "medium-jump-size", 60, JIMEDIUM_TEXT,
+    add_integer( "medium-jump-size", MEDIUM_JUMP_DEFAULT, JIMEDIUM_TEXT,
                                     JIMEDIUM_LONGTEXT )
     add_integer( "long-jump-size", 300, JILONG_TEXT,
                                     JILONG_LONGTEXT )

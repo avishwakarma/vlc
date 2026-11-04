@@ -332,21 +332,21 @@ QmlMenuBar::QmlMenuBar(QObject *parent)
     switch (entry)
     {
     case MEDIA:
-        return qtr("&Media");
+        return qtr("Media");
     case PLAYBACK:
-        return qtr("&Playback");
+        return qtr("Playback");
     case VIDEO:
-        return qtr("&Video");
+        return qtr("Video");
     case AUDIO:
-        return qtr("&Audio");
+        return qtr("Audio");
     case SUBTITLE:
-        return qtr("&Subtitle");
+        return qtr("Subtitles");
     case TOOL:
-        return qtr("&Tools");
+        return qtr("Tools");
     case VIEW:
-        return qtr("V&iew");
+        return qtr("View");
     case HELP:
-        return qtr("&Help");
+        return qtr("Help");
     }
     vlc_assert_unreachable();
     return "";
@@ -611,7 +611,7 @@ bool QmlMenuPositioner::eventFilter(QObject * object, QEvent * event)
     // Bookmarks
     if (m_ctx->hasMediaLibrary())
     {
-	m_menu->addAction(qtr("&Manage"), THEDP, &DialogsProvider::bookmarksDialog )->setShortcut(QKeySequence("Ctrl+B"));
+	m_menu->addAction(qtr("Manage"), THEDP, &DialogsProvider::bookmarksDialog )->setShortcut(QKeySequence("Ctrl+B"));
         m_menu->addSeparator();
 
         MLBookmarkModel * bookmarks = new MLBookmarkModel(m_menu.get());
@@ -978,8 +978,8 @@ void NetworkMediaContextMenu::popup(const QModelIndexList& selected, QPoint pos)
     {
         bool removeFromML = countIndexed > 0;
         action = menu->addAction(removeFromML
-            ? qtr("Remove from Media Library")
-            : qtr("Add to Media Library"));
+            ? qtr("Remove from Library")
+            : qtr("Add to Library"));
 
         connect(action, &QAction::triggered, [this, selected, removeFromML]( ) {
             for (const QModelIndex& idx : selected) {
@@ -1091,7 +1091,11 @@ void PlaylistContextMenu::popup(int selectedIndex, QPoint pos )
 
         m_menu->addSeparator();
 
-        action = m_menu->addAction( qtr("Show Containing Directory...") );
+#ifdef __APPLE__
+        action = m_menu->addAction( qtr("Show in Finder") );
+#else
+        action = m_menu->addAction( qtr("Show Containing Folder\u2026") );
+#endif
         action->setIcon(QIcon(":/menu/folder.svg"));
         connect(action, &QAction::triggered, [this, selectedItem]( ) {
             m_controler->explore(selectedItem);
@@ -1100,20 +1104,20 @@ void PlaylistContextMenu::popup(int selectedIndex, QPoint pos )
         m_menu->addSeparator();
     }
 
-    action = m_menu->addAction( qtr("Add File...") );
+    action = m_menu->addAction( qtr("Add File\u2026") );
 
     action->setIcon(ColorizedSvgIcon::colorizedIconForWidget(":/menu/add.svg", m_menu.get()));
     connect(action, &QAction::triggered, []( ) {
         DialogsProvider::getInstance()->simpleOpenDialog(false);
     });
 
-    action = m_menu->addAction( qtr("Add Directory...") );
+    action = m_menu->addAction( qtr("Add Folder\u2026") );
     action->setIcon(ColorizedSvgIcon::colorizedIconForWidget(":/menu/add.svg", m_menu.get()));
     connect(action, &QAction::triggered, []( ) {
         DialogsProvider::getInstance()->PLAppendDir();
     });
 
-    action = m_menu->addAction( qtr("Advanced Open...") );
+    action = m_menu->addAction( qtr("Advanced Open\u2026") );
     action->setIcon(ColorizedSvgIcon::colorizedIconForWidget(":/menu/add.svg", m_menu.get()));
     connect(action, &QAction::triggered, []( ) {
         DialogsProvider::getInstance()->PLAppendDialog();
@@ -1123,7 +1127,7 @@ void PlaylistContextMenu::popup(int selectedIndex, QPoint pos )
 
     if (m_selectionModel->hasSelection())
     {
-        action = m_menu->addAction( qtr("Save Play Queue to File...") );
+        action = m_menu->addAction( qtr("Save Queue as Playlist\u2026") );
         connect(action, &QAction::triggered, []( ) {
             DialogsProvider::getInstance()->savePlayingToPlaylist();
         });
