@@ -108,16 +108,15 @@ Widgets.PageExt {
         colorSet: ColorContext.View
     }
 
-    //FIXME use the right xxxLabel class
-    T.Label {
+    Widgets.EmptyState {
         anchors.centerIn: parent
 
         visible: [foldersSection, computerSection, deviceSection, lanSection]
                  .every(section => !section.model.loading && section.model.count === 0)
 
-        font.pixelSize: VLCStyle.fontHeight_xxlarge
-        color: root.activeFocus ? theme.accent : theme.fg.primary
-        text: qsTr("No network shares found")
+        illustration: "network"
+        title: qsTr("No network shares found")
+        caption: qsTr("Devices on your network appear here automatically. Make sure you are on the same network, or enter an address above.")
     }
 
     Flickable {

@@ -309,13 +309,13 @@ MainViewLoader {
     Component {
         id: emptyLabelComponent
 
-        Widgets.EmptyLabelButton {
+        Widgets.EmptyState {
             focus: true
-
-            cover: VLCStyle.noArtAlbumCover // TODO: better fallback image
-
-            text: qsTr("No media found\nPlease try adding sources")
-
+            illustration: "library"
+            title: qsTr("No media yet")
+            caption: qsTr("Add a folder with your media and it will show up here.")
+            action: "addFolder"
+            searchModel: root.model
             Navigation.parentItem: root
         }
     }

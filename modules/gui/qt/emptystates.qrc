@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/emptystates">
+        <file alias="library.svg">pixmaps/empty_states/library.svg</file>
+        <file alias="video.svg">pixmaps/empty_states/video.svg</file>
+        <file alias="music.svg">pixmaps/empty_states/music.svg</file>
+        <file alias="playlist.svg">pixmaps/empty_states/playlist.svg</file>
+        <file alias="network.svg">pixmaps/empty_states/network.svg</file>
+        <file alias="search.svg">pixmaps/empty_states/search.svg</file>
+        <file alias="queue.svg">pixmaps/empty_states/queue.svg</file>
+    </qresource>
+</RCC>

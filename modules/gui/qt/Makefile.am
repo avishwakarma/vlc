@@ -1471,6 +1471,7 @@ libqml_module_widgets_a_QML = \
 	widgets/qml/ExpandGridView.qml \
 	widgets/qml/ExpandGridItemView.qml \
 	widgets/qml/EmptyLabel.qml \
+	widgets/qml/EmptyState.qml \
 	widgets/qml/EmptyLabelButton.qml \
 	widgets/qml/EmptyLabelHint.qml \
 	widgets/qml/GridItem.qml \
@@ -1682,6 +1683,7 @@ CLEANFILES += shaders/shaders.qrc
 
 lib_qt_plugin_la_QRC = assets.qrc
 lib_qt_plugin_la_QRC += svgicons.qrc
+lib_qt_plugin_la_QRC += emptystates.qrc
 
 # Bundled Inter UI font (OFL). Meson-only switch: -Dqt_bundle_ui_font
 lib_qt_plugin_la_QRC += fonts.qrc
@@ -1711,6 +1713,12 @@ svgicons.cpp: svgicons.qrc
 
 EXTRA_DIST += pixmaps/svg_icons
 nodist_libqt_plugin_la_SOURCES += svgicons.cpp
+
+emptystates.cpp: emptystates.qrc
+	$(AM_V_GEN)$(RCC) $(RCC_EXTRA_PARAMS) --name emptystates -o $@ $<
+
+EXTRA_DIST += pixmaps/empty_states
+nodist_libqt_plugin_la_SOURCES += emptystates.cpp
 endif
 
 # Emit shader source dependencies so that the built shaders are properly

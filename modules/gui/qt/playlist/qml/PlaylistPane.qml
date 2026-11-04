@@ -552,67 +552,28 @@ T.Pane {
                 MainPlaylistController.goTo(index, true)
             }
 
-            Column {
+            Widgets.EmptyState {
                 id: noContentInfoColumn
 
                 anchors.centerIn: parent
+                width: Math.min(parent.width, VLCStyle.dp(240, VLCStyle.scale))
 
+                compact: true
                 visible: false
-                enabled: visible
+                enabled: false
 
-                opacity: (listView.activeFocus) ? 1.0 : 0.4
+                readonly property bool filtered: (listView.proxyModel &&
+                                                  listView.model === listView.proxyModel &&
+                                                  listView.count !== root.model.count)
+
+                illustration: filtered ? "search" : "queue"
+                title: filtered ? qsTr("No results") : qsTr("The play queue is empty")
+                caption: filtered ? qsTr("Nothing in the queue matches your search.")
+                                  : qsTr("Drag and drop some content here.")
 
                 Binding on visible {
                     delayed: true
                     value: (listView.count === 0 && !listView.footerItem.firstItemIndicatorVisible)
-                }
-
-                Widgets.IconLabel {
-                    id: label
-
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-
-                    text: VLCIcons.playlist
-
-                    color: theme.fg.primary
-
-                    font.pixelSize: VLCStyle.dp(48, VLCStyle.scale)
-                }
-
-                T.Label {
-                    anchors.topMargin: VLCStyle.margin_xlarge
-
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-
-                    text: (listView.proxyModel &&
-                           listView.model === listView.proxyModel &&
-                           listView.count !== root.model.count) ? qsTr("No results")
-                                                                : qsTr("No content yet")
-
-                    color: label.color
-
-                    font.pixelSize: VLCStyle.fontSize_xxlarge
-                }
-
-                T.Label {
-                    anchors.topMargin: VLCStyle.margin_normal
-
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-
-                    text: qsTr("Drag & Drop some content here!")
-                    visible: (listView.proxyModel && listView.model === listView.proxyModel) ? (listView.count === root.model.count)
-                                                                                             : true
-
-                    color: label.color
-
-                    font.pixelSize: VLCStyle.fontSize_large
                 }
             }
         }

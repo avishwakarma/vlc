@@ -58,6 +58,7 @@ SidebarPage {
 
     // label shown when the list is empty
     property string emptyText: qsTr("Nothing here yet")
+    property string emptyIllustration: "library"
 
     signal activated(int index, var row)
 
@@ -104,22 +105,20 @@ SidebarPage {
         Navigation.parentItem: root.contentArea
     }
 
-    // empty label
-    Text {
+    // empty state
+    Widgets.EmptyState {
         parent: root.contentArea
         anchors.horizontalCenter: parent.horizontalCenter
-        y: VLCStyle.dp(60, VLCStyle.scale) + (root.leadingActions.length * VLCStyle.dp(42, VLCStyle.scale))
+        y: VLCStyle.dp(40, VLCStyle.scale) + (root.leadingActions.length * VLCStyle.dp(42, VLCStyle.scale))
+        width: Math.min(parent.width, VLCStyle.dp(240, VLCStyle.scale))
+        height: implicitHeight
 
+        compact: true
+        enabled: false
         visible: root.itemCount === 0 && !root._grid
-        text: root.emptyText
-        color: dimTheme.fg.primary
-        font.pixelSize: VLCStyle.text_body
 
-        ColorContext {
-            id: dimTheme
-            colorSet: ColorContext.Pane
-            enabled: false
-        }
+        illustration: root.emptyIllustration
+        title: root.emptyText
     }
 
     Component {

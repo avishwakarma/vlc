@@ -318,33 +318,15 @@ Widgets.PageExt {
         Component {
             id: emptyLabelComponent
 
-            Widgets.EmptyLabelButton {
+            Widgets.EmptyState {
                 id: emptyLabel
 
-                background: Rectangle {
-                    // NOTE: This is necessary because MainViewLoader may position this indicator over the shown header when height is small.
-                    border.color: emptyLabel.colorContext.border
-                    border.pixelAligned: (radius < Number.EPSILON)
-                    radius: VLCStyle.dp(6, VLCStyle.scale)
-                    color: emptyLabel.colorContext.bg.primary
-                    opacity: 0.8
-                }
-
-                // FIXME: find better cover
-                cover: VLCStyle.noArtVideoCover
-                coverWidth : VLCStyle.dp(182, VLCStyle.scale)
-                coverHeight: VLCStyle.dp(114, VLCStyle.scale)
-
-                text: qsTr("Nothing to see here, go back.")
-
-                button.iconTxt: VLCIcons.back
-                button.text: qsTr("Back")
-                button.enabled: !History.previousEmpty
-                button.width: button.implicitWidth
-
-                function onNavigate(reason) {
-                    History.previous(reason)
-                }
+                illustration: "network"
+                title: qsTr("Nothing to see here")
+                caption: qsTr("This folder has no playable media.")
+                actionText: qsTr("Go back")
+                enabled: !History.previousEmpty
+                onActionTriggered: History.previous(Qt.TabFocusReason)
 
                 Navigation.parentItem: root
                 Navigation.upItem: browseTreeHeader.networkAddressbar

@@ -63,6 +63,7 @@ QtObject {
     // Videos: the folders of the media library
     property Component videoFoldersPage: Component {
         SidebarListPage {
+            emptyIllustration: "video"
             id: page
 
             sortModel: [ { text: qsTr("Alphabetic"), criteria: "title" }, { text: qsTr("Duration"), criteria: "duration" } ]
@@ -85,6 +86,7 @@ QtObject {
     // the videos of a folder
     property Component videoFolderPage: Component {
         SidebarListPage {
+            emptyIllustration: "video"
             id: page
 
             property var parentId
@@ -116,6 +118,7 @@ QtObject {
     // Music: the entries of the music library
     property Component musicRootPage: Component {
         SidebarListPage {
+            emptyIllustration: "music"
             id: page
 
             placeholderIcon: "songs"
@@ -139,6 +142,7 @@ QtObject {
 
     property Component songsPage: Component {
         SidebarListPage {
+            emptyIllustration: "music"
             id: page
 
             sortModel: [ { text: qsTr("Alphabetic"), criteria: "title" }, { text: qsTr("Album"), criteria: "album_title" },
@@ -166,6 +170,7 @@ QtObject {
 
     property Component albumsPage: Component {
         SidebarListPage {
+            emptyIllustration: "music"
             id: page
 
             sortModel: [ { text: qsTr("Alphabetic"), criteria: "title" }, { text: qsTr("Artist"), criteria: "main_artist" },
@@ -189,6 +194,7 @@ QtObject {
 
     property Component albumTracksPage: Component {
         SidebarListPage {
+            emptyIllustration: "music"
             id: page
 
             property var parentId
@@ -214,6 +220,7 @@ QtObject {
 
     property Component artistsPage: Component {
         SidebarListPage {
+            emptyIllustration: "music"
             id: page
 
             sortModel: [ { text: qsTr("Alphabetic"), criteria: "name" } ]
@@ -236,6 +243,7 @@ QtObject {
     // the albums of an artist or of a genre
     property Component artistAlbumsPage: Component {
         SidebarListPage {
+            emptyIllustration: "music"
             id: page
 
             property var parentId
@@ -257,6 +265,7 @@ QtObject {
 
     property Component genresPage: Component {
         SidebarListPage {
+            emptyIllustration: "music"
             id: page
 
             sortModel: [ { text: qsTr("Alphabetic"), criteria: "name" } ]
@@ -279,6 +288,7 @@ QtObject {
     // Playlists of the media library
     property Component playlistsPage: Component {
         SidebarListPage {
+            emptyIllustration: "playlist"
             id: page
 
             sortModel: [ { text: qsTr("Alphabetic"), criteria: "title" }, { text: qsTr("Duration"), criteria: "duration" } ]
@@ -302,6 +312,7 @@ QtObject {
 
     property Component playlistTracksPage: Component {
         SidebarListPage {
+            emptyIllustration: "playlist"
             id: page
 
             property var parentId
@@ -332,6 +343,7 @@ QtObject {
     // recent videos of the media library ("Continue Watching")
     property Component recentPage: Component {
         SidebarListPage {
+            emptyIllustration: "video"
             id: page
 
             sortModel: [ { text: qsTr("Alphabetic"), criteria: "title" }, { text: qsTr("Duration"), criteria: "duration" } ]

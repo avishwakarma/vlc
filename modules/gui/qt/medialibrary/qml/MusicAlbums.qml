@@ -294,10 +294,13 @@ MainViewLoader {
     Component {
         id: emptyLabelComponent
 
-        Widgets.EmptyLabelButton {
-            text: qsTr("No albums found\nPlease try adding sources")
+        Widgets.EmptyState {
+            illustration: "music"
+            title: qsTr("No albums yet")
+            caption: qsTr("Add a folder with your media and it will show up here.")
+            action: "addFolder"
+            searchModel: root.model
             Navigation.parentItem: root
-            cover: VLCStyle.noArtAlbumCover
         }
     }
 }

@@ -425,6 +425,7 @@ FocusScope {
             mrlRole: "url"
             placeholderIcon: "video"
             emptyText: qsTr("The play queue is empty")
+            emptyIllustration: "queue"
             leadingActions: [ { text: qsTr("Add"), icon: "add", action: () => DialogsProvider.simpleOpenDialog() } ]
 
             moreEntries: [
@@ -447,6 +448,7 @@ FocusScope {
             id: page
 
             emptyText: qsTr("Recent items need the media library")
+            emptyIllustration: "video"
             model: ListModel {}
         }
     }

@@ -523,15 +523,17 @@ MainViewLoader {
     Component {
         id: emptyLabel
 
-        Widgets.EmptyLabelHint {
+        Widgets.EmptyState {
             visible: (model.count === 0)
-
             focus: true
-
-            text: qsTr("No playlists found")
-            hint: qsTr("Right click on a media\nto add it to a playlist")
-
-            cover: VLCStyle.noArtAlbumCover
+            illustration: "playlist"
+            title: qsTr("No playlists yet")
+            caption: qsTr("Right-click any media and choose Add to playlist, or create an empty one.")
+            action: ""
+            actionText: qsTr("New playlist")
+            onActionTriggered: DialogsProvider.newPlaylistDialog()
+            searchModel: root.model
+            Navigation.parentItem: root
         }
     }
 }

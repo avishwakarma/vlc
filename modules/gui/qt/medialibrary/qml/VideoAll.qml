@@ -246,16 +246,13 @@ MainViewLoader {
     Component {
         id: emptylabel
 
-        Widgets.EmptyLabelButton {
-            coverWidth : VLCStyle.dp(182, VLCStyle.scale)
-            coverHeight: VLCStyle.dp(114, VLCStyle.scale)
-
+        Widgets.EmptyState {
             focus: true
-
-            text: qsTr("No video found\nPlease try adding sources")
-
-            cover: VLCStyle.noArtVideoCover
-
+            illustration: "video"
+            title: qsTr("No videos yet")
+            caption: qsTr("Add a folder with your videos and they will show up here.")
+            action: "addFolder"
+            searchModel: root.model
             Navigation.parentItem: root
         }
     }
