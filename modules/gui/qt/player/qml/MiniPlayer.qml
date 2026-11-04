@@ -287,15 +287,12 @@ FocusScope {
                     width: parent.width
                     height: VLCStyle.dp(230, VLCStyle.scale)
 
-                    readonly property bool hovered: mediaHover.hovered || closeButton.hovered || popButton.hovered
-                                                    || prevButton.hovered || playButton.hovered || nextButton.hovered
-                                                    || seekArea.containsMouse || seekArea.pressed || previewHover.hovered
+                    // Single source of truth: the overlay is shown iff the pointer is inside the
+                    // preview (play area, including while over the overlay's own buttons), or a
+                    // keyboard focus is inside the overlay. Nothing else (seek bar, text, card) counts.
+                    readonly property bool hovered: previewHover.hovered
                     readonly property bool overlayVisible: hovered || root.activeFocus && (closeButton.visualFocus || popButton.visualFocus
                                                            || prevButton.visualFocus || playButton.visualFocus || nextButton.visualFocus)
-
-                    HoverHandler {
-                        id: mediaHover
-                    }
 
                     // preview
                     Rectangle {
@@ -427,18 +424,6 @@ FocusScope {
                             color: "transparent"
                             border.width: VLCStyle.dp(2, VLCStyle.scale)
                             border.color: sliderTheme.bg.primary
-                        }
-
-                        // Hover catcher above the live video. The VideoSurface accepts hover events
-                        // itself (even when disabled), which stops the hover delivery before it reaches
-                        // the HoverHandler on `media`. This item sits above it, always visible (an item
-                        // with opacity 0, like the overlay, receives no events), so hover is seen over video.
-                        Item {
-                            anchors.fill: parent
-
-                            HoverHandler {
-                                id: previewHover
-                            }
                         }
 
                         // hover overlay: dimmed art + controls
@@ -588,6 +573,23 @@ FocusScope {
                                 }
                             }
                         }
+
+                        // The one hover detector of the card. It is the topmost child of `preview`, which is
+                        // the visual parent of the video and of the overlay buttons, so it covers the whole play
+                        // area including the buttons. It is always visible (an item with opacity 0, like the
+                        // overlay, gets no events), above the VideoSurface (which accepts hover events even
+                        // when disabled), and never blocks: it has no button handlers, clicks go to the
+                        // buttons and to the TapHandler of `preview`.
+                        Item {
+                            anchors.fill: parent
+
+                            HoverHandler {
+                                id: previewHover
+
+                                blocking: false
+                                acceptedDevices: PointerDevice.Mouse | PointerDevice.Stylus
+                            }
+                        }
                     }
 
                     // seek bar: 16 high B2 track, played part inset by 2, thumb on hover
@@ -626,7 +628,7 @@ FocusScope {
                             radius: VLCStyle.radius_s
                             color: sliderTheme.accent
 
-                            opacity: media.overlayVisible ? 1.0 : 0.0
+                            opacity: (seekArea.containsMouse || seekArea.pressed) ? 1.0 : 0.0
                             Behavior on opacity {
                                 NumberAnimation { duration: VLCStyle.duration_short }
                             }
