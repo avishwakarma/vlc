@@ -321,12 +321,16 @@ Widgets.PageExt {
         }
     }
 
-    Widgets.EmptyLabelButton {
+    Widgets.EmptyState {
         anchors.centerIn: parent
 
         visible: !artistModel.loading && (artistModel.count <= 0)
         focus: visible
-        text: qsTr("No artists found\nPlease try adding sources")
+        illustration: "music"
+        title: qsTr("No artists yet")
+        caption: qsTr("Add a folder with your media and it will show up here.")
+        action: "addFolder"
+        searchModel: artistModel
         Navigation.parentItem: root
     }
 }

@@ -49,73 +49,24 @@ FocusScope {
         readonly property bool _canAddFolder: MainCtx.mediaLibraryAvailable
 
         visible: orientation === Qt.Vertical
-        implicitWidth: visible ? column.implicitWidth : 0
-        implicitHeight: visible ? column.implicitHeight : 0
+        implicitWidth: visible ? emptyState.implicitWidth : 0
+        implicitHeight: visible ? emptyState.implicitHeight : 0
 
-        readonly property ColorContext colorContext: ColorContext {
-            id: emptyTheme
-            colorSet: ColorContext.View
-        }
-
-        Column {
-            id: column
+        Widgets.EmptyState {
+            id: emptyState
 
             anchors.centerIn: parent
-            spacing: VLCStyle.margin_small
+            focus: true
 
-            Widgets.SvgIcon {
-                anchors.horizontalCenter: parent.horizontalCenter
-                name: "folder"
-                size: VLCStyle.icon_large
-                color: emptyTheme.fg.secondary
-            }
+            illustration: "library"
+            title: coneNButtons._canAddFolder ? qsTr("Your library is empty")
+                                              : qsTr("Nothing to show yet")
+            caption: coneNButtons._canAddFolder
+                     ? qsTr("Add a folder with your videos and music to get started.")
+                     : qsTr("Open a file to start playing.")
+            action: "addFolder"
 
-            Item { width: 1; height: VLCStyle.margin_xsmall }
-
-            Widgets.SubtitleLabel {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: coneNButtons._canAddFolder ? qsTr("Your library is empty")
-                                                 : qsTr("Nothing to show yet")
-                color: emptyTheme.fg.primary
-            }
-
-            Widgets.CaptionLabel {
-                anchors.horizontalCenter: parent.horizontalCenter
-                horizontalAlignment: Text.AlignHCenter
-                text: coneNButtons._canAddFolder
-                      ? qsTr("Add a folder with your videos and music to get started.")
-                      : qsTr("Open a file to start playing.")
-                color: emptyTheme.fg.secondary
-            }
-
-            Item { width: 1; height: VLCStyle.margin_normal }
-
-            Widgets.ActionButtonPrimary {
-                id: addButton
-
-                anchors.horizontalCenter: parent.horizontalCenter
-                focus: true
-
-                AccessibleCompat.id: "addMediaFolderButton"
-
-                text: coneNButtons._canAddFolder ? qsTr("Add media folder")
-                                                 : qsTr("Open File")
-
-                Navigation.parentItem: coneNButtons
-
-                onClicked: {
-                    if (!coneNButtons._canAddFolder) {
-                        DialogsProvider.simpleOpenDialog()
-                        return
-                    }
-                    const path = SettingsModel.pickDirectory("")
-                    if (!path)
-                        return
-                    const folders = SettingsModel.option("mlFolders")
-                    if (folders && folders.model)
-                        folders.model.add("file://" + encodeURI(path))
-                }
-            }
+            Navigation.parentItem: coneNButtons
         }
     }
 

@@ -611,6 +611,7 @@ endif
 
 qrc_files = files('assets.qrc')
 qrc_files += files('svgicons.qrc')
+qrc_files += files('emptystates.qrc')
 if host_system == 'windows'
   qrc_files += files('windows.qrc')
 endif
@@ -1043,6 +1044,7 @@ qml_modules += {
         'widgets/qml/ExpandGridView.qml',
         'widgets/qml/ExpandGridItemView.qml',
         'widgets/qml/EmptyLabel.qml',
+        'widgets/qml/EmptyState.qml',
         'widgets/qml/EmptyLabelButton.qml',
         'widgets/qml/EmptyLabelHint.qml',
         'widgets/qml/GridItem.qml',

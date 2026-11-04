@@ -220,17 +220,15 @@ Widgets.PageExt {
             Keys.onDeletePressed: onDelete()
         }
 
-        Widgets.EmptyLabelButton {
+        Widgets.EmptyState {
             anchors.centerIn: parent
 
             visible: !model.loading && (model.count <= 0)
-
             focus: visible
-
-            text: qsTr("No media found")
-
-            cover: root._placeHolder
-
+            illustration: "playlist"
+            title: qsTr("This playlist is empty")
+            caption: qsTr("Right-click any media and choose Add to playlist to fill it.")
+            searchModel: model
             Navigation.parentItem: root
         }
     }

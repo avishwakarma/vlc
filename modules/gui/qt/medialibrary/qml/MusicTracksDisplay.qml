@@ -91,13 +91,16 @@ Widgets.PageExt {
             fadingEdge.enableBeginningFade: root.enableBeginningFade
         }
 
-        Widgets.EmptyLabelButton {
+        Widgets.EmptyState {
             anchors.centerIn: parent
             visible: !tracklistdisplay_id.model.loading && (tracklistdisplay_id.model.count <= 0)
             focus: visible
-            text: qsTr("No tracks found\nPlease try adding sources")
+            illustration: "music"
+            title: qsTr("No tracks yet")
+            caption: qsTr("Add a folder with your media and it will show up here.")
+            action: "addFolder"
+            searchModel: tracklistdisplay_id.model
             Navigation.parentItem: root
-            cover: VLCStyle.noArtAlbumCover
         }
     }
 }
