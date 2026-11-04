@@ -26,6 +26,8 @@ import VLC.MainInterface
 import VLC.Widgets as Widgets
 import VLC.Util
 import VLC.Network
+import VLC.Menus
+import VLC.Dialogs
 
 FocusScope {
     id: root
@@ -130,6 +132,47 @@ FocusScope {
             playAt(index);
     }
 
+    // extra entries of the context menu: [{text, action: function(data)}]
+    property var contextActions: []
+
+    // N4: the same verbs on every kind of item
+    function showContextMenu(index, globalPos) {
+        const data = model.getDataAt(index)
+        if (!data)
+            return
+
+        const isFolder = data.type === NetworkMediaModel.TYPE_DIRECTORY
+                         || data.type === NetworkMediaModel.TYPE_NODE
+                         || data.type === NetworkMediaModel.TYPE_PLAYLIST
+        const entries = []
+
+        if (isFolder)
+            entries.push({ text: qsTr("Open"), action: () => root.browse(data.tree, Qt.MouseFocusReason) })
+        entries.push({ text: qsTr("Play"), action: () => root.playAt(index) })
+        entries.push({ text: qsTr("Add to Queue"), action: () => root.model.addToPlaylist(index) })
+
+        const mrl = (data.mrl ?? "").toString()
+        const mlFolders = SettingsModel.option("mlFolders")
+        if (isFolder && MainCtx.mediaLibraryAvailable && mlFolders?.model && mrl !== "" && mrl !== "vlc://nop")
+            entries.push({ text: qsTr("Add to Library"), action: () => mlFolders.model.add(mrl) })
+
+        for (const extra of root.contextActions)
+            entries.push({ text: extra.text, action: () => extra.action(data) })
+
+        contextMenu.entries = entries
+        contextMenu.popup(globalPos, entries.map((e) => e.text))
+    }
+
+    StringListMenu {
+        id: contextMenu
+
+        property var entries: []
+
+        ctx: MainCtx
+
+        onSelected: (index) => entries[index]?.action()
+    }
+
     function onClicked(model, index, modifier, select) {
         if (select)
             modelSelect.updateSelection(modifier, model.currentIndex, index)
@@ -210,6 +253,11 @@ FocusScope {
                 onItemDoubleClicked: root.onDoubleClicked(model, index)
 
                 onPlayClicked: root.playAt(index)
+
+                onContextMenuButtonClicked: (menuParent, globalPos) => {
+                    root.onClicked(model, index, Qt.NoModifier, true)
+                    root.showContextMenu(index, globalPos)
+                }
             }
         }
     }

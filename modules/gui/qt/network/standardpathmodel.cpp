@@ -121,6 +121,27 @@ public:
         std::list<UserPath> paths;
 
         assert(m_qmlInitializing == false);
+
+        if (m_serversMode)
+        {
+            for (const QVariant& entry : m_servers)
+            {
+                const QVariantMap map = entry.toMap();
+                const QUrl url(map.value(QStringLiteral("url")).toString());
+                if (!url.isValid() || url.scheme().isEmpty())
+                    continue;
+                QString name = map.value(QStringLiteral("name")).toString();
+                if (name.isEmpty())
+                    name = url.host().isEmpty() ? url.toString() : url.host();
+                addItem(url, name, {}, ITEM_NET);
+            }
+
+            ++m_revision;
+            m_loading = false;
+            emit q->loadingChanged();
+            return true;
+        }
+
         QString homePath = QVLCUserDir(VLC_HOME_DIR);
         //QVLCUserDir defaults to HomePath, make sure we only add it once
         bool homeAdded = false;
@@ -165,7 +186,11 @@ public:
 
     void addItem(const QString & path, const QString & name, const QString& artwork)
     {
-        QUrl url = QUrl::fromLocalFile(path);
+        addItem(QUrl::fromLocalFile(path), name, artwork, ITEM_LOCAL);
+    }
+
+    void addItem(const QUrl& url, const QString & name, const QString& artwork, input_item_net_type itemType)
+    {
 
         auto item = std::make_shared<StandardPathItem>();
 
@@ -174,7 +199,7 @@ public:
         item->protocol = url.scheme();
         item->type = NetworkDeviceModel::TYPE_DIRECTORY;
 
-        input_item_t * inputItem = input_item_NewDirectory(qtu(url.toString()), qtu(name), ITEM_LOCAL);
+        input_item_t * inputItem = input_item_NewDirectory(qtu(url.toString()), qtu(name), itemType);
         item->inputItem = SharedInputItem(inputItem, false);
 
         item->tree = MediaTreePtr(vlc_media_tree_New(), false);
@@ -204,8 +229,21 @@ public: //LocalListCacheLoader::ModelSource implementation
         return items;
     }
 
+    void reload()
+    {
+        Q_Q(StandardPathModel);
+        if (m_qmlInitializing)
+            return;
+        m_items.clear();
+        initializeModel();
+        invalidateCache();
+        Q_UNUSED(q);
+    }
+
 public:
     std::vector<StandardPathItemPtr> m_items;
+    bool m_serversMode = false;
+    QVariantList m_servers;
 };
 
 // Ctor / dtor
@@ -213,6 +251,39 @@ public:
 StandardPathModel::StandardPathModel(QObject * parent)
     : NetworkBaseModel(new StandardPathModelPrivate(this), parent)
 {
+}
+
+bool StandardPathModel::serversMode() const
+{
+    Q_D(const StandardPathModel);
+    return d->m_serversMode;
+}
+
+void StandardPathModel::setServersMode(bool enabled)
+{
+    Q_D(StandardPathModel);
+    if (d->m_serversMode == enabled)
+        return;
+    d->m_serversMode = enabled;
+    d->reload();
+    emit serversModeChanged();
+}
+
+QVariantList StandardPathModel::servers() const
+{
+    Q_D(const StandardPathModel);
+    return d->m_servers;
+}
+
+void StandardPathModel::setServers(const QVariantList& servers)
+{
+    Q_D(StandardPathModel);
+    if (d->m_servers == servers)
+        return;
+    d->m_servers = servers;
+    if (d->m_serversMode)
+        d->reload();
+    emit serversChanged();
 }
 
 // QAbstractItemModel implementation

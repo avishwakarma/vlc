@@ -22,6 +22,7 @@ import VLC.MainInterface
 import VLC.Player
 import VLC.Style
 import VLC.Widgets as Widgets
+import VLC.Menus as Menus
 import VLC.Util
 
 // Sidebar panel made of titled sections with a few rows each (Figma 1106:5633, "Home"):
@@ -52,6 +53,16 @@ SidebarPage {
 
     function setCurrentItemFocus(reason) {
         flick.forceActiveFocus(reason)
+    }
+
+    Menus.StringListMenu {
+        id: homeMenu
+
+        property var entries: []
+
+        ctx: MainCtx
+
+        onSelected: (index) => entries[index]?.action()
     }
 
     Flickable {
@@ -152,8 +163,8 @@ SidebarPage {
 
                                 text: section.modelData.title
                                 color: titleButton.hovered ? titleTheme.fg.highlight : titleTheme.fg.primary
-                                font.pixelSize: VLCStyle.text_heading
-                                font.weight: VLCStyle.fontWeight_regular
+                                font.pixelSize: VLCStyle.text_subtitle
+                                font.weight: VLCStyle.fontWeight_medium
                             }
 
                             Widgets.SvgIcon {
@@ -193,6 +204,19 @@ SidebarPage {
                             newKnown: !!section.modelData.newRole
                             mrl: _mrl
                             current: _mrl !== "" && _mrl === root.currentUrl
+
+                            onContextMenuRequested: (pos) => {
+                                const entries = [{ text: qsTr("Open"), action: () => section.modelData.activate(index, rowData()) }]
+                                if (section.modelData.remove)
+                                    entries.push({ text: qsTr("Remove Server"), action: () => section.modelData.remove(index, rowData()) })
+                                homeMenu.entries = entries
+                                homeMenu.popup(pos, entries.map((e) => e.text))
+                            }
+
+                            function rowData() {
+                                return { "index": index, "id": model.id, "type": model.type, "tree": model.tree,
+                                         "mrl": model.mrl, "name": model.name, "title": model.title }
+                            }
 
                             onClicked: section.modelData.activate(index, {
                                 "index": index, "id": model.id, "type": model.type, "tree": model.tree,

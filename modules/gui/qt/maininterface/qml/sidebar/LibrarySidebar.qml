@@ -311,7 +311,7 @@ FocusScope {
             PlaylistListModel { id: queue; playlist: MainPlaylistController.playlist }
 
             sections: [
-                { title: qsTr("Play Queue"), model: queue, limit: 8, thumbRole: "artwork", mrlRole: "url",
+                { title: qsTr("Queue"), model: queue, limit: 8, thumbRole: "artwork", mrlRole: "url",
                   placeholderIcon: "video",
                   activate: (i, row) => MainPlaylistController.goTo(i, true),
                   seeAll: () => root.showSection("playlists") }
@@ -327,17 +327,30 @@ FocusScope {
             id: networkHome
 
             StandardPathModel { id: folders }
+            ServerStore {
+                id: servers
+
+                onBrowseRequested: (tree) => root.push("browse", qsTr("Server"), { tree: tree })
+            }
             NetworkDeviceModel { id: lan; ctx: MainCtx; sd_source: NetworkDeviceModel.CAT_LAN; source_name: "*" }
             NetworkDeviceModel { id: internet; ctx: MainCtx; sd_source: NetworkDeviceModel.CAT_INTERNET; source_name: "*" }
 
-            leadingActions: [ { text: qsTr("Add Network Stream"), icon: "add", action: () => DialogsProvider.openNetDialog() } ]
+            leadingActions: [
+                { text: qsTr("Connect to Server…"), icon: "link", action: () => servers.connectDialog() },
+                { text: qsTr("Open Network Stream…"), icon: "add", action: () => DialogsProvider.openNetDialog() }
+            ]
 
             moreEntries: [
-                { text: qsTr("Add Network Stream"), icon: "streaming-twotone", action: () => DialogsProvider.openNetDialog() },
-                { text: qsTr("Open Folder"), icon: "new-folder-twotone", action: () => DialogsProvider.PLOpenDir() }
+                { text: qsTr("Connect to Server…"), icon: "link-twotone", action: () => servers.connectDialog() },
+                { text: qsTr("Open Network Stream…"), icon: "streaming-twotone", action: () => DialogsProvider.openNetDialog() },
+                { text: qsTr("Open Folder…"), icon: "new-folder-twotone", action: () => DialogsProvider.PLOpenDir() }
             ]
 
             sections: [
+                { title: qsTr("Servers"), model: servers.model, titleRole: "name", subtitleRole: "mrl",
+                  limit: 8, placeholderIcon: "streaming",
+                  activate: (i, row) => root.push("browse", row.name, { tree: row.tree }),
+                  remove: (i, row) => servers.remove((row.mrl ?? "").toString()) },
                 { title: qsTr("Folders"), model: folders, titleRole: "name", thumbRole: "artwork", limit: 8,
                   placeholderIcon: "folder",
                   activate: (i, row) => root.push("browse", row.name, { tree: row.tree }) },
@@ -374,6 +387,26 @@ FocusScope {
                 sortCriteria: page.sortCriteria
                 sortOrder: page.sortOrder
                 searchPattern: page.searchPattern
+            }
+
+            // N4: same verbs as everywhere
+            rowEntries: (index) => {
+                const data = model.getDataAt(index)
+                if (!data)
+                    return []
+                const isFolder = data.type === NetworkMediaModel.TYPE_DIRECTORY
+                                 || data.type === NetworkMediaModel.TYPE_NODE
+                                 || data.type === NetworkMediaModel.TYPE_PLAYLIST
+                const entries = []
+                if (isFolder)
+                    entries.push({ text: qsTr("Open"), action: () => root.push("browse", data.name, { tree: data.tree }) })
+                entries.push({ text: qsTr("Play"), action: () => model.addAndPlay(index) })
+                entries.push({ text: qsTr("Add to Queue"), action: () => model.addToPlaylist(index) })
+                const mrl = (data.mrl ?? "").toString()
+                const mlFolders = SettingsModel.option("mlFolders")
+                if (isFolder && root.mlAvailable && mlFolders?.model && mrl !== "" && mrl !== "vlc://nop")
+                    entries.push({ text: qsTr("Add to Library"), action: () => mlFolders.model.add(mrl) })
+                return entries
             }
 
             onActivated: (index, row) => {
@@ -424,14 +457,14 @@ FocusScope {
             subtitleRole: "artist"
             mrlRole: "url"
             placeholderIcon: "video"
-            emptyText: qsTr("The play queue is empty")
+            emptyText: qsTr("The queue is empty")
             emptyIllustration: "queue"
             leadingActions: [ { text: qsTr("Add"), icon: "add", action: () => DialogsProvider.simpleOpenDialog() } ]
 
             moreEntries: [
-                { text: qsTr("Add File"), icon: "add", action: () => DialogsProvider.simpleOpenDialog() },
-                { text: qsTr("Play Folder..."), icon: "new-folder-twotone", action: () => DialogsProvider.PLOpenDir() },
-                { text: qsTr("Save Playlist..."), icon: "save-twotone", action: () => DialogsProvider.savePlayingToPlaylist() },
+                { text: qsTr("Add File…"), icon: "add", action: () => DialogsProvider.simpleOpenDialog() },
+                { text: qsTr("Play Folder…"), icon: "new-folder-twotone", action: () => DialogsProvider.PLOpenDir() },
+                { text: qsTr("Save Queue as Playlist…"), icon: "save-twotone", action: () => DialogsProvider.savePlayingToPlaylist() },
                 { text: qsTr("Clear"), icon: "remove", action: () => MainPlaylistController.clear() }
             ]
 
@@ -447,7 +480,7 @@ FocusScope {
         SidebarListPage {
             id: page
 
-            emptyText: qsTr("Recent items need the media library")
+            emptyText: qsTr("Recent items need the library")
             emptyIllustration: "video"
             model: ListModel {}
         }

@@ -64,7 +64,7 @@ Widgets.PageExt {
 
     signal browse(var tree, int reason)
 
-    title: qsTr("Browse")
+    title: qsTr("Network")
 
     focus: true
 
@@ -93,7 +93,9 @@ Widgets.PageExt {
     }
 
     function setCurrentItemFocus(reason) {
-        if (foldersSection.visible)
+        if (serversSection.visible)
+            serversSection.setCurrentItemFocus(reason);
+        else if (foldersSection.visible)
             foldersSection.setCurrentItemFocus(reason);
         else if (computerSection.visible)
             computerSection.setCurrentItemFocus(reason);
@@ -108,15 +110,25 @@ Widgets.PageExt {
         colorSet: ColorContext.View
     }
 
+    // saved servers + "Connect to Server…" (R8)
+    ServerStore {
+        id: serverStore
+
+        onBrowseRequested: (tree) => root.browse(tree, Qt.MouseFocusReason)
+    }
+
     Widgets.EmptyState {
         anchors.centerIn: parent
 
-        visible: [foldersSection, computerSection, deviceSection, lanSection]
+        visible: [serversSection, foldersSection, computerSection, deviceSection, lanSection]
                  .every(section => !section.model.loading && section.model.count === 0)
 
         illustration: "network"
         title: qsTr("No network shares found")
-        caption: qsTr("Devices on your network appear here automatically. Make sure you are on the same network, or enter an address above.")
+        caption: qsTr("Devices on your network appear here automatically. Make sure you are on the same network, or connect to a server by its address.")
+        actionText: qsTr("Connect to Server…")
+
+        onActionTriggered: serverStore.connectDialog()
     }
 
     Flickable {
@@ -200,12 +212,62 @@ Widgets.PageExt {
             Navigation.parentItem: root
             Navigation.upItem: root.header
 
+            Item {
+                // header row: "Connect to Server…"
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: connectButton.implicitHeight + VLCStyle.margin_normal
+
+                Widgets.ButtonExt {
+                    id: connectButton
+
+                    x: foldersSection.contentLeftMargin
+                    y: 0
+
+                    iconName: "link"
+                    text: qsTr("Connect to Server…")
+                    buttonStyle: Widgets.ButtonExt.Secondary
+                    leftPadding: VLCStyle.spacing_12
+                    rightPadding: VLCStyle.spacing_12
+                    topPadding: VLCStyle.spacing_8
+                    bottomPadding: VLCStyle.spacing_8
+
+                    Accessible.name: text
+
+                    onClicked: serverStore.connectDialog()
+                }
+            }
+
+            HomeDeviceTitle {
+                view: serversSection
+
+                text: qsTr("Servers")
+
+                topPadding: 0
+
+                anchors.left: parent.left
+                anchors.right: parent.right
+            }
+
+            HomeDeviceView {
+                id: serversSection
+
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                model: serverStore.model
+
+                contextActions: [{
+                    text: qsTr("Remove Server"),
+                    action: (data) => serverStore.remove((data.mrl ?? "").toString())
+                }]
+            }
+
             HomeDeviceTitle {
                 view: foldersSection
 
                 text: qsTr("Folders")
 
-                topPadding: 0
 
                 anchors.left: parent.left
                 anchors.right: parent.right
