@@ -394,6 +394,9 @@ QStringList VLCHotkeyCaps( const QString& vlcKey )
     const uint32_t code = vlc_str2keycode( qPrintable( vlcKey ) );
     if( code == KEY_UNSET )
         return {};
+    const uint32_t wheel = code & ~KEY_MODIFIER;
+    if( wheel >= KEY_MOUSEWHEELUP && wheel <= KEY_MOUSEWHEELRIGHT ) /* not a keyboard shortcut */
+        return {};
     QStringList caps;
 #ifdef __APPLE__
     if( code & KEY_MODIFIER_CTRL )    caps << QStringLiteral("\u2303");
