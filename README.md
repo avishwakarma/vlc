@@ -10,6 +10,25 @@
 > This fork was inspired by Juxtopposed's video about the redesign:
 > https://www.youtube.com/watch?v=ERFeOgqk324
 
+## Why this fork exists
+
+It started with a YouTube video.
+
+[Juxtopposed](https://juxtopposed.com) put a lot of effort into redesigning VLC, to make our
+beloved media player look modern and become easier to use. You can watch it
+[here](https://www.youtube.com/watch?v=ERFeOgqk324).
+
+After watching it, I had one thought.
+
+Wait, I am a software engineer. This is what I do for a living.
+
+And now we have Claude Code as well. So it does not hurt to try.
+
+This fork is that try. The design is hers. The implementation is built on top of the
+Qt interface of VLC 4.0, with Claude Code doing a lot of the heavy lifting.
+
+It is unofficial and unsigned, and it will have rough edges. Issues are welcome.
+
 ## Download VLC Redesign (unofficial)
 
 | Platform | Download | Requirements |
