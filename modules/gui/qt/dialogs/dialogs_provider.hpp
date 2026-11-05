@@ -199,6 +199,8 @@ private:
     bool b_isDying;
 
     void openDialog( OpenDialog::OpenTab );
+    /// shows the QML Open (advanced) dialog (tab / action = OpenDialog::OpenTab / ActionFlag) when it is enabled
+    bool openAdvanced( int tab, int action );
 
     template<typename T>
     inline void ensureDialog(std::unique_ptr<T>& dialog);
@@ -319,6 +321,8 @@ signals:
     void showOnboarding();
     /// QML form dialogs (dialogs/forms), enabled with qt-qml-settings
     void showOpenNetworkStream();
+    /// Open (advanced): tab 0 File, 1 Disc, 2 Network, 3 Capture; action 0 Play, 1 Enqueue, 2 Stream, 3 Convert
+    void showOpenAdvanced(int tab, int action);
     void showNewPlaylist();
     void showKeyboardShortcuts();
     void showAddSubtitles();

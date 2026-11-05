@@ -138,6 +138,7 @@ libqt_plugin_la_SOURCES = \
 	dialogs/messages/messages.cpp dialogs/messages/messages.hpp \
 	dialogs/messages/messages_model.cpp dialogs/messages/messages_model.hpp \
 	dialogs/open/open.cpp dialogs/open/open.hpp \
+	dialogs/open/open_advanced.cpp dialogs/open/open_advanced.hpp \
 	dialogs/open/open_panels.cpp dialogs/open/open_panels.hpp \
 	dialogs/open/openurl.cpp dialogs/open/openurl.hpp \
 	dialogs/plugins/plugins.cpp dialogs/plugins/plugins.hpp \
@@ -443,6 +444,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	dialogs/messages/messages.moc.cpp \
 	dialogs/messages/messages_model.moc.cpp \
 	dialogs/open/open.moc.cpp \
+	dialogs/open/open_advanced.moc.cpp \
 	dialogs/open/open_panels.moc.cpp \
 	dialogs/open/openurl.moc.cpp \
 	dialogs/plugins/plugins.moc.cpp \
@@ -1093,6 +1095,8 @@ libqml_module_dialogs_a_QML = \
 	dialogs/forms/qml/DialogDropdown.qml \
 	dialogs/forms/qml/NewPlaylist.qml \
 	dialogs/forms/qml/OpenNetworkStream.qml \
+	dialogs/forms/qml/NetworkStreamForm.qml \
+	dialogs/forms/qml/OpenAdvanced.qml \
 	dialogs/forms/qml/DialogTextArea.qml \
 	dialogs/forms/qml/DialogHeading.qml \
 	dialogs/forms/qml/KeyChip.qml \

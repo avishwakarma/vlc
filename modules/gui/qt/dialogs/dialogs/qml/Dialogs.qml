@@ -664,6 +664,22 @@ Item {
         }
     }
 
+    // Open Media (advanced): File / Disc / Network / Capture Device tabs (replaces the OpenDialog widget)
+    Loader {
+        id: openAdvancedLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/OpenAdvanced.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowOpenAdvanced(tab, action) {
+                openAdvancedLoader.active = true
+                openAdvancedLoader.item.present(tab, action)
+            }
+        }
+    }
+
     Loader {
         id: newPlaylistLoader
         active: false
