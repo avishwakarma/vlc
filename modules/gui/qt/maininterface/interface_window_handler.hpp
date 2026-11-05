@@ -78,6 +78,8 @@ protected:
     qt_intf_t* p_intf = nullptr;
     QPointer<QWindow> m_window;
     QPointer<QQuickWindow> m_quickWindow;
+    // macOS global menu bar; deleted with this handler, before the media library goes away
+    QPointer<QObject> m_macMenuBar;
 
     MainCtx* m_mainCtx = nullptr;
 

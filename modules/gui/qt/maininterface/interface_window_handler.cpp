@@ -259,6 +259,10 @@ InterfaceWindowHandler::InterfaceWindowHandler(qt_intf_t *_p_intf, MainCtx* main
 
 InterfaceWindowHandler::~InterfaceWindowHandler()
 {
+    // The menu bar's Open Recent menu holds a media library model: delete it now, a deferred
+    // deleteLater would run after the media library is gone and crash on quit.
+    delete m_macMenuBar.data();
+
     m_window->removeEventFilter(this);
     if (m_quickWindow)
         m_quickWindow->removeEventFilter(this);
@@ -289,7 +293,7 @@ void InterfaceWindowHandler::createMacApplicationMenu()
     if (!qobject_cast<QApplication *>(QCoreApplication::instance()))
         return;
     auto *bar = new QMenuBar(nullptr);
-    connect(this, &QObject::destroyed, bar, &QObject::deleteLater); // lifetime
+    m_macMenuBar = bar; // deleted in the destructor
     QMetaObject::invokeMethod(this, [this, bar]() { VLCMenuBar::MacMenuBar(p_intf, bar); },
                               Qt::QueuedConnection);
 }
