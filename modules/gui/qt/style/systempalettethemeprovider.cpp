@@ -219,6 +219,17 @@ static int updatePalette(vlc_qt_theme_provider_t* obj)
         setQtColor(obj, CS, VQTC_SECTION_DECORATION, VQTC_NAME_VISUAL_FOCUS, VQTC_STATE_NORMAL, visualFocus);
         setQtColor(obj, CS, VQTC_SECTION_DECORATION,  VQTC_NAME_SEPARATOR, VQTC_STATE_NORMAL, separator);
         setQtColor(obj, CS, VQTC_SECTION_DECORATION,  VQTC_NAME_SHADOW, VQTC_STATE_NORMAL,shadow );
+
+        // emphasised text (titles, current item) is the strongest text colour of the view
+        setQtColorSetFg(obj, CS, VQTC_NAME_HIGHLIGHT, QPalette::Text);
+
+        // status colours used inside views (errors, warnings, success)
+        setQtColor(obj, CS, VQTC_SECTION_BG, VQTC_NAME_NEGATIVE, VQTC_STATE_NORMAL, negative);
+        setQtColor(obj, CS, VQTC_SECTION_FG, VQTC_NAME_NEGATIVE, VQTC_STATE_NORMAL, textOnNegative);
+        setQtColor(obj, CS, VQTC_SECTION_BG, VQTC_NAME_NEUTRAL, VQTC_STATE_NORMAL, neutral);
+        setQtColor(obj, CS, VQTC_SECTION_FG, VQTC_NAME_NEUTRAL, VQTC_STATE_NORMAL, textOnNeutral);
+        setQtColor(obj, CS, VQTC_SECTION_BG, VQTC_NAME_POSITIVE, VQTC_STATE_NORMAL, positive);
+        setQtColor(obj, CS, VQTC_SECTION_FG, VQTC_NAME_POSITIVE, VQTC_STATE_NORMAL, textOnPositive);
     }
 
     {
