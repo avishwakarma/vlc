@@ -63,3 +63,6 @@ static-lib/
 !buildsystem/
 !build.rs
 !extras/package/apple/build.sh
+
+# VLC Redesign fork: local working notes, specs, screenshots and test media
+/.redesign/

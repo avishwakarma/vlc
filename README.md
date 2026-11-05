@@ -10,6 +10,29 @@
 > This fork was inspired by Juxtopposed's video about the redesign:
 > https://www.youtube.com/watch?v=ERFeOgqk324
 
+## Download VLC Redesign (unofficial)
+
+| Platform | Download | Requirements |
+| --- | --- | --- |
+| macOS | [VLC-Redesign-unofficial-arm64.dmg](https://github.com/avishwakarma/vlc/releases/latest/download/VLC-Redesign-unofficial-arm64.dmg) | macOS 14 Sonoma or later, Apple Silicon |
+| Windows (beta) | [VLC-Redesign-unofficial-win64.zip](https://github.com/avishwakarma/vlc/releases/latest/download/VLC-Redesign-unofficial-win64.zip) | Windows 10 or later, 64-bit |
+
+Older versions and release notes are on the [Releases page](https://github.com/avishwakarma/vlc/releases).
+
+The app is called **VLC Redesign (unofficial)**. It keeps its own settings and library, so it can be
+installed next to the official VLC without touching it.
+
+The builds are **not signed**, so your system will warn you the first time you open them:
+
+- **macOS:** open the DMG and drag the app to Applications. Open it once; when macOS blocks it, go to
+  **System Settings → Privacy & Security** and click **Open Anyway**.
+- **Windows:** unzip the folder anywhere and run `vlc.exe`. If SmartScreen shows "Windows protected
+  your PC", click **More info → Run anyway**.
+
+This is a personal project, not a VideoLAN release. Please report problems with the redesign on
+[this fork's issue tracker](https://github.com/avishwakarma/vlc/issues), not to VideoLAN.
+The redesign's source code is on the `redesign/main` branch of this repository.
+
 **VLC** is a libre and open source **media player** and **multimedia engine**,
 focused on **playing everything**, and **running everywhere**.
 
@@ -18,7 +41,7 @@ convert, encode, **stream** and manipulate streams into numerous formats.
 
 VLC is used by many over the world, on numerous platforms, for very different use cases.
 
-The **engine of VLC** can be embedded into 3rd party applications, and is called *libVLC*.
+The **engine of VLC** can be embedded into 3rd party applications, and is called _libVLC_.
 
 **VLC** is part of the [VideoLAN project](https://videolan.org) and
 is developed and supported by a community of volunteers.
@@ -29,21 +52,22 @@ been downloaded **billions** of times.
 
 ## License
 
-**VLC** is released under the GPLv2 *(or later)* license.
-*On some platforms, it is de facto GPLv3, because of the licenses of dependencies*.
+**VLC** is released under the GPLv2 _(or later)_ license.
+_On some platforms, it is de facto GPLv3, because of the licenses of dependencies_.
 
-**libVLC**, the engine is released under the LGPLv2 *(or later)* license. \
+**libVLC**, the engine is released under the LGPLv2 _(or later)_ license. \
 This allows embedding the engine in 3rd party applications, while letting them to be licensed under other licenses.
 
 # Platforms
 
 VLC is available for the following platforms:
-- [Windows] *(from 7 and later, including UWP platforms and all versions of Windows 10)*
-- [macOS] *(10.10 and later)*
+
+- [Windows] _(from 7 and later, including UWP platforms and all versions of Windows 10)_
+- [macOS] _(10.10 and later)_
 - [GNU/Linux] and affiliated
 - [BSD] and affiliated
-- [Android] *(4.2 and later)*, including Android TV and Android Auto
-- [iOS] *(9 and later)*, including AppleTV and iPadOS
+- [Android] _(4.2 and later)_, including Android TV and Android Auto
+- [iOS] _(9 and later)_, including AppleTV and iPadOS
 - Haiku, OS/2 and a few others.
 
 [Windows]: https://www.videolan.org/vlc/download-windows.html
@@ -72,6 +96,7 @@ Other repositories linked to vlc are done in languages including Kotlin/Java [(A
 Swift [(iOS)](https://code.videolan.org/videolan/vlc-ios/), and C# [(libVLCSharp)](https://code.videolan.org/videolan/libvlcsharp/).
 
 We need help with the following tasks:
+
 - Coding
 - Packaging for Windows, macOS and Linux distributions
 - Technical writing for the documentation
@@ -81,7 +106,7 @@ We need help with the following tasks:
 
 Please contribute :)
 
-We are on IRC. You can find us on the **#videolan** channel on *[Libera.chat]*.
+We are on IRC. You can find us on the **#videolan** channel on _[Libera.chat]_.
 
 [Libera.chat]: https://libera.chat
 
@@ -95,9 +120,8 @@ CI and discussions should be resolved before a Merge Request can be merged.
 
 **libVLC** is an embeddable engine for 3rd party applications and frameworks.
 
-It runs on the same platforms as VLC *(and sometimes on more)* and can provide playback,
+It runs on the same platforms as VLC _(and sometimes on more)_ and can provide playback,
 streaming and conversion of multimedia files and streams.
-
 
 **libVLC** has numerous bindings for other languages, such as C++, Python and C#.
 
@@ -117,6 +141,7 @@ Some useful links that might help you:
 - [VideoLAN web site](https://www.videolan.org/)
 
 ## Source Code sitemap
+
 ```
 ABOUT-NLS          - Notes on the Free Translation Project.
 AUTHORS            - VLC authors.
