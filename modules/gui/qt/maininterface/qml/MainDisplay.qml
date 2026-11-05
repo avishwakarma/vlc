@@ -322,7 +322,10 @@ FocusScope {
             implicitWidth: stackView.implicitWidth
             implicitHeight: stackView.implicitHeight
 
-            color: paneTheme.bg.primary
+            // opaque, so that it is exactly the colour of the opaque page headers drawn on top of
+            // it (the Pane colour is slightly translucent; in light mode the difference showed as
+            // lighter patches at the top of the pages)
+            color: Qt.alpha(paneTheme.bg.primary, 1.0)
 
             // The miniplayer card draws its own opaque surface (it has no height in the layout, so
             // the frosted strip would be empty); the effect is only kept for the update pane.
