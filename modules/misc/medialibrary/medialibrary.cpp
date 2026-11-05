@@ -45,7 +45,11 @@
 
 #include <algorithm>
 #include <atomic>
-#include <dlfcn.h>
+#ifdef _WIN32
+# include <windows.h>
+#else
+# include <dlfcn.h>
+#endif
 #include <sstream>
 #include <initializer_list>
 
@@ -439,9 +443,15 @@ MediaLibrary* MediaLibrary::create( vlc_medialibrary_module_t* vlc_ml )
     /* libmedialibrary's static Log::s_logger is destroyed at process exit and
      * calls Logger's (this module's) destructor. VLC dlcloses plugins before
      * that, which crashed on every quit: pin this module in memory. */
+#ifdef _WIN32
+    HMODULE self;
+    GetModuleHandleExW( GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
+                        reinterpret_cast<LPCWSTR>( &MediaLibrary::create ), &self );
+#else
     Dl_info info;
     if ( dladdr( reinterpret_cast<void*>( &MediaLibrary::create ), &info ) && info.dli_fname )
         dlopen( info.dli_fname, RTLD_LAZY | RTLD_NODELETE );
+#endif
 
     msg_Dbg(VLC_OBJECT(vlc_ml), "Opening medialibrary from %s, db at %s",
             dbPath.c_str(), mlFolderPath.c_str());
