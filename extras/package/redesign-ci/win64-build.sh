@@ -49,5 +49,6 @@ export CONFIGFLAGS="${CONFIGFLAGS:-} --enable-redesign-branding"
 
 extras/package/win32/build.sh -a x86_64 -p
 # Stage the binaries like upstream's packaging does (win64/vlc-<version>/)
+export PATH="$REPO/extras/tools/build/bin:$PATH"
 make -C "$BUILD_DIR" package-win-common
 "$REPO/extras/package/redesign-ci/win64-package.sh" "$BUILD_DIR" "${OUT_DIR:-$REPO/dist}"
