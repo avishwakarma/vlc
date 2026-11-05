@@ -61,6 +61,7 @@
 #include "dialogs/firstrun/firstrunwizard.hpp"
 
 #include <vlc_url.h>
+#include <utility>
 
 #include <QEvent>
 #include <QApplication>
@@ -305,6 +306,22 @@ void DialogsProvider::openDebugForm()
         emit showKeyboardShortcuts();
     else if (form == QLatin1String("subtitles"))
         emit showAddSubtitles();
+    else if (form == QLatin1String("mediainfo"))
+        mediaInfoDialog();
+    else if (form == QLatin1String("codec"))
+        mediaCodecDialog();
+    else if (form == QLatin1String("mediastats"))
+        emit showMediaInfo(2, false);
+    else if (form == QLatin1String("goto"))
+        gotoTimeDialog();
+    else if (form == QLatin1String("bookmarks2"))
+        emit showBookmarks(1);
+    else if (form == QLatin1String("bookmarks"))
+        bookmarksDialog();
+    else if (form == QLatin1String("messages"))
+        messagesDialog();
+    else if (form == QLatin1String("addtoplaylist"))
+        { m_playlistMedias.clear(); emit showAddToPlaylist(0); }
 }
 
 void DialogsProvider::prefsDialog()
@@ -389,6 +406,11 @@ void DialogsProvider::synchroDialog()
 
 void DialogsProvider::messagesDialog(int page)
 {
+    if (useQmlForms())
+    {
+        emit showMessages();
+        return;
+    }
     ensureDialog(m_messagesDialog);
     if(!m_messagesDialog->isVisible() || page)
         m_messagesDialog->showTab(page);
@@ -398,6 +420,11 @@ void DialogsProvider::messagesDialog(int page)
 
 void DialogsProvider::gotoTimeDialog()
 {
+    if (useQmlForms())
+    {
+        emit showGoToTime();
+        return;
+    }
     toggleDialogVisible(m_gotoTimeDialog);
 }
 
@@ -439,8 +466,25 @@ void DialogsProvider::aboutDialog()
     toggleDialogVisible(m_aboutDialog);
 }
 
+bool DialogsProvider::useQmlForms() const
+{
+    /* the QML dialogs need the main interface (Dialogs.qml) */
+    return p_intf->p_mi && var_InheritBool(p_intf, "qt-qml-settings");
+}
+
+SharedInputItem DialogsProvider::takeMediaInfoItem()
+{
+    return std::exchange(m_infoItem, SharedInputItem{});
+}
+
 void DialogsProvider::mediaInfoDialog( void )
 {
+    if (useQmlForms())
+    {
+        m_infoItem.reset();
+        emit showMediaInfo(0, true);
+        return;
+    }
     ensureDialog(m_mediaInfoDialog);
     if( !m_mediaInfoDialog->isVisible() || m_mediaInfoDialog->currentTab() != MediaInfoDialog::META_PANEL )
         m_mediaInfoDialog->showTab( MediaInfoDialog::META_PANEL );
@@ -451,6 +495,13 @@ void DialogsProvider::mediaInfoDialog( void )
 void DialogsProvider::mediaInfoDialog( const SharedInputItem& inputItem )
 {
     assert(inputItem.get());
+
+    if (useQmlForms())
+    {
+        m_infoItem = inputItem;
+        emit showMediaInfo(0, false);
+        return;
+    }
 
     MediaInfoDialog * const mid = new MediaInfoDialog( p_intf, inputItem );
     mid->setWindowFlag( Qt::Dialog );
@@ -545,6 +596,12 @@ bool DialogsProvider::questionDialog(const QString& text, const QString &title) 
 
 void DialogsProvider::mediaCodecDialog()
 {
+    if (useQmlForms())
+    {
+        m_infoItem.reset();
+        emit showMediaInfo(1, true);
+        return;
+    }
     ensureDialog(m_mediaInfoDialog);
 
     if( !m_mediaInfoDialog->isVisible() || m_mediaInfoDialog->currentTab() != MediaInfoDialog::INFO_PANEL )
@@ -597,6 +654,12 @@ QMessageBox::StandardButton DialogsProvider::messageDialog(const QString &text,
 
 void DialogsProvider::playlistsDialog( const QVariantList & medias, MLPlaylistListModel::PlaylistType type )
 {
+    if (useQmlForms())
+    {
+        m_playlistMedias = medias;
+        emit showAddToPlaylist(int(type));
+        return;
+    }
     const auto dialog = new PlaylistsDialog(p_intf, medias, type);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show(); // "Modeless dialogs are displayed using show()"
@@ -604,6 +667,11 @@ void DialogsProvider::playlistsDialog( const QVariantList & medias, MLPlaylistLi
 
 void DialogsProvider::bookmarksDialog()
 {
+    if (useQmlForms())
+    {
+        emit showBookmarks(-1);
+        return;
+    }
     toggleDialogVisible(m_bookmarkDialog);
 }
 

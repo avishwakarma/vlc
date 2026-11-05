@@ -386,3 +386,68 @@ int DialogForms::assignToQueue(const QVariantList& pairs)
 
     return updated;
 }
+
+// --- Go to Time
+
+qint64 DialogForms::currentTimeMs() const
+{
+    if (!m_ctx)
+        return 0;
+    qt_intf_t* p_intf = m_ctx->getIntf();
+    return THEMIM->getTime().toMilliseconds();
+}
+
+qint64 DialogForms::lengthMs() const
+{
+    if (!m_ctx)
+        return 0;
+    qt_intf_t* p_intf = m_ctx->getIntf();
+    return THEMIM->getLength().toMilliseconds();
+}
+
+void DialogForms::seekToMs(qint64 ms)
+{
+    if (!m_ctx)
+        return;
+    qt_intf_t* p_intf = m_ctx->getIntf();
+    THEMIM->setTime(VLCTime(VLC_TICK_FROM_MS(ms)));
+}
+
+// --- Add to Playlist
+
+QObject* DialogForms::playlistModel()
+{
+    if (!m_playlistModel && m_ctx && m_ctx->hasMediaLibrary())
+    {
+        m_playlistModel = new MLPlaylistListModel(this);
+        m_playlistModel->setMl(m_ctx->getMediaLibrary());
+        connect(m_playlistModel, &MLPlaylistListModel::transactionPendingChanged,
+                this, &DialogForms::playlistBusyChanged);
+    }
+    return m_playlistModel;
+}
+
+bool DialogForms::playlistBusy() const
+{
+    return m_playlistModel && m_playlistModel->transactionPending();
+}
+
+int DialogForms::takePlaylistMedias()
+{
+    m_playlistMedias = DialogsProvider::getInstance()->takePlaylistMedias();
+    return m_playlistMedias.count();
+}
+
+void DialogForms::addToPlaylist(int row)
+{
+    if (!playlistModel() || m_playlistMedias.isEmpty())
+        return;
+    m_playlistModel->append(m_playlistModel->getItemId(row), m_playlistMedias);
+}
+
+void DialogForms::addToNewPlaylist(const QString& name)
+{
+    if (!playlistModel() || m_playlistMedias.isEmpty() || name.trimmed().isEmpty())
+        return;
+    m_playlistModel->create(name.trimmed(), m_playlistMedias);
+}

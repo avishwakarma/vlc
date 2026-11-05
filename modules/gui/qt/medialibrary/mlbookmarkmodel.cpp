@@ -302,6 +302,16 @@ void MLBookmarkModel::remove( const QModelIndexList &indexes )
     });
 }
 
+void MLBookmarkModel::removeBookmark( int row )
+{
+    remove( { index( row, 0 ) } );
+}
+
+void MLBookmarkModel::selectRow( int row )
+{
+    select( index( row, 0 ) );
+}
+
 void MLBookmarkModel::clear()
 {
     if (m_currentMediaId == 0)
@@ -424,6 +434,7 @@ void MLBookmarkModel::updateMediaId(uint64_t revision, const QString &mediaUri)
             m_currentMediaId = ctx.newMLid;
             refresh(MLBOOKMARKMODEL_REFRESH);
             endResetModel();
+            emit availableChanged();
         }
     });
 }

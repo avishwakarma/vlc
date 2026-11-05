@@ -29,6 +29,7 @@
 #endif
 
 #include <cassert>
+#include <utility>
 
 #include "qt.hpp"
 
@@ -182,6 +183,8 @@ private:
     std::unique_ptr<HelpDialog> m_helpDialog;
     std::unique_ptr<AboutDialog> m_aboutDialog;
     std::unique_ptr<MediaInfoDialog> m_mediaInfoDialog;
+    SharedInputItem m_infoItem;
+    QVariantList m_playlistMedias;
     std::unique_ptr<BookmarksDialog> m_bookmarkDialog;
     std::unique_ptr<PodcastConfigDialog> m_podcastDialog;
     std::unique_ptr<PluginDialog> m_pluginDialog;
@@ -228,6 +231,12 @@ public slots:
     /* debug aid: VLC_QT_OPEN_FORM=network|playlist|shortcuts|subtitles opens a form dialog (design comparison) */
     Q_INVOKABLE QString debugFormRequest() const;
     Q_INVOKABLE void openDebugForm();
+    /// QML dialogs replace the widgets when the main interface is there (qt-qml-settings)
+    bool useQmlForms() const;
+    /// item of the pending QML Media Information request (null: show the playing media)
+    SharedInputItem takeMediaInfoItem();
+    /// media ids of the pending QML Add to Playlist request
+    QVariantList takePlaylistMedias() { return std::exchange(m_playlistMedias, QVariantList{}); }
     /* true once if the QML onboarding was requested (the QML side may not be loaded yet) */
     Q_INVOKABLE bool takeOnboardingRequest();
     void extendedDialog();
@@ -313,6 +322,13 @@ signals:
     void showNewPlaylist();
     void showKeyboardShortcuts();
     void showAddSubtitles();
+    /// tab: 0 General, 1 Tracks, 2 Statistics. toggle: close when already showing that tab
+    void showMediaInfo(int tab, bool toggle);
+    void showGoToTime();
+    /// tab: 0 chapters, 1 bookmarks, -1 chapters when the media has some
+    void showBookmarks(int tab);
+    void showMessages();
+    void showAddToPlaylist(int playlistType);
 
     //visiblity signal
     void openDialogVisibleChanged();

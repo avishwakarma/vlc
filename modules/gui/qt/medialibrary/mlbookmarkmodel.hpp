@@ -78,9 +78,17 @@ public:
     MediaLib* ml() const;
     void setMl(MediaLib* ml);
 
-    void add();
+    Q_INVOKABLE void add();
     void remove( const QModelIndexList& indexes );
-    void clear();
+    Q_INVOKABLE void removeBookmark( int row );
+    Q_INVOKABLE void clear();
+    Q_INVOKABLE void selectRow( int row );
+    /// the model is bound to a media of the library (bookmarks can be created)
+    Q_PROPERTY(bool available READ available NOTIFY availableChanged FINAL)
+    bool available() const { return m_currentMediaId != 0; }
+signals:
+    void availableChanged();
+public:
     Q_INVOKABLE void select( const QModelIndex& index );
 
 private:

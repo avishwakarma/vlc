@@ -97,11 +97,35 @@ public:
      */
     Q_INVOKABLE int assignToQueue(const QVariantList& pairs);
 
+    // --- Go to Time
+
+    /** playing time / length in ms (length 0 when unknown), and the jump */
+    Q_INVOKABLE qint64 currentTimeMs() const;
+    Q_INVOKABLE qint64 lengthMs() const;
+    Q_INVOKABLE void seekToMs(qint64 ms);
+
+    // --- Add to Playlist
+
+    /** the media library playlists (MLPlaylistListModel; roles id, name, count, thumbnail...) */
+    Q_PROPERTY(QObject* playlistModel READ playlistModel NOTIFY ctxChanged FINAL)
+    Q_PROPERTY(bool playlistBusy READ playlistBusy NOTIFY playlistBusyChanged FINAL)
+    QObject* playlistModel();
+    bool playlistBusy() const;
+    /** takes the media ids of the pending Add to Playlist request (DialogsProvider) */
+    Q_INVOKABLE int takePlaylistMedias();
+    /** appends the pending media to the playlist at `row` of playlistModel */
+    Q_INVOKABLE void addToPlaylist(int row);
+    /** creates a playlist with the pending media */
+    Q_INVOKABLE void addToNewPlaylist(const QString& name);
+
 signals:
     void ctxChanged();
+    void playlistBusyChanged();
 
 private:
     MainCtx* m_ctx = nullptr;
+    class MLPlaylistListModel* m_playlistModel = nullptr;
+    QVariantList m_playlistMedias;
 };
 
 #endif

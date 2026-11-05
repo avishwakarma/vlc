@@ -727,6 +727,83 @@ Item {
         }
     }
 
+    // legacy widget dialogs replaced by QML (Media Information, Go to Time, Chapters and Bookmarks,
+    // Add to Playlist, Messages), routed by DialogsProvider
+    Loader {
+        id: mediaInfoLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/MediaInfo.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowMediaInfo(tab, toggle) {
+                mediaInfoLoader.active = true
+                mediaInfoLoader.item.present(tab, toggle)
+            }
+        }
+    }
+
+    Loader {
+        id: goToTimeLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/GoToTime.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowGoToTime() {
+                goToTimeLoader.active = true
+                goToTimeLoader.item.present()
+            }
+        }
+    }
+
+    Loader {
+        id: bookmarksLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/Bookmarks.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowBookmarks(tab) {
+                bookmarksLoader.active = true
+                bookmarksLoader.item.present(tab)
+            }
+        }
+    }
+
+    Loader {
+        id: addToPlaylistLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/AddToPlaylist.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowAddToPlaylist(playlistType) {
+                addToPlaylistLoader.active = true
+                addToPlaylistLoader.item.present()
+            }
+        }
+    }
+
+    Loader {
+        id: messagesLoader
+        active: false
+        source: "qrc:///qt/qml/VLC/Dialogs/Messages.qml"
+
+        Connections {
+            target: DialogsProvider
+
+            function onShowMessages() {
+                messagesLoader.active = true
+                messagesLoader.item.present()
+            }
+        }
+    }
+
     // debug aid: VLC_QT_OPEN_FORM opens a form dialog at start-up (see DialogsProvider::openDebugForm)
     Timer {
         interval: 1500

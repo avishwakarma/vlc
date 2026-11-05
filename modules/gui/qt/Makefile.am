@@ -134,7 +134,9 @@ libqt_plugin_la_SOURCES = \
 	dialogs/mediainfo/info_panels.cpp dialogs/mediainfo/info_panels.hpp \
 	dialogs/mediainfo/info_widgets.cpp dialogs/mediainfo/info_widgets.hpp \
 	dialogs/mediainfo/mediainfo.cpp dialogs/mediainfo/mediainfo.hpp \
+	dialogs/mediainfo/mediainfo_model.cpp dialogs/mediainfo/mediainfo_model.hpp \
 	dialogs/messages/messages.cpp dialogs/messages/messages.hpp \
+	dialogs/messages/messages_model.cpp dialogs/messages/messages_model.hpp \
 	dialogs/open/open.cpp dialogs/open/open.hpp \
 	dialogs/open/open_panels.cpp dialogs/open/open_panels.hpp \
 	dialogs/open/openurl.cpp dialogs/open/openurl.hpp \
@@ -437,7 +439,9 @@ nodist_libqt_plugin_la_SOURCES = \
 	dialogs/mediainfo/info_panels.moc.cpp \
 	dialogs/mediainfo/info_widgets.moc.cpp \
 	dialogs/mediainfo/mediainfo.moc.cpp \
+	dialogs/mediainfo/mediainfo_model.moc.cpp \
 	dialogs/messages/messages.moc.cpp \
+	dialogs/messages/messages_model.moc.cpp \
 	dialogs/open/open.moc.cpp \
 	dialogs/open/open_panels.moc.cpp \
 	dialogs/open/openurl.moc.cpp \
@@ -1080,6 +1084,11 @@ libqml_module_dialogs_a_QML = \
 	dialogs/onboarding/qml/ShortcutsStep.qml \
 	dialogs/onboarding/qml/KeyCap.qml \
 	dialogs/forms/qml/AddSubtitles.qml \
+	dialogs/forms/qml/MediaInfo.qml \
+	dialogs/forms/qml/GoToTime.qml \
+	dialogs/forms/qml/Bookmarks.qml \
+	dialogs/forms/qml/AddToPlaylist.qml \
+	dialogs/forms/qml/Messages.qml \
 	dialogs/forms/qml/KeyboardShortcuts.qml \
 	dialogs/forms/qml/DialogDropdown.qml \
 	dialogs/forms/qml/NewPlaylist.qml \
