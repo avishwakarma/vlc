@@ -31,10 +31,13 @@ It is unofficial and unsigned, and it will have rough edges. Issues are welcome.
 
 ## Download VLC Redesign (unofficial)
 
+[![Build](https://github.com/avishwakarma/vlc/actions/workflows/build.yml/badge.svg?branch=redesign)](https://github.com/avishwakarma/vlc/actions/workflows/build.yml?query=branch%3Aredesign)
+
 | Platform | Download | Requirements |
 | --- | --- | --- |
 | macOS | [VLC-Redesign-unofficial-arm64.dmg](https://github.com/avishwakarma/vlc/releases/latest/download/VLC-Redesign-unofficial-arm64.dmg) | macOS 14 Sonoma or later, Apple Silicon |
-| Windows (beta) | [VLC-Redesign-unofficial-win64.zip](https://github.com/avishwakarma/vlc/releases/latest/download/VLC-Redesign-unofficial-win64.zip) | Windows 10 or later, 64-bit |
+| Windows | [VLC-Redesign-unofficial-win64-setup.exe](https://github.com/avishwakarma/vlc/releases/latest/download/VLC-Redesign-unofficial-win64-setup.exe) | Windows 10 or later, 64-bit |
+| Windows (portable) | [VLC-Redesign-unofficial-win64.zip](https://github.com/avishwakarma/vlc/releases/latest/download/VLC-Redesign-unofficial-win64.zip) | Windows 10 or later, 64-bit |
 
 Older versions and release notes are on the [Releases page](https://github.com/avishwakarma/vlc/releases).
 
@@ -45,12 +48,17 @@ The builds are **not signed**, so your system will warn you the first time you o
 
 - **macOS:** open the DMG and drag the app to Applications. Open it once; when macOS blocks it, go to
   **System Settings → Privacy & Security** and click **Open Anyway**.
-- **Windows:** unzip the folder anywhere and run `vlc.exe`. If SmartScreen shows "Windows protected
-  your PC", click **More info → Run anyway**.
+- **Windows:** run the installer. If SmartScreen shows "Windows protected your PC", click
+  **More info → Run anyway**. For the portable version, unzip the folder anywhere and run `vlc.exe`;
+  its settings stay in the `portable` folder next to it.
+
+**How releases are made:** every push to the `redesign` branch is built by
+[GitHub Actions](.github/workflows/build.yml). Pushing a tag named `v*` (for example `v0.1.0`) on
+`redesign` also publishes a release with the three files above.
 
 This is a personal project, not a VideoLAN release. Please report problems with the redesign on
 [this fork's issue tracker](https://github.com/avishwakarma/vlc/issues), not to VideoLAN.
-The redesign's source code is on the `redesign/main` branch of this repository.
+The redesign's source code is on the `redesign` branch of this repository.
 
 **VLC** is a libre and open source **media player** and **multimedia engine**,
 focused on **playing everything**, and **running everywhere**.
