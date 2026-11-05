@@ -710,7 +710,7 @@ qml_modules += {
 
 qml_maininterface_extra_files = []
 
-if get_option('update-check').allowed() and gcrypt_dep.found()
+if get_option('update-check').allowed() and gcrypt_dep.found() and not get_option('redesign_branding')
     qt_extra_flags += '-DUPDATE_CHECK'
     qml_maininterface_extra_files += 'maininterface/qml/UpdatePane.qml'
 endif

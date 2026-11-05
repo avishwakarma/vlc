@@ -828,6 +828,13 @@ static inline void registerMetaTypes()
     qRegisterMetaType<VLCDialog::QuestionType>();
 }
 
+// File scope rather than function-local statics: GCC (mingw-w64 14) does not see function-local
+// statics from the lambda nested in the static gracefulExitHandler lambda below.
+static const char* const asyncRhiProbeCompletedProperty = "asyncRhiProbeCompleted";
+// NOTE: `QSettings` accepts `QAnyStringView` starting from Qt 6.4, use `QLatin1String(View)`:
+static constexpr QLatin1String graphicsApiKey {"graphics-api"};
+static constexpr QLatin1String graphicsApiRhiSoftwareKey {"graphics-api-rhi-software"};
+
 static void *Thread( void *obj )
 {
     qt_intf_t *p_intf = (qt_intf_t *)obj;
@@ -1079,8 +1086,9 @@ static void *Thread( void *obj )
     {
         QString configDir = cConfigDir;
         free( cConfigDir );
-        if( configDir.endsWith( "\\vlc" ) )
-            configDir.chop( 4 ); /* the "\vlc" dir is added again by QSettings */
+        if( configDir.endsWith( "\\" QT_SETTINGS_ORG ) )
+            /* the "\vlc" dir is added again by QSettings */
+            configDir.chop( sizeof( "\\" QT_SETTINGS_ORG ) - 1 );
         QSettings::setPath( QSettings::IniFormat, QSettings::UserScope, configDir );
     }
 #endif
@@ -1262,10 +1270,6 @@ static void *Thread( void *obj )
         return {QSGRendererInterface::Software, false};
     };
 
-    static const char* const asyncRhiProbeCompletedProperty = "asyncRhiProbeCompleted";
-    // NOTE: `QSettings` accepts `QAnyStringView` starting from Qt 6.4, use `QLatin1String(View)`:
-    static constexpr QLatin1String graphicsApiKey {"graphics-api"};
-    static constexpr QLatin1String graphicsApiRhiSoftwareKey {"graphics-api-rhi-software"};
     if (qEnvironmentVariableIsEmpty("QSG_RHI_BACKEND") &&
         qEnvironmentVariableIsEmpty("QT_QUICK_BACKEND") &&
         !uint(qEnvironmentVariableIntValue("QSG_RHI_PREFER_SOFTWARE_RENDERER")))
@@ -1388,7 +1392,7 @@ static void *Thread( void *obj )
     }
 #endif
 
-    #ifdef __APPLE__
+#if defined(__APPLE__) || defined(VLC_REDESIGN_BRANDING)
     app.setApplicationDisplayName( QStringLiteral("VLC Redesign (unofficial)") );
 #else
     app.setApplicationDisplayName( qtr("VLC media player") );

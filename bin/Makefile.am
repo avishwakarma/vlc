@@ -107,8 +107,12 @@ vlc_win32_rc.rc: $(top_builddir)/config.status vlc_win32_rc.rc.in
 	cd "$(top_builddir)" && \
 	$(SHELL) ./config.status --file="bin/$@"
 
-vlc_win32_rc.$(OBJEXT): vlc_win32_rc.rc $(top_srcdir)/extras/package/win32/vlc.exe.manifest
-	$(WINDRES) --include-dir $(top_srcdir)/share/icons --include-dir $(top_srcdir)/extras/package/win32 -i $< -o $@
+VLC_RC_FLAGS =
+if REDESIGN_BRANDING
+VLC_RC_FLAGS += -DVLC_REDESIGN_BRANDING
+endif
+vlc_win32_rc.$(OBJEXT): vlc_win32_rc.rc $(top_srcdir)/extras/package/win32/vlc.exe.manifest $(top_srcdir)/share/icons/vlc-redesign.ico
+	$(WINDRES) $(VLC_RC_FLAGS) --include-dir $(top_srcdir)/share/icons --include-dir $(top_srcdir)/extras/package/win32 -i $< -o $@
 
 #
 # Plug-ins cache generator

@@ -35,6 +35,14 @@
 
 #include <windows.h>
 
+/* Name of the one-instance mutex and IPC window. The redesign fork uses its
+ * own so files opened with it are never sent to an official VLC instance. */
+#ifdef VLC_REDESIGN_BRANDING
+# define VLC_IPC_NAME L"VLC Redesign ipc " TEXT(VERSION)
+#else
+# define VLC_IPC_NAME L"VLC ipc " TEXT(VERSION)
+#endif
+
 struct intf_sys_t
 {
     HWND window;
@@ -142,7 +150,7 @@ static void *HelperThread(void *data)
 
     HWND ipcwindow =
         CreateWindow(L"STATIC",                      /* name of window class */
-                  L"VLC ipc " TEXT(VERSION),        /* window title bar text */
+                  VLC_IPC_NAME,        /* window title bar text */
                   0,                                         /* window style */
                   0,                                 /* default X coordinate */
                   0,                                 /* default Y coordinate */

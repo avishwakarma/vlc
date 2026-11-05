@@ -1024,6 +1024,11 @@ cdata.set_quoted('PACKAGE_STRING',      f'@vlc_package_name@ @vlc_version@')
 cdata.set_quoted('COPYRIGHT_YEARS',     vlc_copyright_years)
 cdata.set_quoted('COPYRIGHT_MESSAGE',   f'Copyright © @vlc_copyright_years@ the VideoLAN team')
 
+# Fork identity (VLC Redesign, unofficial): see meson_options.txt
+if get_option('redesign_branding')
+    cdata.set('VLC_REDESIGN_BRANDING', 1)
+endif
+
 # Compiler and build system info
 cdata.set_quoted('VLC_COMPILER',        cc.get_id() + ' ' + cc.version())
 cdata.set_quoted('VLC_COMPILE_BY',      '[not implemented with meson]') # TODO

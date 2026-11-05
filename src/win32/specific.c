@@ -34,6 +34,14 @@
 
 #include <winsock2.h>
 
+/* Name of the one-instance mutex and IPC window. The redesign fork uses its
+ * own so files opened with it are never sent to an official VLC instance. */
+#ifdef VLC_REDESIGN_BRANDING
+# define VLC_IPC_NAME L"VLC Redesign ipc " TEXT(VERSION)
+#else
+# define VLC_IPC_NAME L"VLC ipc " TEXT(VERSION)
+#endif
+
 static int system_InitWSA(int hi, int lo)
 {
     WSADATA data;
@@ -81,7 +89,7 @@ void system_Configure( libvlc_int_t *p_this, int i_argc, const char *const ppsz_
         msg_Info( p_this, "one instance mode ENABLED");
 
         /* Use a named mutex to check if another instance is already running */
-        if( !( hmutex = CreateMutex( 0, TRUE, L"VLC ipc " TEXT(VERSION) ) ) )
+        if( !( hmutex = CreateMutex( 0, TRUE, VLC_IPC_NAME ) ) )
         {
             /* Failed for some reason. Just ignore the option and go on as
              * normal. */
@@ -108,7 +116,7 @@ void system_Configure( libvlc_int_t *p_this, int i_argc, const char *const ppsz_
 
             /* Locate the window created by the IPC helper thread of the
              * 1st instance */
-            if( !( ipcwindow = FindWindow( 0, L"VLC ipc " TEXT(VERSION) ) ) )
+            if( !( ipcwindow = FindWindow( 0, VLC_IPC_NAME ) ) )
             {
                 msg_Err( p_this, "one instance mode DISABLED "
                          "(couldn't find 1st instance of program)" );
