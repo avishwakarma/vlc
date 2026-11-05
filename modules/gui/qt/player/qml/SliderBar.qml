@@ -68,7 +68,7 @@ T.ProgressBar {
     // Whether the surface is dark is read from its colour, not from the palette flag.
     readonly property color _surface: surfaceTheme.bg.primary
     readonly property bool _darkSurface: _surface.hslLightness < 0.5
-    readonly property color _track: _darkSurface ? Qt.darker(_surface, 3.3) : Qt.lighter(_surface, 1.04)
+    readonly property color _track: _darkSurface ? Qt.darker(_surface, 3.3) : Qt.darker(_surface, 1.12)
     // played fill: accent over the track (Figma Accent Bright = accent at 24 % over B2)
     readonly property color _fill: Qt.tint(_track, Qt.alpha(theme.accent, _darkSurface ? 0.24 : 0.30))
 

@@ -452,7 +452,7 @@ QtObject {
 
     // Shadow colour for every drop shadow (replaces repeated Qt.rgba(0, 0, 0, a))
     function shadowColor(alpha: real) : color {
-        return Qt.rgba(0, 0, 0, alpha)
+        return Qt.rgba(0, 0, 0, vlc_style.palette.isDark ? alpha : alpha * 0.6) // softer in light schemes
     }
 
     function dp(size: real, scale: real) : real {
