@@ -78,11 +78,11 @@ T.Control {
 
     hoverEnabled: true
 
-    verticalPadding: VLCStyle.margin_xxxsmall
+    verticalPadding: VLCStyle.spacing_6
 
-    leftPadding: VLCStyle.margin_normal
+    leftPadding: VLCStyle.spacing_12
 
-    rightPadding: VLCStyle.margin_normal
+    rightPadding: VLCStyle.spacing_12
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
@@ -133,7 +133,10 @@ T.Control {
     }
 
     background: Widgets.AnimatedBackground {
-        color: selected ? theme.bg.highlight : theme.bg.primary
+        radius: VLCStyle.radius_m
+
+        color: selected ? theme.bg.highlight
+                        : (delegate.hovered ? theme.hoverPlate : "transparent")
 
         enabled: theme.initialized
 
@@ -142,11 +145,11 @@ T.Control {
         Widgets.CurrentIndicator {
             anchors {
                 left: parent.left
-                leftMargin: VLCStyle.margin_xxsmall
+                leftMargin: VLCStyle.spacing_2
                 verticalCenter: parent.verticalCenter
             }
 
-            implicitHeight: parent.height * 3 / 4
+            implicitHeight: parent.height / 2
 
             color: {
                 if (delegate.isCurrent)
@@ -194,8 +197,8 @@ T.Control {
                 visible: !statusIcon.visible
                 asynchronous: true
                 opacity: (status === Image.Ready ? 1.0 : 0.0)
-                radius: VLCStyle.listAlbumCover_radius
-                backgroundColor: theme.bg.primary
+                radius: VLCStyle.radius_m
+                backgroundColor: theme.bg.secondary
 
                 sourceSize: Qt.size(width * eDPR, height * eDPR)
 
@@ -273,9 +276,11 @@ T.Control {
             id: textInfoColumn
 
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.leftMargin: VLCStyle.margin_large
-            spacing: VLCStyle.margin_xxxsmall
+            Layout.fillHeight: false
+            Layout.alignment: Qt.AlignVCenter
+            Layout.leftMargin: VLCStyle.spacing_12
+            Layout.rightMargin: VLCStyle.spacing_12
+            spacing: VLCStyle.spacing_2
 
             Widgets.ListLabel {
                 id: textInfo
@@ -290,10 +295,12 @@ T.Control {
             Widgets.ListSubtitleLabel {
                 id: textArtist
 
+                visible: text !== ""
                 Layout.fillWidth: true
 
                 text: delegate.artist || (delegate.title.length === 0 ? delegate.url : "")
                 color: theme.fg.secondary
+                opacity: 1.0
             }
         }
 
@@ -301,10 +308,10 @@ T.Control {
             id: textDuration
 
             text: delegate.duration.formatHMS()
-            horizontalAlignment: Text.AlignHCenter
+            Layout.alignment: Qt.AlignVCenter
+            horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
-            color: theme.fg.primary
-            opacity: 0.5
+            color: theme.fg.secondary
         }
     }
 

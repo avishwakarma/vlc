@@ -737,19 +737,10 @@ FocusScope {
 
             wheelEnabled: true
 
-            rightPadding: VLCStyle.applicationHorizontalMargin
-            topPadding:  {
-                if (rootPlayer._controlsUnderVideo)
-                    return VLCStyle.margin_normal
-                else
-                    // NOTE: We increase the padding accordingly to avoid overlapping the TopBar.
-                    return topBar.reservedHeight
-            }
-            bottomPadding: 0
-
-            background: Rectangle {
-                color: windowTheme.bg.primary.alpha(0.8)
-            }
+            safeLeftMargin: 0
+            safeRightMargin: VLCStyle.applicationHorizontalMargin
+            safeTopMargin: rootPlayer._controlsUnderVideo ? 0 : topBar.reservedHeight
+            safeBottomMargin: 0
 
             view.fadingEdge.pixelAlignedForDPR: !controlBar.visible
 

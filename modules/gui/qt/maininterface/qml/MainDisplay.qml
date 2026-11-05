@@ -765,10 +765,9 @@ FocusScope {
 
                 focus: true
 
-                leftPadding: playqueueResizeHandle.visualBorder.width
-                rightPadding: VLCStyle.applicationHorizontalMargin
-                bottomPadding: Math.max(VLCStyle.applicationVerticalMargin - g_mainDisplay.displayMargin, 0)
-                topPadding: VLCStyle.layoutTitle_top_padding
+                safeLeftMargin: playqueueResizeHandle.visualBorder.width
+                safeRightMargin: VLCStyle.applicationHorizontalMargin
+                safeBottomMargin: Math.max(VLCStyle.applicationVerticalMargin - g_mainDisplay.displayMargin, 0)
 
                 useAcrylic: !VLCStyle.isScreenSmall
 

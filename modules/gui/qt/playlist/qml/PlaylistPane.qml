@@ -38,10 +38,16 @@ T.Pane {
 
     property bool useAcrylic: true
 
-    readonly property real minimumWidth: contentItem.Layout.minimumWidth +
-                                         leftPadding +
-                                         rightPadding +
-                                         2 * (VLCStyle.margin_xsmall)
+    // floating card insets (same card language as the left navigation pane)
+    property real safeLeftMargin: 0
+    property real safeRightMargin: 0
+    property real safeBottomMargin: 0
+    property real safeTopMargin: 0
+
+    // Figma queue card (ctrl-491-1781): 400 wide; never narrower than the navigation card
+    readonly property real minimumWidth: Math.max(contentItem.Layout.minimumWidth + leftPadding + rightPadding
+                                                  + 2 * (VLCStyle.margin_xsmall),
+                                                  VLCStyle.dp(300, VLCStyle.scale) + safeLeftMargin + safeRightMargin + 2 * VLCStyle.spacing_8)
 
     readonly property ListView listView: contentItem.listView
 
@@ -59,7 +65,10 @@ T.Pane {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
 
-    verticalPadding: VLCStyle.margin_normal
+    topPadding: VLCStyle.spacing_8 + safeTopMargin
+    bottomPadding: VLCStyle.spacing_8 + safeBottomMargin
+    leftPadding: VLCStyle.spacing_8 + safeLeftMargin
+    rightPadding: VLCStyle.spacing_8 + safeRightMargin
 
     Accessible.role: Accessible.Pane
     Accessible.name: qsTr("Queue")
@@ -107,13 +116,28 @@ T.Pane {
         onJumpToCurrentPlaying: listView.positionViewAtIndex( MainPlaylistController.currentIndex, ItemView.Center)
     }
 
-    background: Widgets.AcrylicBackground {
-        enabled: root.useAcrylic
-        tintColor: theme.bg.primary
+    ColorContext {
+        id: cardTheme
+        colorSet: ColorContext.Pane
+    }
+
+    // the card floats over the window, nothing is drawn behind it
+    background: Rectangle {
+        color: "transparent"
+
+        Rectangle {
+            anchors.fill: parent
+            anchors.leftMargin: VLCStyle.spacing_8 + root.safeLeftMargin
+            anchors.rightMargin: VLCStyle.spacing_8 + root.safeRightMargin
+            anchors.topMargin: VLCStyle.spacing_8 + root.safeTopMargin
+            anchors.bottomMargin: VLCStyle.spacing_8 + root.safeBottomMargin
+            radius: VLCStyle.radius_l
+            color: cardTheme.bg.secondary
+        }
     }
 
     contentItem: ColumnLayout {
-        spacing: VLCStyle.margin_xxsmall
+        spacing: 0
 
         Layout.minimumWidth: Math.min(Math.max(noContentInfoColumn.implicitWidth,
                                                titleRowLayout.implicitWidth ),
@@ -127,10 +151,12 @@ T.Pane {
 
             Layout.fillHeight: false
             Layout.fillWidth: true
-            Layout.leftMargin: VLCStyle.margin_normal
-            Layout.rightMargin: VLCStyle.margin_normal
+            Layout.leftMargin: VLCStyle.spacing_16
+            Layout.rightMargin: VLCStyle.spacing_16
 
-            spacing: VLCStyle.margin_xxxsmall
+            spacing: VLCStyle.spacing_2
+
+            Item { width: 1; height: VLCStyle.spacing_16 - VLCStyle.spacing_8 }
 
             RowLayout {
                 id: titleRowLayout
@@ -257,69 +283,7 @@ T.Pane {
         Item {
             // Spacer
 
-            implicitHeight: VLCStyle.margin_xsmall
-        }
-
-        RowLayout {
-            visible: listView.count !== 0
-
-            Layout.fillHeight: false
-            Layout.leftMargin: VLCStyle.margin_normal
-            Layout.rightMargin: Math.max(listView.T.ScrollBar.vertical.width, VLCStyle.margin_normal)
-
-            spacing: VLCStyle.margin_large
-
-            Widgets.SvgIcon {
-                // queue cover column
-                Layout.preferredWidth: VLCStyle.icon_playlistArt
-                Layout.alignment: Qt.AlignVCenter
-
-                name: "album"
-                size: VLCStyle.icon_playlistHeader
-
-                color: theme.fg.secondary
-
-                Accessible.role: Accessible.ColumnHeader
-                Accessible.name: qsTr("Cover")
-                Accessible.ignored: false
-            }
-
-            //Use Text here as we're redefining its Accessible.role
-            Text {
-                Layout.fillWidth: true
-
-                elide: Text.ElideRight
-                font.pixelSize: VLCStyle.text_body
-                textFormat: Text.PlainText
-
-                verticalAlignment: Text.AlignVCenter
-                text: qsTr("Title")
-                color: theme.fg.secondary
-
-                Accessible.role: Accessible.ColumnHeader
-                Accessible.name: text
-            }
-
-            Widgets.SvgIcon {
-                Layout.preferredWidth: durationMetric.width
-                Layout.alignment: Qt.AlignVCenter
-
-                name: "recent"
-                size: VLCStyle.icon_playlistHeader
-                color: theme.fg.secondary
-
-                Accessible.role: Accessible.ColumnHeader
-                Accessible.name: qsTr("Duration")
-                Accessible.ignored: false
-
-                TextMetrics {
-                    id: durationMetric
-
-                    font.weight: VLCStyle.fontWeight_semibold
-                    font.pixelSize: VLCStyle.text_body
-                    text: "00:00"
-                }
-            }
+            implicitHeight: VLCStyle.spacing_12
         }
 
         Widgets.ListViewExt {
@@ -327,6 +291,8 @@ T.Pane {
 
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.leftMargin: VLCStyle.spacing_8
+            Layout.rightMargin: VLCStyle.spacing_4
 
             selectionModel: ListSelectionModel {
                 model: listView.model
@@ -373,8 +339,7 @@ T.Pane {
                 }
             }
 
-            fadingEdge.backgroundColor: (root.background && (root.background.color.a >= 1.0)) ? root.background.color
-                                                                                              : Qt.alpha(root.background.color, 0.0)
+            fadingEdge.backgroundColor: cardTheme.bg.secondary
 
             function mappedSelectedIndexes() : var {
                 let mappedSelectedIndexes
@@ -499,7 +464,7 @@ T.Pane {
                 id: delegate
 
                 width: listView.contentWidth
-                rightPadding: Math.max(listView.T.ScrollBar.vertical.width, VLCStyle.margin_normal)
+                rightPadding: Math.max(listView.T.ScrollBar.vertical.width, VLCStyle.spacing_8)
 
                 contextMenu: root.contextMenu
 
