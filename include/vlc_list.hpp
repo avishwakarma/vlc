@@ -92,7 +92,7 @@ namespace vlc
  * \return true if they represent the same element or the same list,
  *         false otherwise
  **/
-bool operator==(const ::vlc_list& a, const ::vlc_list& b)
+inline bool operator==(const ::vlc_list& a, const ::vlc_list& b)
 {
     return a.prev == b.prev && a.next == b.next;
 }
@@ -107,7 +107,7 @@ bool operator==(const ::vlc_list& a, const ::vlc_list& b)
  * \return false if they represent the same element or the same list,
  *         true otherwise
  **/
-bool operator!=(const ::vlc_list& a, const ::vlc_list& b)
+inline bool operator!=(const ::vlc_list& a, const ::vlc_list& b)
 {
     return !(a == b);
 }
