@@ -131,6 +131,9 @@ public:
  * with an installed VLC 3's. */
 #ifdef __APPLE__
 # define QT_SETTINGS_ORG "io.github.avishwakarma.vlc-redesign"
+#elif defined(VLC_REDESIGN_BRANDING)
+/* Windows: %APPDATA%\vlc-redesign\vlc-qt-interface.ini, next to vlcrc */
+# define QT_SETTINGS_ORG "vlc-redesign"
 #else
 # define QT_SETTINGS_ORG "vlc"
 #endif

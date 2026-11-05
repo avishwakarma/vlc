@@ -37,6 +37,7 @@ if build_vlc and (host_system != 'darwin' or have_osx) and not have_win_store an
                 vlc_src_root / 'extras/package/win32',
             ],
             depend_files: files('../extras/package/win32/vlc.exe.manifest'),
+            args: get_option('redesign_branding') ? ['-DVLC_REDESIGN_BRANDING'] : [],
         )
     endif
 

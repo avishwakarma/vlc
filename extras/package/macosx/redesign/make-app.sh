@@ -31,7 +31,7 @@ if [ "$DO_BUILD" = 1 ]; then
     SDK="$(xcrun --show-sdk-path)"
     CXXFLAGS=""
     # Stale Command Line Tools libc++ (no <type_traits>) shadows the SDK's: see .redesign/BUILD.md
-    if [ -d /Library/Developer/CommandLineTools/usr/include/c++/v1 ] && [ ! -f /Library/Developer/CommandLineTools/usr/include/c++/v1/type_traits ]; then
+    if [ "$(xcode-select -p)" = /Library/Developer/CommandLineTools ] && [ -d /Library/Developer/CommandLineTools/usr/include/c++/v1 ] && [ ! -f /Library/Developer/CommandLineTools/usr/include/c++/v1/type_traits ]; then
       CXXFLAGS="-nostdinc++ -isystem $SDK/usr/include/c++/v1"
     fi
     meson setup "$BUILD_DIR" --buildtype=release --prefix=/opt/vlc-redesign \

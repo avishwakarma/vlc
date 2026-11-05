@@ -1,0 +1,12 @@
+# Homebrew formulae for the macOS build (extras/package/redesign-ci/macos-build.sh).
+# Derived from the dependencies the local Meson build resolves (.redesign/BUILD.md).
+# Build tools
+meson ninja cmake pkgconf bison spirv-tools ccache
+# Qt 6 (Core/Gui/Qml/Quick/QuickControls2/Widgets/Svg/ShaderTools)
+qt
+# Codecs, demuxers, filters
+ffmpeg dav1d aom libvpx x264 x265 mpg123 flac libogg libvorbis opus speex theora
+libass freetype fribidi harfbuzz libpng jpeg-turbo librsvg cairo
+libsamplerate libsoxr aribb24 libbluray
+# Network and access
+gnutls libssh2 libnfs libupnp librist srt protobuf

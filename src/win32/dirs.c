@@ -30,6 +30,14 @@
 #include <shlobj.h>
 
 #include <vlc_charset.h>
+
+/* %APPDATA% sub-directory holding vlcrc, the media library and caches.
+ * The redesign fork keeps its own so it never touches an official VLC's. */
+#ifdef VLC_REDESIGN_BRANDING
+# define VLC_APPDIR_NAME "vlc-redesign"
+#else
+# define VLC_APPDIR_NAME "vlc"
+#endif
 #include "../config/configuration.h"
 
 #include <assert.h>
@@ -75,7 +83,7 @@ static char *config_GetAppDir (void)
     char *psz_parent = config_GetKnownFolder (FOLDERID_RoamingAppData);
 
     if (psz_parent == NULL
-     ||  asprintf (&psz_dir, "%s\\vlc", psz_parent) == -1)
+     ||  asprintf (&psz_dir, "%s\\" VLC_APPDIR_NAME, psz_parent) == -1)
         psz_dir = NULL;
     free (psz_parent);
     return psz_dir;

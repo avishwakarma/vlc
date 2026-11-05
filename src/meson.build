@@ -471,7 +471,7 @@ else
     endif
 endif
 
-if get_option('update-check').allowed()
+if get_option('update-check').allowed() and not get_option('redesign_branding')
     if not gcrypt_dep.found()
         error('libgcrypt is required for update checking system')
     endif

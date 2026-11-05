@@ -5062,10 +5062,24 @@ AS_IF([test "${enable_kwallet}" != "no" -a "${have_dbus}" = "yes"], [
 ])
 
 dnl
+dnl Fork identity "VLC Redesign (unofficial)" (Windows: own %APPDATA% dir, IPC
+dnl names, icon and version resource; disables the update check)
+dnl
+AC_ARG_ENABLE([redesign-branding],
+  AS_HELP_STRING([--enable-redesign-branding],
+    [VLC Redesign (unofficial) fork identity (default disabled)]))
+AS_IF([test "${enable_redesign_branding}" = "yes"], [
+  AC_DEFINE([VLC_REDESIGN_BRANDING], [1], [Define to 1 for the "VLC Redesign (unofficial)" fork identity.])
+])
+AM_CONDITIONAL([REDESIGN_BRANDING], [test "${enable_redesign_branding}" = "yes"])
+
+dnl
 dnl update checking system
 dnl
 AC_ARG_ENABLE([update-check],
   AS_HELP_STRING([--enable-update-check], [update checking system (default disabled)]))
+dnl The redesign fork must not offer VideoLAN's official updates
+AS_IF([test "${enable_redesign_branding}" = "yes"], [enable_update_check="no"])
 if test "${enable_update_check}" = "yes"
 then
  AS_IF([test "${have_gcrypt}" != "yes"],[

@@ -24,6 +24,9 @@
 /* Copyright string */
 #mesondefine COPYRIGHT_MESSAGE
 
+/* Define to 1 for the "VLC Redesign (unofficial)" fork identity. */
+#mesondefine VLC_REDESIGN_BRANDING
+
 /* The copyright years */
 #mesondefine COPYRIGHT_YEARS
 

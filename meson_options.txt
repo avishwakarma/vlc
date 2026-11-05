@@ -165,6 +165,11 @@ option('qt_bundle_ui_font',
     value: true,
     description: 'Bundle the Inter UI font (OFL) in the Qt interface')
 
+option('redesign_branding',
+    type: 'boolean',
+    value: false,
+    description: 'Fork identity "VLC Redesign (unofficial)" on Windows: own config dir, IPC names, icon and version resource, no update check (macOS always uses its own bundle identity). Autotools: --enable-redesign-branding')
+
 option('qt_qml_debug',
     type: 'boolean',
     value: false,

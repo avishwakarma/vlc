@@ -3,7 +3,19 @@
 
 #include <winuser.h>
 
+#ifdef VLC_REDESIGN_BRANDING
+VLC_ICON ICON "vlc-redesign.ico"
+# define VLC_RC_COMPANY     "VLC Redesign (unofficial)"
+# define VLC_RC_PRODUCT     "VLC Redesign (unofficial)"
+# define VLC_RC_DESCRIPTION "VLC Redesign (unofficial) - based on VLC media player by VideoLAN"
+# define VLC_RC_COPYRIGHT   "Copyright \251 @COPYRIGHT_YEARS@ VideoLAN and VLC Authors. Design by Juxtopposed. Unofficial, not affiliated with VideoLAN."
+#else
 VLC_ICON ICON "vlc.ico"
+# define VLC_RC_COMPANY     "VideoLAN"
+# define VLC_RC_PRODUCT     "VLC media player"
+# define VLC_RC_DESCRIPTION "VLC media player"
+# define VLC_RC_COPYRIGHT   "Copyright \251 @COPYRIGHT_YEARS@ VideoLAN and VLC Authors"
+#endif
 
 1 VERSIONINFO
 FILETYPE 1
@@ -15,14 +27,14 @@ BEGIN
   BEGIN
     BLOCK "040904E4"
     BEGIN
-      VALUE "CompanyName", "VideoLAN"
-      VALUE "ProductName", "VLC media player"
+      VALUE "CompanyName", VLC_RC_COMPANY
+      VALUE "ProductName", VLC_RC_PRODUCT
       VALUE "ProductVersion", VERSION_NUMBER_STR
       VALUE "InternalName", "vlc"
       VALUE "OriginalFilename", "vlc.exe"
       VALUE "FileVersion", "@VERSION@"
-      VALUE "FileDescription", "VLC media player"
-      VALUE "LegalCopyright", "Copyright \251 @COPYRIGHT_YEARS@ VideoLAN and VLC Authors"
+      VALUE "FileDescription", VLC_RC_DESCRIPTION
+      VALUE "LegalCopyright", VLC_RC_COPYRIGHT
       VALUE "LegalTrademarks", "VLC media player, VideoLAN and x264 are registered trademarks from VideoLAN"
     END
   END
