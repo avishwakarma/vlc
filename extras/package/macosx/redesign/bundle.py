@@ -32,7 +32,7 @@ REPO = HERE.parents[3]
 
 QT_ROOT = Path(os.environ.get("QT_ROOT", "/opt/homebrew/share/qt"))
 # Where non-system dependencies may live. Anything else non-system is an error.
-EXTRA_LIB_DIRS = [
+EXTRA_LIB_DIRS = ([os.environ["DEPS_PREFIX"] + "/lib"] if os.environ.get("DEPS_PREFIX") else []) + [
     "/opt/homebrew/lib",
     "/usr/local/lib",
     str(Path.home() / "WebRoot/personal/vlc-deps/prefix/lib"),

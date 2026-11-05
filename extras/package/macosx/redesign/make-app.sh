@@ -16,7 +16,7 @@ BUILD_DIR="${BUILD_DIR:-$REPO/build-pkg}"
 OUT_DIR="${OUT_DIR:-$BUILD_DIR/dist}"
 VERSION="${VERSION:-4.0.0-dev}"
 SUFFIX="${SUFFIX:-r1}"
-DEPS_PREFIX="${DEPS_PREFIX:-$HOME/WebRoot/personal/vlc-deps/prefix}"
+export DEPS_PREFIX="${DEPS_PREFIX:-$HOME/WebRoot/personal/vlc-deps/prefix}"
 BREW="$(brew --prefix)"
 STAGE="$BUILD_DIR/stage"
 DO_BUILD=1; DO_DMG=1
