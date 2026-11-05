@@ -51,6 +51,7 @@
 #include "dialogs/sout/sout.hpp"
 #include "dialogs/sout/convert.hpp"
 #include "dialogs/open/open.hpp"
+#include "dialogs/open/open_advanced.hpp"
 #include "dialogs/open/openurl.hpp"
 #include "dialogs/help/help.hpp"
 #include "dialogs/gototime/gototime.hpp"
@@ -320,6 +321,14 @@ void DialogsProvider::openDebugForm()
         bookmarksDialog();
     else if (form == QLatin1String("messages"))
         messagesDialog();
+    else if (form == QLatin1String("openfile"))
+        emit showOpenAdvanced(0, 0);
+    else if (form == QLatin1String("opendisc"))
+        emit showOpenAdvanced(1, 0);
+    else if (form == QLatin1String("opennet"))
+        emit showOpenAdvanced(2, 0);
+    else if (form == QLatin1String("opencapture"))
+        emit showOpenAdvanced(3, 0);
     else if (form == QLatin1String("addtoplaylist"))
         { m_playlistMedias.clear(); emit showAddToPlaylist(0); }
 }
@@ -770,8 +779,19 @@ void DialogsProvider::openFileGenericDialog( intf_dialog_args_t *p_arg )
  * Open Dialog first - Simple Open then
  ****************************************************************************/
 
+bool DialogsProvider::openAdvanced( int tab, int action )
+{
+    /* the QML Open (advanced) dialog needs the main interface (Dialogs.qml), like the other QML forms */
+    if (!useQmlForms() || !OpenAdvanced::supportsTab(tab))
+        return false;
+    emit showOpenAdvanced(tab, action);
+    return true;
+}
+
 void DialogsProvider::openDialog( OpenDialog::OpenTab i_tab )
 {
+    if (openAdvanced(i_tab, OpenDialog::OPEN_AND_PLAY))
+        return;
     ensureDialog(m_openDialog);
     m_openDialog->showTab( i_tab, OpenDialog::OPEN_AND_PLAY );
 }
@@ -813,6 +833,8 @@ void DialogsProvider::openCaptureDialog()
 /* Same as the open one, but force the enqueue */
 void DialogsProvider::PLAppendDialog( OpenDialog::OpenTab tab )
 {
+    if (openAdvanced(tab, OpenDialog::OPEN_AND_ENQUEUE))
+        return;
     ensureDialog(m_openDialog);
     m_openDialog->showTab( tab, OpenDialog::OPEN_AND_ENQUEUE );
 }
@@ -1121,12 +1143,16 @@ void DialogsProvider::streamingDialog(const QList<QUrl> &urls, bool b_stream )
 
 void DialogsProvider::openAndStreamingDialogs()
 {
+    if (openAdvanced(OpenDialog::OPEN_FILE_TAB, OpenDialog::OPEN_AND_STREAM))
+        return;
     ensureDialog(m_openDialog);
     m_openDialog->showTab( OpenDialog::OPEN_FILE_TAB, OpenDialog::OPEN_AND_STREAM );
 }
 
 void DialogsProvider::openAndTranscodingDialogs()
 {
+    if (openAdvanced(OpenDialog::OPEN_FILE_TAB, OpenDialog::OPEN_AND_SAVE))
+        return;
     ensureDialog(m_openDialog);
     m_openDialog->showTab( OpenDialog::OPEN_FILE_TAB, OpenDialog::OPEN_AND_SAVE );
 }

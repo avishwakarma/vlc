@@ -56,6 +56,7 @@ moc_headers = files(
     'dialogs/mediainfo/mediainfo_model.hpp',
     'dialogs/messages/messages.hpp',
     'dialogs/messages/messages_model.hpp',
+    'dialogs/open/open_advanced.hpp',
     'dialogs/open/open.hpp',
     'dialogs/open/open_panels.hpp',
     'dialogs/open/openurl.hpp',
@@ -269,6 +270,8 @@ qt_plugin_sources = files(
     'dialogs/messages/messages.hpp',
     'dialogs/messages/messages_model.cpp',
     'dialogs/messages/messages_model.hpp',
+    'dialogs/open/open_advanced.cpp',
+    'dialogs/open/open_advanced.hpp',
     'dialogs/open/open.cpp',
     'dialogs/open/open.hpp',
     'dialogs/open/open_panels.cpp',
@@ -582,6 +585,11 @@ qt_plugin_sources += files(
     'dialogs/settings/virtual_options.hpp',
 )
 
+if host_system == 'darwin'
+    # AVFoundation capture device list of the Open (advanced) dialog
+    qt_plugin_sources += files('dialogs/open/avcapture_devices.m', 'dialogs/open/avcapture_devices.h')
+endif
+
 if host_system == 'windows'
     qt_plugin_sources += files(
         'maininterface/mainctx_win32.cpp',
@@ -680,6 +688,8 @@ qml_modules += {
         'dialogs/forms/qml/DialogDropdown.qml',
         'dialogs/forms/qml/NewPlaylist.qml',
         'dialogs/forms/qml/OpenNetworkStream.qml',
+        'dialogs/forms/qml/NetworkStreamForm.qml',
+        'dialogs/forms/qml/OpenAdvanced.qml',
         'dialogs/forms/qml/DialogTextArea.qml',
         'dialogs/forms/qml/DialogHeading.qml',
         'dialogs/forms/qml/KeyChip.qml',
@@ -1457,8 +1467,9 @@ if qt6_dep.found()
         'name' : 'qt',
         'sources' : [qt6pre_files, qt6pre_qrc, shader_targets, shaders_processed, qt_sources, qt_plugin_sources],
         'extra_files' : [shader_files],
-        'dependencies' : [qt_extra_deps, qt6_dep, corefoundation_dep],
+        'dependencies' : [qt_extra_deps, qt6_dep, corefoundation_dep] + (host_system == 'darwin' ? [frameworks['Foundation'], frameworks['AVFoundation']] : []),
         'include_directories' : qt_include_dir,
+        'objc_args' : ['-fobjc-arc'],
         'c_args' : qt_extra_flags,
         'cpp_args' : [qt_extra_flags, qt_cppargs],
         'link_args' : qt_link_args,

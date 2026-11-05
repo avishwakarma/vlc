@@ -32,13 +32,13 @@ DialogShell {
     cardHeight: 631
 
     acceptText: qsTr("Play")
-    acceptEnabled: forms.countLocations(urlField.text) > 0
-    initialFocusItem: urlField.textArea
+    acceptEnabled: form.count > 0
+    initialFocusItem: form.initialFocusItem
 
     onAccepted: submit(false)
 
     function submit(enqueue) {
-        if (forms.openLocations(urlField.text, nameField.text, enqueue) > 0)
+        if (forms.openLocations(form.text, form.name, enqueue) > 0)
             close()
     }
 
@@ -47,18 +47,10 @@ DialogShell {
         ctx: MainCtx
     }
 
-    ColorContext {
-        id: theme
-        palette: VLCStyle.palette
-        colorSet: ColorContext.View
-    }
-
     onVisibleChanged: {
         if (visible) {
             // like the legacy dialog: preselect the URLs of the clipboard
-            urlField.text = forms.clipboardLocations()
-            urlField.textArea.selectAll()
-            nameField.text = ""
+            form.reset(forms.clipboardLocations())
         }
     }
 
@@ -70,59 +62,13 @@ DialogShell {
         }
     ]
 
-    Column {
+    NetworkStreamForm {
+        id: form
+
         x: VLCStyle.spacing_20
         y: VLCStyle.dp(22, VLCStyle.scale)
         width: root.body.width - 2 * VLCStyle.spacing_20
-        spacing: VLCStyle.spacing_20
 
-        DialogHeading {
-            width: parent.width
-            label: qsTr("Network URL")
-            helper: qsTr("You can enter multiple links to load.")
-        }
-
-        DialogTextArea {
-            id: urlField
-
-            width: parent.width
-            placeholderText: qsTr("e.g., https://www.example.com/stream.avi")
-
-            textArea.Keys.onPressed: (event) => {
-                // Enter plays, Shift+Enter inserts a new line for the next location
-                if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
-                        && !(event.modifiers & Qt.ShiftModifier)) {
-                    root.accept()
-                    event.accepted = true
-                }
-            }
-            textArea.Keys.priority: Keys.BeforeItem
-        }
-
-        Rectangle {
-            width: parent.width
-            height: VLCStyle.dp(1, VLCStyle.scale)
-            color: theme.separator
-        }
-
-        DialogHeading {
-            width: parent.width
-            label: qsTr("Playlist Name")
-            labelSuffix: qsTr("(optional)")
-            helper: qsTr("The playlist will be saved and displayed with this title.")
-        }
-
-        Widgets.TextFieldExt {
-            id: nameField
-
-            width: parent.width
-            height: VLCStyle.dp(41, VLCStyle.scale)
-            leftPadding: VLCStyle.spacing_12
-            rightPadding: VLCStyle.spacing_16
-            selectByMouse: true
-            placeholderText: qsTr("e.g., Favorite TV Channels")
-
-            onAccepted: root.accept()
-        }
+        onSubmitRequested: root.accept()
     }
 }
