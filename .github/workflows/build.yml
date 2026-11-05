@@ -1,0 +1,170 @@
+# Builds "VLC Redesign (unofficial)" for macOS (Apple Silicon DMG) and Windows (x64 installer + zip).
+# A tag v* on the redesign branch also publishes a GitHub Release with the three files.
+# Notes: .redesign/reports/ci.md (local) / extras/package/redesign-ci/*.sh (the steps, runnable locally).
+name: Build
+
+on:
+  push:
+    branches: [redesign]
+    tags: ['v*']
+  pull_request:
+    branches: [redesign]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+permissions:
+  contents: read
+
+env:
+  # Same image as upstream's win64 job (extras/ci/gitlab-ci.yml, VLC_WIN64_IMAGE); its prebuilt
+  # contribs (Qt 6 included) are published for this toolchain.
+  VLC_WIN64_IMAGE: registry.videolan.org/vlc-debian-win64-posix:20260611225331
+  SMB2_VERSION: '6.1'
+  MEDIALIBRARY_VERSION: '0.13.2'
+
+jobs:
+  macos:
+    name: macOS (arm64 DMG)
+    # Homebrew bottles on macos-14 target macOS 14, so the app runs on macOS 14+.
+    runs-on: macos-14
+    timeout-minutes: 150
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      HOMEBREW_NO_INSTALL_CLEANUP: '1'
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: '1'
+      HOMEBREW_NO_ANALYTICS: '1'
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 1500M
+      DEPS_PREFIX: ${{ github.workspace }}/.ci-deps
+      OUT_DIR: ${{ github.workspace }}/dist
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Build suffix
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = tag ]; then echo "SUFFIX=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+          else echo "SUFFIX=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"; fi
+
+      - name: Cache Homebrew downloads
+        uses: actions/cache@v6.1.0
+        with:
+          path: ~/Library/Caches/Homebrew/downloads
+          key: brew-macos14-${{ hashFiles('extras/package/redesign-ci/brew-packages.txt') }}-${{ github.run_id }}
+          restore-keys: brew-macos14-${{ hashFiles('extras/package/redesign-ci/brew-packages.txt') }}-
+
+      - name: Install Homebrew dependencies
+        run: |
+          brew install --quiet $(grep -v '^#' extras/package/redesign-ci/brew-packages.txt)
+          brew list --versions qt ffmpeg meson
+
+      - name: Cache libsmb2 + medialibrary
+        uses: actions/cache@v6.1.0
+        with:
+          path: .ci-deps
+          key: deps-macos14-smb2-${{ env.SMB2_VERSION }}-ml-${{ env.MEDIALIBRARY_VERSION }}-${{ hashFiles('extras/package/redesign-ci/macos-deps.sh', 'contrib/src/smb2/**', 'contrib/src/medialibrary/**') }}
+
+      - name: Cache ccache
+        uses: actions/cache@v6.1.0
+        with:
+          path: .ccache
+          key: ccache-macos14-${{ github.sha }}
+          restore-keys: ccache-macos14-
+
+      - name: Build, package and verify
+        run: extras/package/redesign-ci/macos-build.sh
+
+      - name: ccache stats
+        if: always()
+        run: ccache -s || true
+
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: macos-arm64
+          path: |
+            dist/VLC-Redesign-unofficial-arm64.dmg
+            dist/VLC-Redesign-unofficial-arm64.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+  windows:
+    name: Windows (x64 installer + zip)
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      # The image (~7 GB) plus contribs and a debug-info build do not fit in the runner's default
+      # free space, so this job runs the container with `docker run` (not `container:`) after
+      # deleting preinstalled SDKs it does not need.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost \
+                      /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/powershell
+          sudo docker image prune --all --force >/dev/null || true
+          df -h /
+
+      - uses: actions/checkout@v7.0.1
+        with:
+          # full history (blobs on demand) to locate VideoLAN's prebuilt contribs for this tree
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: Pull build image
+        run: docker pull "$VLC_WIN64_IMAGE"
+
+      - name: Build and package
+        run: |
+          # Mount at /vlc: the prebuilt Qt contrib resolves its mkspecs to /vlc/contrib/<triplet>.
+          if [ "${GITHUB_REF_TYPE}" = tag ]; then VERSION="${GITHUB_REF_NAME#v}"; else VERSION="4.0.0-dev+$(git rev-parse --short HEAD)"; fi
+          docker run --rm --user root -e JOBS="$(nproc)" -e REDESIGN_VERSION="$VERSION" \
+            -v "$GITHUB_WORKSPACE:/vlc" -w /vlc "$VLC_WIN64_IMAGE" \
+            sh -c 'git config --global --add safe.directory /vlc && extras/package/redesign-ci/win64-build.sh'
+          sudo chown -R "$(id -u):$(id -g)" dist
+          ls -la dist
+
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: windows-x64
+          path: |
+            dist/VLC-Redesign-unofficial-win64-setup.exe
+            dist/VLC-Redesign-unofficial-win64.zip
+            dist/VLC-Redesign-unofficial-win64.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [macos, windows]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Release notes
+        run: |
+          sed -e "s|@TAG@|${GITHUB_REF_NAME}|g" -e "s|@SHA@|${GITHUB_SHA::10}|g" .github/release-notes.md > "$RUNNER_TEMP/notes.md"
+          ls -la dist
+
+      - uses: softprops/action-gh-release@v3.0.3
+        with:
+          name: VLC Redesign (unofficial) ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body_path: ${{ runner.temp }}/notes.md
+          prerelease: false
+          make_latest: 'true'
+          overwrite_files: true
+          fail_on_unmatched_files: true
+          files: |
+            dist/VLC-Redesign-unofficial-arm64.dmg
+            dist/VLC-Redesign-unofficial-win64-setup.exe
+            dist/VLC-Redesign-unofficial-win64.zip
+            dist/*.sha256
