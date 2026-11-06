@@ -363,7 +363,7 @@ QtObject {
                 searchPattern: page.searchPattern
             }
 
-            MLContextMenu { id: fileMenu; model: page.model; showPlayAsAudioAction: true }
+            MLContextMenu { id: fileMenu; model: page.model; showPlayAsAudioAction: true; showRemoveFromHistoryAction: true }
 
             onActivated: (index, row) => MediaLib.addAndPlay(row.id)
         }

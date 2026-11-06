@@ -106,6 +106,7 @@ Widgets.PageLoader {
                     model: continueWatching.model
 
                     showPlayAsAudioAction: true
+                    showRemoveFromHistoryAction: true
                 }
 
                 displayMarginBeginning: root.displayMarginBeginning

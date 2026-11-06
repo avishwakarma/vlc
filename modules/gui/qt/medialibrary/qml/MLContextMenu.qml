@@ -37,6 +37,9 @@ NativeMenu {
 
     property bool showPlayAsAudioAction: false
 
+    // "Continue Watching" rows: offer to drop items from the watch history
+    property bool showRemoveFromHistoryAction: false
+
     // This is only applicable when the model is `MLAudioModel`:
     property bool showPlayAsAlbumAction: implicitShowPlayAsAlbumAction
     property bool implicitShowPlayAsAlbumAction: !showPlayAsAudioAction
@@ -59,6 +62,11 @@ NativeMenu {
             "text": qsTr("Play"),
             "icon": "playback-twotone",
             "action": addAndPlay
+        }, {
+            "text": qsTr("Remove from Continue Watching"),
+            "icon": "close",
+            "action": removeFromHistory,
+            "visible": function() { return root.showRemoveFromHistoryAction }
         }, {
             "text": qsTr("Mark as Unwatched"),
             "icon": "check-selected-twotone",
@@ -199,6 +207,12 @@ NativeMenu {
 
     function markSeen(dataList, options, indexes) {
         model.setItemPlayed(indexes[0], true)
+    }
+
+    function removeFromHistory(dataList, options, indexes) {
+        // removing a media from the history is what "unwatched" means to the medialibrary
+        for (let i = 0; i < indexes.length; ++i)
+            model.setItemPlayed(indexes[i], false)
     }
 
     function markUnseen(dataList, options, indexes) {

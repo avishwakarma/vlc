@@ -245,6 +245,7 @@ Widgets.PageExt {
                     model: continueWatchingRow.model
 
                     showPlayAsAudioAction: true
+                    showRemoveFromHistoryAction: true
                 }
 
                 onActiveFocusChanged: {
