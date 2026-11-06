@@ -24,6 +24,9 @@
 #include <utility>
 
 #include <QQmlEngine>
+#include <QDir>
+#include <QFileInfo>
+#include <QSet>
 
 MediaLib::MediaLib(qt_intf_t *_intf, vlc::playlist::PlaylistController* playlistController, QObject *_parent)
     : QObject( _parent )
@@ -37,6 +40,9 @@ MediaLib::MediaLib(qt_intf_t *_intf, vlc::playlist::PlaylistController* playlist
     m_event_cb.reset( vlc_ml_event_register_callback( m_ml, MediaLib::onMediaLibraryEvent,
                                                       this ) );
     m_runner = new ThreadRunner();
+
+    connect(this, &MediaLib::discoveryCompleted, this, &MediaLib::checkLibraryHealth);
+    checkLibraryHealth();
 }
 
 MediaLib::~MediaLib()
@@ -341,6 +347,160 @@ void MediaLib::mlInputItem(const QVector<MLItemId>& itemIdVector, QJSValue callb
     });
 }
 
+static QString libraryIssueKey(const QString& mrl, const QString& name)
+{
+    return mrl.isEmpty() ? QStringLiteral("name:") + name : mrl;
+}
+
+void MediaLib::checkLibraryHealth()
+{
+    struct Ctx {
+        QList<QVariantMap> issues;
+    };
+    runOnMLThread<Ctx>(this,
+    //ML thread
+    [](vlc_medialibrary_t* ml, Ctx& ctx)
+    {
+        ml_unique_ptr<vlc_ml_folder_list_t> list{ vlc_ml_list_entry_points(ml, nullptr) };
+        if (!list)
+            return;
+        for (const vlc_ml_folder_t& folder : ml_range_iterate<vlc_ml_folder_t>(list))
+        {
+            if (folder.b_banned)
+                continue;
+            const QString name = qfu(folder.psz_name);
+            const QString mrl = folder.psz_mrl ? qfu(folder.psz_mrl) : QString();
+            QString reason, path = name;
+            if (!folder.b_present || mrl.isEmpty())
+                reason = QStringLiteral("unavailable");
+            else
+            {
+                const QUrl url(mrl);
+                if (!url.isLocalFile())
+                    continue; // network folders: the scan reports its own failures
+                path = QDir::toNativeSeparators(url.toLocalFile());
+                const QFileInfo info(url.toLocalFile());
+                if (!info.exists())
+                    reason = QStringLiteral("missing");
+                else if (!info.isDir() || !QDir(info.filePath()).isReadable())
+                    reason = QStringLiteral("unreadable");
+            }
+            if (reason.isEmpty())
+                continue;
+            ctx.issues.append(QVariantMap{
+                { QStringLiteral("key"), libraryIssueKey(mrl, name) },
+                { QStringLiteral("name"), name },
+                { QStringLiteral("path"), path },
+                { QStringLiteral("mrl"), mrl },
+                { QStringLiteral("reason"), reason },
+            });
+        }
+    },
+    //UI thread
+    [this](quint64, Ctx& ctx)
+    {
+        setLibraryIssues(ctx.issues);
+    });
+}
+
+void MediaLib::setLibraryIssues(const QList<QVariantMap>& checked)
+{
+    QList<QVariantMap> issues;
+    QSet<QString> keys;
+    for (const QVariantMap& issue : checked)
+    {
+        const QString key = issue.value(QStringLiteral("key")).toString();
+        if (m_dismissedIssues.contains(key))
+            continue;
+        issues.append(issue);
+        keys.insert(key);
+    }
+    // scan failures are not found by the check: keep them until retried or dismissed
+    for (const QVariantMap& issue : std::as_const(m_libraryIssues))
+    {
+        if (issue.value(QStringLiteral("reason")).toString() == QLatin1String("failed")
+            && !keys.contains(issue.value(QStringLiteral("key")).toString()))
+            issues.append(issue);
+    }
+    if (issues == m_libraryIssues)
+        return;
+    m_libraryIssues = issues;
+    emit libraryIssuesChanged();
+}
+
+void MediaLib::addFailedFolder(const QString& mrl)
+{
+    if (m_dismissedIssues.contains(mrl))
+        return;
+    for (const QVariantMap& issue : std::as_const(m_libraryIssues))
+        if (issue.value(QStringLiteral("key")).toString() == mrl)
+            return;
+    const QUrl url(mrl);
+    const QString path = url.isLocalFile() ? QDir::toNativeSeparators(url.toLocalFile())
+                                           : url.toDisplayString(QUrl::RemovePassword);
+    QString name = url.fileName();
+    if (name.isEmpty())
+        name = QFileInfo(url.path().chopped(url.path().endsWith('/') ? 1 : 0)).fileName();
+    m_libraryIssues.append(QVariantMap{
+        { QStringLiteral("key"), mrl },
+        { QStringLiteral("name"), name.isEmpty() ? path : name },
+        { QStringLiteral("path"), path },
+        { QStringLiteral("mrl"), mrl },
+        { QStringLiteral("reason"), QStringLiteral("failed") },
+    });
+    emit libraryIssuesChanged();
+}
+
+QVariantList MediaLib::libraryIssues() const
+{
+    QVariantList list;
+    for (const QVariantMap& issue : m_libraryIssues)
+        list.append(issue);
+    return list;
+}
+
+void MediaLib::dismissLibraryIssue(const QString& key)
+{
+    m_dismissedIssues.insert(key);
+    const auto removed = m_libraryIssues.removeIf([&key](const QVariantMap& issue) {
+        return issue.value(QStringLiteral("key")).toString() == key;
+    });
+    if (removed > 0)
+        emit libraryIssuesChanged();
+}
+
+void MediaLib::retryLibraryFolder(const QString& mrl)
+{
+    const auto removed = m_libraryIssues.removeIf([&mrl](const QVariantMap& issue) {
+        return issue.value(QStringLiteral("mrl")).toString() == mrl;
+    });
+    if (removed > 0)
+        emit libraryIssuesChanged();
+    if (mrl.isEmpty())
+    {
+        checkLibraryHealth();
+        return;
+    }
+    // the check runs again when the scan completes
+    runOnMLThread(this, [mrl](vlc_medialibrary_t* ml) {
+        vlc_ml_reload_folder(ml, qtu(mrl));
+    });
+}
+
+void MediaLib::removeLibraryFolder(const QString& mrl)
+{
+    if (mrl.isEmpty())
+        return;
+    const auto removed = m_libraryIssues.removeIf([&mrl](const QVariantMap& issue) {
+        return issue.value(QStringLiteral("mrl")).toString() == mrl;
+    });
+    if (removed > 0)
+        emit libraryIssuesChanged();
+    runOnMLThread(this, [mrl](vlc_medialibrary_t* ml) {
+        vlc_ml_remove_folder(ml, qtu(mrl));
+    });
+}
+
 vlc_ml_event_callback_t* MediaLib::registerEventListener( void (*callback)(void*, const vlc_ml_event_t*), void* data)
 {
     return vlc_ml_event_register_callback( m_ml , callback , data ) ;
@@ -393,6 +553,14 @@ void MediaLib::onMediaLibraryEvent( void* data, const vlc_ml_event_t* event )
                 self->m_discoveryPending = false;
                 self->emit discoveryPendingChanged(self->m_discoveryPending);
                 self->emit discoveryCompleted();
+            });
+            break;
+        }
+        case VLC_ML_EVENT_DISCOVERY_FAILED:
+        {
+            const QString mrl = qfu(event->discovery_failed.psz_entry_point);
+            QMetaObject::invokeMethod(self, [self, mrl]() {
+                self->addFailedFolder(mrl);
             });
             break;
         }

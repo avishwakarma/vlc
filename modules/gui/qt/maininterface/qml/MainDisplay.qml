@@ -997,6 +997,18 @@ FocusScope {
         }
     }
 
+    LibraryIssuesBanner {
+        id: libraryIssuesBanner
+        z: 11
+
+        anchors {
+            top: mainRow.top
+            horizontalCenter: mainRow.horizontalCenter
+            topMargin: VLCStyle.margin_normal
+        }
+        width: Math.min(mainRow.width - 2 * VLCStyle.margin_large, VLCStyle.dp(720, VLCStyle.scale))
+    }
+
     Widgets.FloatingNotification {
         id: notif
         z: 11

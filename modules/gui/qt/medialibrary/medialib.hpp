@@ -41,6 +41,11 @@ public:
     Q_PROPERTY(int  parsingProgress READ parsingProgress NOTIFY parsingProgressChanged FINAL)
     Q_PROPERTY(QString discoveryEntryPoint READ discoveryEntryPoint NOTIFY discoveryEntryPointChanged FINAL)
     Q_PROPERTY(bool idle READ idle NOTIFY idleChanged FINAL)
+    /* folders of the library that cannot be scanned: a list of maps
+     * { key, name, path, mrl, reason } with reason one of "missing" (deleted or moved),
+     * "unreadable" (no permission / IO error), "unavailable" (drive or share not connected),
+     * "failed" (the scan of that folder failed) */
+    Q_PROPERTY(QVariantList libraryIssues READ libraryIssues NOTIFY libraryIssuesChanged FINAL)
 
 public:
     MediaLib(qt_intf_t* _intf, vlc::playlist::PlaylistController* playlistController, QObject* _parent = nullptr );
@@ -60,6 +65,12 @@ public:
     Q_INVOKABLE void insertIntoPlaylist(size_t index, const QVariantList &itemIds /*QList<MLParentId>*/, const QStringList &options = {});
 
     Q_INVOKABLE void reload();
+
+    Q_INVOKABLE void checkLibraryHealth();
+    Q_INVOKABLE void retryLibraryFolder(const QString& mrl);
+    Q_INVOKABLE void removeLibraryFolder(const QString& mrl);
+    Q_INVOKABLE void dismissLibraryIssue(const QString& key);
+    QVariantList libraryIssues() const;
 
     Q_INVOKABLE void mlInputItem(const QVector<MLItemId>& itemIdVector, QJSValue callback);
 
@@ -172,6 +183,7 @@ signals:
     void discoveryEntryPointChanged( QString entryPoint );
     void discoveryPendingChanged( bool state );
     void idleChanged();
+    void libraryIssuesChanged();
 
 private:
     static void onMediaLibraryEvent( void* data, const vlc_ml_event_t* event );
@@ -184,6 +196,11 @@ private:
     bool m_discoveryPending = false;
     int m_parsingProgress = 0;
     QString m_discoveryEntryPoint;
+
+    void setLibraryIssues(const QList<QVariantMap>& checked);
+    void addFailedFolder(const QString& mrl);
+    QList<QVariantMap> m_libraryIssues;
+    QSet<QString> m_dismissedIssues;
 
     /* Medialibrary */
     vlc_medialibrary_t* m_ml;

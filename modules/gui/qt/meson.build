@@ -736,6 +736,7 @@ qml_modules += {
         'maininterface/qml/MainInterface.qml',
         'maininterface/qml/MainViewLoader.qml',
         'maininterface/qml/MainDisplay.qml',
+        'maininterface/qml/LibraryIssuesBanner.qml',
         'maininterface/qml/NoMedialibHome.qml',
         qml_maininterface_extra_files,
         'maininterface/qml/SideNavigationPane.qml',

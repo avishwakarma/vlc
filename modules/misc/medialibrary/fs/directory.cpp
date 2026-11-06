@@ -208,8 +208,22 @@ SDDirectory::read() const
     auto status = requestMetadataSync( media.get(), &children );
 
     if ( status == false )
+    {
+        /* A local folder that does not exist at all is most likely on a drive or network
+         * share that is not mounted (or it was moved). Report it as a removed device: the
+         * medialibrary then stops the scan and keeps the folder, instead of treating an
+         * unreadable folder on a non-removable device as deleted and dropping it, with all
+         * its media, from the library. The UI tells the user and lets them remove it. */
+        if ( strncasecmp( m_mrl.c_str(), "file://", 7 ) == 0 )
+        {
+            const auto path = vlc::wrap_cptr( vlc_uri2path( m_mrl.c_str() ) );
+            struct stat st;
+            if ( path && vlc_stat( path.get(), &st ) != 0 && errno == ENOENT )
+                throw medialibrary::fs::errors::DeviceRemoved();
+        }
         throw medialibrary::fs::errors::System(
             EIO, "Failed to browse directory: Unknown error" );
+    }
 
     for ( const InputItemPtr& m : children )
     {
