@@ -1,14 +1,13 @@
 # Builds "VLC Redesign (unofficial)" for macOS (Apple Silicon DMG) and Windows (x64 installer + zip).
-# A tag v* on the redesign branch also publishes a GitHub Release with the three files.
+# Runs only for v* tags (which also publish a GitHub Release with the three files) and on demand
+# (Actions tab or `gh workflow run build.yml --ref redesign`): a full build is ~30 min of macOS
+# runner time plus a large Windows container, too heavy to run on every push.
 # Notes: .redesign/reports/ci.md (local) / extras/package/redesign-ci/*.sh (the steps, runnable locally).
 name: Build
 
 on:
   push:
-    branches: [redesign]
     tags: ['v*']
-  pull_request:
-    branches: [redesign]
   workflow_dispatch:
 
 concurrency:
@@ -87,7 +86,8 @@ jobs:
             dist/VLC-Redesign-unofficial-arm64.dmg
             dist/VLC-Redesign-unofficial-arm64.sha256
           if-no-files-found: error
-          retention-days: 14
+          # the release job copies these into the Release, so CI copies need not be kept long
+          retention-days: 3
 
   windows:
     name: Windows (x64 installer + zip)
@@ -131,7 +131,8 @@ jobs:
             dist/VLC-Redesign-unofficial-win64.zip
             dist/VLC-Redesign-unofficial-win64.sha256
           if-no-files-found: error
-          retention-days: 14
+          # the release job copies these into the Release, so CI copies need not be kept long
+          retention-days: 3
 
   release:
     name: GitHub Release

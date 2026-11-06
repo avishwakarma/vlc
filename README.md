@@ -52,9 +52,9 @@ The builds are **not signed**, so your system will warn you the first time you o
   **More info → Run anyway**. For the portable version, unzip the folder anywhere and run `vlc.exe`;
   its settings stay in the `portable` folder next to it.
 
-**How releases are made:** every push to the `redesign` branch is built by
-[GitHub Actions](.github/workflows/build.yml). Pushing a tag named `v*` (for example `v0.1.0`) on
-`redesign` also publishes a release with the three files above.
+**How releases are made:** pushing a tag named `v*` (for example `v0.1.0`) on `redesign` builds
+the app with [GitHub Actions](.github/workflows/build.yml) and publishes a release with the three
+files above. Test builds of the branch can be started by hand from the Actions tab.
 
 This is a personal project, not a VideoLAN release. Please report problems with the redesign on
 [this fork's issue tracker](https://github.com/avishwakarma/vlc/issues), not to VideoLAN.
