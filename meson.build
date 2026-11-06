@@ -531,6 +531,7 @@ endif
 
 if get_option('branch_protection') \
     .require(host_machine.cpu_family() == 'aarch64', error_message: 'Branch protection is only available for AArch64') \
+    .require(host_machine.system() != 'darwin', error_message: 'Branch protection breaks C++ exception unwinding on Apple arm64 (non-arm64e)') \
     .require(cc.has_argument('-mbranch-protection=standard'), error_message: 'Compiler does not support `-mbranch-protection`') \
     .allowed()
     add_project_arguments('-mbranch-protection=standard', language: ['c', 'cpp'])
