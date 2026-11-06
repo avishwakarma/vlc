@@ -418,7 +418,8 @@ void MediaLib::setLibraryIssues(const QList<QVariantMap>& checked)
     // scan failures are not found by the check: keep them until retried or dismissed
     for (const QVariantMap& issue : std::as_const(m_libraryIssues))
     {
-        if (issue.value(QStringLiteral("reason")).toString() == QLatin1String("failed")
+        const QString reason = issue.value(QStringLiteral("reason")).toString();
+        if ((reason == QLatin1String("failed") || reason == QLatin1String("error"))
             && !keys.contains(issue.value(QStringLiteral("key")).toString()))
             issues.append(issue);
     }
@@ -430,6 +431,27 @@ void MediaLib::setLibraryIssues(const QList<QVariantMap>& checked)
 
 void MediaLib::addFailedFolder(const QString& mrl)
 {
+    static const QString errorPrefix = QStringLiteral("vlc-ml-error:");
+    if (mrl.startsWith(errorPrefix))
+    {
+        // an internal medialibrary error (see the plugin's onUnhandledException)
+        const QString key = QStringLiteral("error");
+        if (m_dismissedIssues.contains(key))
+            return;
+        for (const QVariantMap& issue : std::as_const(m_libraryIssues))
+            if (issue.value(QStringLiteral("key")).toString() == key)
+                return;
+        m_libraryIssues.append(QVariantMap{
+            { QStringLiteral("key"), key },
+            { QStringLiteral("name"), QString() },
+            { QStringLiteral("path"), qtr("Media Library") },
+            { QStringLiteral("mrl"), QString() },
+            { QStringLiteral("reason"), QStringLiteral("error") },
+            { QStringLiteral("details"), mrl.mid(errorPrefix.size()) },
+        });
+        emit libraryIssuesChanged();
+        return;
+    }
     if (m_dismissedIssues.contains(mrl))
         return;
     for (const QVariantMap& issue : std::as_const(m_libraryIssues))

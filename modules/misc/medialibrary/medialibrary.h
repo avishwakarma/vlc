@@ -221,6 +221,8 @@ public:
     void onDiscoveryProgress(const std::string& entryPoint) override;
     void onDiscoveryCompleted() override;
     void onDiscoveryFailed( const std::string& entryPoint ) override;
+    bool onUnhandledException( const char* context, const char* errMsg,
+                               bool clearSuggested ) override;
     void onRootAdded(const std::string& entryPoint, bool success) override;
     void onRootRemoved(const std::string& entryPoint, bool success) override;
     void onRootBanned(const std::string& entryPoint, bool success) override;

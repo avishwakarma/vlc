@@ -314,6 +314,23 @@ void MediaLibrary::onDiscoveryFailed( const std::string& entryPoint )
 }
 
 
+bool MediaLibrary::onUnhandledException( const char* context, const char* errMsg,
+                                         bool clearSuggested )
+{
+    /* Never let a medialibrary error take the player down: the default
+     * implementation rethrows, which aborts the process. The worker that hit the
+     * error stops; the interface is told through a discovery failure whose entry
+     * point is "vlc-ml-error:<context>: <message>" and shows it to the user. */
+    msg_Err( m_vlc_ml, "Unhandled medialibrary error in %s: %s%s", context, errMsg,
+             clearSuggested ? " (the database should be cleared)" : "" );
+    const std::string details = std::string{ "vlc-ml-error:" } + context + ": " + errMsg;
+    vlc_ml_event_t ev;
+    ev.i_type = VLC_ML_EVENT_DISCOVERY_FAILED;
+    ev.discovery_failed.psz_entry_point = details.c_str();
+    m_vlc_ml->cbs->pf_send_event( m_vlc_ml, &ev );
+    return true;
+}
+
 void MediaLibrary::onRootAdded( const std::string& entryPoint, bool success )
 {
     vlc_ml_event_t ev;
@@ -325,6 +342,7 @@ void MediaLibrary::onRootAdded( const std::string& entryPoint, bool success )
 
 void MediaLibrary::onRootRemoved( const std::string& entryPoint, bool success )
 {
+    if (getenv("VLC_TEST_ML_THROW")) throw std::runtime_error("forced test error"); // TEMP-TEST-HOOK
     vlc_ml_event_t ev;
     ev.i_type = VLC_ML_EVENT_ENTRY_POINT_REMOVED;
     ev.entry_point_removed.psz_entry_point = entryPoint.c_str();

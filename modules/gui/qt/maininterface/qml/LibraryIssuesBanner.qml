@@ -54,6 +54,8 @@ Rectangle {
             return qsTr("This folder can't be read. Check its permissions.")
         case "unavailable":
             return qsTr("This folder isn't available. Connect the drive or network share it is on.")
+        case "error":
+            return qsTr("The media library ran into an error and stopped scanning. Restart the player to resume.")
         default:
             return qsTr("This folder couldn't be scanned. If it is on a drive or network share, check that it is connected.")
         }
@@ -121,6 +123,18 @@ Rectangle {
                         wrapMode: Text.Wrap
                         maximumLineCount: 2
                     }
+
+                    Widgets.CaptionLabel {
+                        Layout.fillWidth: true
+                        visible: text !== ""
+                        text: issueRow.modelData.details ?? ""
+                        color: theme.fg.secondary
+                        font.family: "Menlo"
+                        wrapMode: Text.WrapAnywhere
+                        maximumLineCount: 3
+                        elide: Text.ElideRight
+                        textFormat: Text.PlainText
+                    }
                 }
 
                 Widgets.DialogButton {
@@ -135,6 +149,7 @@ Rectangle {
                 }
 
                 Widgets.DialogButton {
+                    visible: issueRow.modelData.reason !== "error"
                     kind: Widgets.DialogButton.Primary
                     text: qsTr("Retry")
                     onClicked: MediaLib.retryLibraryFolder(issueRow.modelData.mrl)
